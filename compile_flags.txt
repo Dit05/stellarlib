@@ -1,0 +1,9 @@
+-ffast-math
+-fuse-ld=lld
+-O3
+-Qunused-arguments
+-std=c++23
+-Werror
+-Weverything
+-Wno-c++98-compat-pedantic
+-Wno-unsafe-buffer-usage

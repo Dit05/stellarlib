@@ -1,0 +1,19 @@
+---
+Checks: >
+  -*,
+  bugprone-*,
+  cert-*,
+  clang-analyzer-*,
+  clang-diagnostic-*,
+  concurrency-*,
+  cppcoreguidelines-*,
+  hicpp-*,
+  misc-*,
+  modernize-*,
+  performance-*,
+  portability-*,
+  readability-*,
+  -readability-function-cognitive-complexity,
+  -readability-qualified-auto,
+HeaderFilterRegex: '^\.\/.*\.hpp$'
+WarningsAsErrors: '*'
