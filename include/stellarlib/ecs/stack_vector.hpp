@@ -40,6 +40,10 @@ public:
 	explicit stack_vector() noexcept = default;
 
 	[[nodiscard]]
+	explicit stack_vector(const Allocator &allocator)
+		: _allocator{allocator} { }
+
+	[[nodiscard]]
 	stack_vector(const stack_vector<T, Allocator> &other)
 		: _capacity{other._capacity}
 	{
@@ -58,8 +62,9 @@ public:
 	}
 
 	[[nodiscard]]
-	stack_vector(stack_vector<T, Allocator> &&other) noexcept
-		: _capacity{other._capacity}
+	stack_vector(stack_vector<T, Allocator> &&other)
+		: _allocator{std::move(other._allocator)}
+		, _capacity{other._capacity}
 		, _begin{other._begin}
 		, _size{other._size}
 		, _end{other._end}
@@ -97,7 +102,7 @@ public:
 		return *this;
 	}
 
-	auto operator=(stack_vector<T, Allocator> &&other) noexcept
+	auto operator=(stack_vector<T, Allocator> &&other)
 		-> stack_vector<T, Allocator> &
 	{
 		if (&other == this) {
@@ -109,6 +114,7 @@ public:
 		}
 
 		_allocator.deallocate(_begin, _capacity);
+		_allocator.~Allocator();
 		new (this) stack_vector<T>{std::move(other)};
 
 		return *this;
