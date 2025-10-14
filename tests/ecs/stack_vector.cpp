@@ -72,13 +72,21 @@ void check_iter_const(const stack_vector<std::shared_ptr<std::int32_t>> &vector)
 }
 }
 
+TEST(ecs_stack_vector, should_init_via_ctor)
+{
+	const stack_vector<std::shared_ptr<std::int32_t>> vector{};
+	ASSERT_FALSE(vector.size());
+	ASSERT_FALSE(vector.begin());
+	ASSERT_FALSE(vector.end());
+}
+
 TEST(ecs_stack_vector, should_skip_empty_copy_via_ctor)
 {
 	const stack_vector<std::shared_ptr<std::int32_t>> vector1{};
 	const auto vector2{vector1};
-	ASSERT_EQ(vector2.size(), vector1.size());
-	ASSERT_EQ(vector2.begin(), vector1.begin());
-	ASSERT_EQ(vector2.end(), vector1.end());
+	ASSERT_FALSE(vector2.size());
+	ASSERT_FALSE(vector2.begin());
+	ASSERT_FALSE(vector2.end());
 }
 
 TEST(ecs_stack_vector, should_copy_via_ctor)
@@ -90,7 +98,7 @@ TEST(ecs_stack_vector, should_copy_via_ctor)
 	auto vector2{vector1};
 	ASSERT_NE(vector2.begin(), vector1.begin());
 	check_iter_mut(vector2);
-	check_iter_const(vector1);
+	check_iter_const(vector2);
 }
 
 TEST(ecs_stack_vector, should_move_via_ctor)
@@ -106,7 +114,7 @@ TEST(ecs_stack_vector, should_move_via_ctor)
 	ASSERT_FALSE(vector1.end());
 	ASSERT_EQ(vector2.begin(), begin);
 	check_iter_mut(vector2);
-	check_iter_mut(vector2);
+	check_iter_const(vector2);
 }
 
 TEST(ecs_stack_vector, should_skip_self_copy_via_assignment)
@@ -119,10 +127,10 @@ TEST(ecs_stack_vector, should_skip_self_copy_via_assignment)
 	vector = vector;
 	ASSERT_EQ(vector.begin(), begin);
 	check_iter_mut(vector);
-	check_iter_mut(vector);
+	check_iter_const(vector);
 }
 
-TEST(ecs_stack_vector, should_optimize_copy_assignment)
+TEST(ecs_stack_vector, should_optimize_copy_via_assignment)
 {
 	stack_vector<std::shared_ptr<std::int32_t>> vector1{};
 	for (const auto &value : VALUES) {
@@ -136,7 +144,7 @@ TEST(ecs_stack_vector, should_optimize_copy_assignment)
 	vector2 = vector1;
 	ASSERT_EQ(vector2.begin(), begin);
 	check_iter_mut(vector2);
-	check_iter_mut(vector2);
+	check_iter_const(vector2);
 }
 
 TEST(ecs_stack_vector, should_copy_via_assignment)
