@@ -38,6 +38,7 @@ using namespace stellarlib::ecs;
 #pragma clang diagnostic ignored "-Wexit-time-destructors"
 #pragma clang diagnostic ignored "-Wglobal-constructors"
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
+#pragma clang diagnostic ignored "-Wself-move"
 
 /* NOLINTBEGIN(bugprone-use-after-move,cert-err58-cpp,clang-analyzer-cplusplus.Move,cppcoreguidelines-avoid-do-while,cppcoreguidelines-macro-usage,hicpp-invalid-access-moved,performance-unnecessary-copy-initialization) */
 
@@ -158,6 +159,132 @@ TEST(ecs_stack_vector, should_copy_via_assignment)
 	vector2 = vector1;
 	check_iter_mut(vector2);
 	check_iter_const(vector2);
+}
+
+TEST(ecs_stack_vector, should_skip_self_move_via_assignment)
+{
+	stack_vector<std::shared_ptr<std::int32_t>> vector{};
+	for (const auto &value : VALUES) {
+		vector.push(value);
+	}
+	vector = std::move(vector);
+	check_iter_mut(vector);
+	check_iter_const(vector);
+}
+
+TEST(ecs_stack_vector, should_move_via_assignment)
+{
+	stack_vector<std::shared_ptr<std::int32_t>> vector1{};
+	for (const auto &value : VALUES) {
+		vector1.push(value);
+	}
+	decltype(vector1) vector2{};
+	for (const auto &value : std::ranges::reverse_view(VALUES)) {
+		vector2.push(value);
+	}
+	const auto begin{vector1.begin()};
+	vector2 = std::move(vector1);
+	ASSERT_FALSE(vector1.size());
+	ASSERT_FALSE(vector1.begin());
+	ASSERT_FALSE(vector1.end());
+	ASSERT_EQ(vector2.begin(), begin);
+	check_iter_mut(vector2);
+	check_iter_const(vector2);
+}
+
+TEST(ecs_stack_vector, should_optimize_extend)
+{
+	stack_vector<std::shared_ptr<std::int32_t>> vector{};
+	for (const auto &value : VALUES) {
+		vector.push(value);
+	}
+	const auto begin{vector.begin()};
+	ASSERT_FALSE(vector.extend(vector.size()));
+	ASSERT_EQ(vector.begin(), begin);
+	check_iter_mut(vector);
+	check_iter_const(vector);
+}
+
+TEST(ecs_stack_vector, should_extend)
+{
+	stack_vector<std::shared_ptr<std::int32_t>> vector{};
+	vector.push(VALUES.front());
+	ASSERT_TRUE(vector.extend(VALUES.size()));
+	ASSERT_EQ(vector.size(), VALUES.size());
+	ASSERT_EQ(vector[0], VALUES.front());
+	for (decltype(VALUES.size()) i{1}; i != VALUES.size(); ++i) {
+		ASSERT_EQ(vector[i], std::shared_ptr<std::int32_t>{});
+	}
+	ASSERT_EQ(vector.end() - vector.begin(), vector.size());
+}
+
+TEST(ecs_stack_vector, should_push_and_pop_values_via_copy)
+{
+	stack_vector<std::shared_ptr<std::int32_t>> vector{};
+	for (decltype(VALUES.size()) i{}; i != VALUES.size(); ++i) {
+		vector.push(VALUES[i]);
+		ASSERT_EQ(vector.size(), i + 1);
+		ASSERT_EQ(vector[i], VALUES[i]);
+		ASSERT_EQ(vector.end() - vector.begin(), i + 1);
+		const auto begin{vector.begin()};
+		vector.pop();
+		ASSERT_EQ(vector.size(), i);
+		ASSERT_EQ(vector.begin(), begin);
+		ASSERT_EQ(vector.end() - vector.begin(), i);
+		vector.push(VALUES[i]);
+		ASSERT_EQ(vector.size(), i + 1);
+		ASSERT_EQ(vector[i], VALUES[i]);
+		ASSERT_EQ(vector.begin(), begin);
+		ASSERT_EQ(vector.end() - vector.begin(), i + 1);
+	}
+	check_iter_mut(vector);
+	check_iter_const(vector);
+}
+
+TEST(ecs_stack_vector, should_push_and_pop_values_via_move)
+{
+	stack_vector<std::shared_ptr<std::int32_t>> vector{};
+	for (decltype(VALUES.size()) i{}; i != VALUES.size(); ++i) {
+		vector.push(std::shared_ptr<std::int32_t>{VALUES[i]});
+		ASSERT_EQ(vector.size(), i + 1);
+		ASSERT_EQ(vector[i], VALUES[i]);
+		ASSERT_EQ(vector.end() - vector.begin(), i + 1);
+		const auto begin{vector.begin()};
+		vector.pop();
+		ASSERT_EQ(vector.size(), i);
+		ASSERT_EQ(vector.begin(), begin);
+		ASSERT_EQ(vector.end() - vector.begin(), i);
+		vector.push(std::shared_ptr<std::int32_t>{VALUES[i]});
+		ASSERT_EQ(vector.size(), i + 1);
+		ASSERT_EQ(vector[i], VALUES[i]);
+		ASSERT_EQ(vector.begin(), begin);
+		ASSERT_EQ(vector.end() - vector.begin(), i + 1);
+	}
+	check_iter_mut(vector);
+	check_iter_const(vector);
+}
+
+TEST(ecs_stack_vector, should_push_and_pop_values_via_placement)
+{
+	stack_vector<std::shared_ptr<std::int32_t>> vector{};
+	for (decltype(VALUES.size()) i{}; i != VALUES.size(); ++i) {
+		vector.emplace(VALUES[i]);
+		ASSERT_EQ(vector.size(), i + 1);
+		ASSERT_EQ(vector[i], VALUES[i]);
+		ASSERT_EQ(vector.end() - vector.begin(), i + 1);
+		const auto begin{vector.begin()};
+		vector.pop();
+		ASSERT_EQ(vector.size(), i);
+		ASSERT_EQ(vector.begin(), begin);
+		ASSERT_EQ(vector.end() - vector.begin(), i);
+		vector.emplace(VALUES[i]);
+		ASSERT_EQ(vector.size(), i + 1);
+		ASSERT_EQ(vector[i], VALUES[i]);
+		ASSERT_EQ(vector.begin(), begin);
+		ASSERT_EQ(vector.end() - vector.begin(), i + 1);
+	}
+	check_iter_mut(vector);
+	check_iter_const(vector);
 }
 
 /* NOLINTEND(bugprone-use-after-move,cert-err58-cpp,clang-analyzer-cplusplus.Move,cppcoreguidelines-avoid-do-while,cppcoreguidelines-macro-usage,hicpp-invalid-access-moved,performance-unnecessary-copy-initialization) */
