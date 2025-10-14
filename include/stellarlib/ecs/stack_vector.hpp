@@ -26,13 +26,14 @@
 
 #include <cstddef>
 #include <cstdlib>
+#include <memory>
 #include <new>
 #include <ranges>
 #include <utility>
 
 namespace stellarlib::ecs
 {
-template <typename T>
+template <typename T, typename Allocator = std::allocator<T>>
 class stack_vector final
 {
 public:
@@ -40,7 +41,7 @@ public:
 	explicit stack_vector() noexcept = default;
 
 	[[nodiscard]]
-	stack_vector(const stack_vector<T> &other)
+	stack_vector(const stack_vector<T, Allocator> &other)
 		: _capacity{other._capacity}
 	{
 		if (!_capacity) {
@@ -62,7 +63,7 @@ public:
 	}
 
 	[[nodiscard]]
-	stack_vector(stack_vector<T> &&other) noexcept
+	stack_vector(stack_vector<T, Allocator> &&other) noexcept
 		: _capacity{other._capacity}
 		, _begin{other._begin}
 		, _size{other._size}
@@ -74,8 +75,8 @@ public:
 		other._capacity = 0;
 	}
 
-	auto operator=(const stack_vector<T> &other)
-		-> stack_vector<T> &
+	auto operator=(const stack_vector<T, Allocator> &other)
+		-> stack_vector<T, Allocator> &
 	{
 		if (&other == this) {
 			return *this;
@@ -105,8 +106,8 @@ public:
 		return *this;
 	}
 
-	auto operator=(stack_vector<T> &&other) noexcept
-		-> stack_vector<T> &
+	auto operator=(stack_vector<T, Allocator> &&other) noexcept
+		-> stack_vector<T, Allocator> &
 	{
 		if (&other == this) {
 			return *this;
@@ -154,34 +155,12 @@ public:
 
 	void push(const T &value)
 	{
-		if (_size < _capacity) {
-			new (_end) T{value};
-			++_size;
-			++_end;
-		}
-		else {
-			++_capacity;
-			realloc();
-			new (_begin + _size) T{value};
-			_size = _capacity;
-			_end  = _begin + _size;
-		}
+		emplace(value);
 	}
 
 	void push(T &&value)
 	{
-		if (_size < _capacity) {
-			new (_end) T{std::move(value)};
-			++_size;
-			++_end;
-		}
-		else {
-			++_capacity;
-			realloc();
-			new (_begin + _size) T{std::move(value)};
-			_size = _capacity;
-			_end  = _begin + _size;
-		}
+		emplace(std::move(value));
 	}
 
 	template <typename ...Args>
@@ -253,6 +232,7 @@ public:
 	}
 
 private:
+	Allocator            _allocator{};
 	std::size_t          _capacity{};
 	T                   *_begin{};
 	decltype(_capacity)  _size{};
