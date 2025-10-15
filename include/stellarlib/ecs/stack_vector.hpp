@@ -31,26 +31,22 @@
 
 namespace stellarlib::ecs
 {
-template <typename T, typename Allocator = std::allocator<T>>
-class stack_vector final
+template <typename T>
+class stack_vector final : std::allocator<T>
 {
 public:
 	[[nodiscard]]
 	explicit stack_vector() noexcept = default;
 
 	[[nodiscard]]
-	explicit stack_vector(const Allocator &allocator)
-		: _allocator{allocator} { }
-
-	[[nodiscard]]
-	stack_vector(const stack_vector<T, Allocator> &other)
+	stack_vector(const stack_vector<T> &other)
 		: _capacity{other._capacity}
 	{
 		if (!_capacity) {
 			return;
 		}
 
-		_begin = _allocator.allocate(_capacity);
+		_begin = std::allocator<T>::allocate(_capacity);
 
 		_size = other._size;
 		_end  = _begin + _size;
@@ -61,9 +57,8 @@ public:
 	}
 
 	[[nodiscard]]
-	stack_vector(stack_vector<T, Allocator> &&other)
-		: _allocator{std::move(other._allocator)}
-		, _capacity{other._capacity}
+	stack_vector(stack_vector<T> &&other)
+		: _capacity{other._capacity}
 		, _begin{other._begin}
 		, _size{other._size}
 		, _end{other._end}
@@ -73,8 +68,8 @@ public:
 		other._capacity = 0;
 	}
 
-	auto operator=(const stack_vector<T, Allocator> &other)
-		-> stack_vector<T, Allocator> &
+	auto operator=(const stack_vector<T> &other)
+		-> stack_vector<T> &
 	{
 		if (std::addressof(other) == this) {
 			return *this;
@@ -85,9 +80,9 @@ public:
 		}
 
 		if (_capacity < other._size) {
-			_allocator.deallocate(_begin, _capacity);
+			std::allocator<T>::deallocate(_begin, _capacity);
 			_capacity = other._capacity;
-			_begin    = _allocator.allocate(_capacity);
+			_begin    = std::allocator<T>::allocate(_capacity);
 		}
 
 		_size = other._size;
@@ -100,8 +95,8 @@ public:
 		return *this;
 	}
 
-	auto operator=(stack_vector<T, Allocator> &&other)
-		-> stack_vector<T, Allocator> &
+	auto operator=(stack_vector<T> &&other)
+		-> stack_vector<T> &
 	{
 		if (std::addressof(other) != this) {
 			this->~stack_vector();
@@ -117,7 +112,7 @@ public:
 			value.~T();
 		}
 
-		_allocator.deallocate(_begin, _capacity);
+		std::allocator<T>::deallocate(_begin, _capacity);
 	}
 
 	auto extend(const std::size_t size)
@@ -218,7 +213,6 @@ public:
 	}
 
 private:
-	Allocator            _allocator{};
 	std::size_t          _capacity{};
 	T                   *_begin{};
 	decltype(_capacity)  _size{};
@@ -226,14 +220,14 @@ private:
 
 	void realloc(const std::size_t capacity)
 	{
-		auto tmp{_allocator.allocate(capacity)};
+		auto tmp{std::allocator<T>::allocate(capacity)};
 
 		for (auto dst{tmp}, src{_begin}; src != _end; ++dst, ++src) {
 			new (dst) T{std::move(*src)};
 			src->~T();
 		}
 
-		_allocator.deallocate(_begin, _capacity);
+		std::allocator<T>::deallocate(_begin, _capacity);
 		_capacity = capacity;
 		_begin    = tmp;
 	}

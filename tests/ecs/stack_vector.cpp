@@ -81,14 +81,6 @@ TEST(ecs_stack_vector, should_init_via_default_ctor)
 	ASSERT_FALSE(vector.end());
 }
 
-TEST(ecs_stack_vector, should_init_via_allocator_ctor)
-{
-	const stack_vector<std::shared_ptr<std::int32_t>> vector{{}};
-	ASSERT_FALSE(vector.size());
-	ASSERT_FALSE(vector.begin());
-	ASSERT_FALSE(vector.end());
-}
-
 TEST(ecs_stack_vector, should_skip_empty_copy_via_ctor)
 {
 	const stack_vector<std::shared_ptr<std::int32_t>> vector1{};
