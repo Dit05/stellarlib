@@ -164,7 +164,9 @@ TEST(ecs_stack_vector, should_skip_self_move_via_assignment)
 	for (const auto &value : VALUES) {
 		vector.push(value);
 	}
+	const auto begin{vector.begin()};
 	vector = std::move(vector);
+	ASSERT_EQ(vector.begin(), begin);
 	check_iter_mut(vector);
 	check_iter_const(vector);
 }
@@ -176,9 +178,7 @@ TEST(ecs_stack_vector, should_move_via_assignment)
 		vector1.push(value);
 	}
 	decltype(vector1) vector2{};
-	for (const auto &value : std::ranges::reverse_view(VALUES)) {
-		vector2.push(value);
-	}
+	vector2.push(VALUES.front());
 	const auto begin{vector1.begin()};
 	vector2 = std::move(vector1);
 	ASSERT_EQ(vector2.begin(), begin);
