@@ -30,6 +30,7 @@
 #include <cstddef>
 #include <optional>
 #include <ranges>
+#include <type_traits>
 #include <utility>
 
 namespace stellarlib::ecs
@@ -55,39 +56,25 @@ public:
 
 	~sparse_set() noexcept(false) final = default;
 
-	void insert(const std::size_t key, const T &value)
-	{
-		if (contains_or_extend(key)) {
-			(*this)[key] = value;
-		}
-		else {
-			_values.push(value);
-			insert_key(key);
-		}
-	}
-
-	void insert(const std::size_t key, T &&value)
-	{
-		if (contains_or_extend(key)) {
-			(*this)[key] = std::move(value);
-		}
-		else {
-			_values.push(std::move(value));
-			insert_key(key);
-		}
-	}
-
 	template <typename ...Args>
-	void emplace(const std::size_t key, Args &&...args)
+	void insert(const std::size_t key, Args &&...args)
 	{
-		if (contains_or_extend(key)) {
-			auto ptr{_values.begin() + *_sparse[key]};
-			ptr->~T();
-			new (ptr) T{std::forward<Args>(args)...};
+		if (!_sparse.extend(key + 1) && _sparse[key]) {
+			if constexpr (sizeof...(Args) == 1 &&
+				(std::is_same_v<std::remove_cvref_t<Args>, T> && ...)
+			) {
+				(*this)[key].operator=(std::forward<Args>(args)...);
+			}
+			else {
+				auto ptr{_values.begin() + *_sparse[key]};
+				ptr->~T();
+				new (ptr) T{std::forward<Args>(args)...};
+			}
 		}
 		else {
-			_values.emplace(std::forward<Args>(args)...);
-			insert_key(key);
+			_values.push(std::forward<Args>(args)...);
+			_sparse[key] = _keys.size();
+			_keys.push(key);
 		}
 	}
 
@@ -176,18 +163,6 @@ private:
 	stack_vector<T>                          _values;
 	stack_vector<std::size_t>                _keys;
 	stack_vector<std::optional<std::size_t>> _sparse;
-
-	[[nodiscard]]
-	auto contains_or_extend(const std::size_t key) -> bool
-	{
-		return !_sparse.extend(key + 1) && _sparse[key];
-	}
-
-	void insert_key(const std::size_t key)
-	{
-		_sparse[key] = _keys.size();
-		_keys.push(key);
-	}
 };
 }
 

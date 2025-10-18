@@ -212,7 +212,7 @@ TEST(ecs_stack_vector, should_extend)
 	ASSERT_EQ(vector.end() - vector.begin(), vector.size());
 }
 
-TEST(ecs_stack_vector, should_push_and_pop_values_via_copy)
+TEST(ecs_stack_vector, should_push_and_pop_values)
 {
 	stack_vector<std::shared_ptr<std::int32_t>> vector{};
 	for (decltype(VALUES.size()) i{}; i != VALUES.size(); ++i) {
@@ -228,58 +228,6 @@ TEST(ecs_stack_vector, should_push_and_pop_values_via_copy)
 		ASSERT_EQ(vector.end() - vector.begin(), i);
 		ASSERT_EQ(std::ranges::find(vector, VALUES[i]), vector.end());
 		vector.push(VALUES[i]);
-		ASSERT_EQ(vector.size(), i + 1);
-		ASSERT_EQ(vector[i], VALUES[i]);
-		ASSERT_EQ(vector.begin(), begin);
-		ASSERT_EQ(vector.end() - vector.begin(), i + 1);
-		ASSERT_EQ(*std::ranges::find(vector, VALUES[i]), VALUES[i]);
-	}
-	check_iter_mut(vector);
-	check_iter_const(vector);
-}
-
-TEST(ecs_stack_vector, should_push_and_pop_values_via_move)
-{
-	stack_vector<std::shared_ptr<std::int32_t>> vector{};
-	for (decltype(VALUES.size()) i{}; i != VALUES.size(); ++i) {
-		vector.push(std::shared_ptr<std::int32_t>{VALUES[i]});
-		ASSERT_EQ(vector.size(), i + 1);
-		ASSERT_EQ(vector[i], VALUES[i]);
-		ASSERT_EQ(vector.end() - vector.begin(), i + 1);
-		ASSERT_EQ(*std::ranges::find(vector, VALUES[i]), VALUES[i]);
-		const auto begin{vector.begin()};
-		vector.pop();
-		ASSERT_EQ(vector.size(), i);
-		ASSERT_EQ(vector.begin(), begin);
-		ASSERT_EQ(vector.end() - vector.begin(), i);
-		ASSERT_EQ(std::ranges::find(vector, VALUES[i]), vector.end());
-		vector.push(std::shared_ptr<std::int32_t>{VALUES[i]});
-		ASSERT_EQ(vector.size(), i + 1);
-		ASSERT_EQ(vector[i], VALUES[i]);
-		ASSERT_EQ(vector.begin(), begin);
-		ASSERT_EQ(vector.end() - vector.begin(), i + 1);
-		ASSERT_EQ(*std::ranges::find(vector, VALUES[i]), VALUES[i]);
-	}
-	check_iter_mut(vector);
-	check_iter_const(vector);
-}
-
-TEST(ecs_stack_vector, should_emplace_and_pop_values)
-{
-	stack_vector<std::shared_ptr<std::int32_t>> vector{};
-	for (decltype(VALUES.size()) i{}; i != VALUES.size(); ++i) {
-		vector.emplace(VALUES[i]);
-		ASSERT_EQ(vector.size(), i + 1);
-		ASSERT_EQ(vector[i], VALUES[i]);
-		ASSERT_EQ(vector.end() - vector.begin(), i + 1);
-		ASSERT_EQ(*std::ranges::find(vector, VALUES[i]), VALUES[i]);
-		const auto begin{vector.begin()};
-		vector.pop();
-		ASSERT_EQ(vector.size(), i);
-		ASSERT_EQ(vector.begin(), begin);
-		ASSERT_EQ(vector.end() - vector.begin(), i);
-		ASSERT_EQ(std::ranges::find(vector, VALUES[i]), vector.end());
-		vector.emplace(VALUES[i]);
 		ASSERT_EQ(vector.size(), i + 1);
 		ASSERT_EQ(vector[i], VALUES[i]);
 		ASSERT_EQ(vector.begin(), begin);

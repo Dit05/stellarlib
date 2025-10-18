@@ -134,18 +134,8 @@ public:
 		return true;
 	}
 
-	constexpr void push(const T &value)
-	{
-		emplace(value);
-	}
-
-	constexpr void push(T &&value)
-	{
-		emplace(std::move(value));
-	}
-
 	template <typename ...Args>
-	constexpr void emplace(Args &&...args)
+	constexpr void push(Args &&...args)
 	{
 		if (_size < _capacity) {
 			new (_end) T{std::forward<Args>(args)...};

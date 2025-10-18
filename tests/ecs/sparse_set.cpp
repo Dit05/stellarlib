@@ -133,7 +133,7 @@ TEST(ecs_sparse_set, should_move_via_assignment)
 	check_iters_const(set2);
 }
 
-TEST(ecs_sparse_set, should_insert_and_erase_values_via_copy)
+TEST(ecs_sparse_set, should_insert_and_erase_values)
 {
 	sparse_set<std::shared_ptr<std::int32_t>> set{};
 	for (const auto pair : std::ranges::views::zip(KEYS, VALUES)) {
@@ -162,104 +162,12 @@ TEST(ecs_sparse_set, should_insert_and_erase_values_via_copy)
 	check_iters_const(set);
 }
 
-TEST(ecs_sparse_set, should_insert_and_erase_values_via_move)
-{
-	sparse_set<std::shared_ptr<std::int32_t>> set{};
-	for (const auto pair : std::ranges::views::zip(KEYS, VALUES)) {
-		set.insert(std::get<0>(pair), std::shared_ptr<std::int32_t>{std::get<1>(pair)});
-		ASSERT_TRUE(set.contains(std::get<0>(pair)));
-		ASSERT_EQ(*set.at(std::get<0>(pair)), std::get<1>(pair));
-		ASSERT_EQ(set[std::get<0>(pair)], std::get<1>(pair));
-		ASSERT_EQ(*std::ranges::find(set.keys(), std::get<0>(pair)), std::get<0>(pair));
-		ASSERT_EQ(*std::ranges::find(set.values(), std::get<1>(pair)), std::get<1>(pair));
-		ASSERT_EQ(*std::ranges::find(set.zip(), pair), pair);
-		set.erase(std::get<0>(pair));
-		ASSERT_FALSE(set.contains(std::get<0>(pair)));
-		ASSERT_FALSE(set.at(std::get<0>(pair)));
-		ASSERT_EQ(std::ranges::find(set.keys(), std::get<0>(pair)), set.keys().end());
-		ASSERT_EQ(std::ranges::find(set.values(), std::get<1>(pair)), set.values().end());
-		ASSERT_EQ(std::ranges::find(set.zip(), pair), set.zip().end());
-		set.insert(std::get<0>(pair), std::shared_ptr<std::int32_t>{std::get<1>(pair)});
-		ASSERT_TRUE(set.contains(std::get<0>(pair)));
-		ASSERT_EQ(*set.at(std::get<0>(pair)), std::get<1>(pair));
-		ASSERT_EQ(set[std::get<0>(pair)], std::get<1>(pair));
-		ASSERT_EQ(*std::ranges::find(set.keys(), std::get<0>(pair)), std::get<0>(pair));
-		ASSERT_EQ(*std::ranges::find(set.values(), std::get<1>(pair)), std::get<1>(pair));
-		ASSERT_EQ(*std::ranges::find(set.zip(), pair), pair);
-	}
-	check_iters_mut(set);
-	check_iters_const(set);
-}
-
-TEST(ecs_sparse_set, should_emplace_and_erase_values)
-{
-	sparse_set<std::shared_ptr<std::int32_t>> set{};
-	for (const auto pair : std::ranges::views::zip(KEYS, VALUES)) {
-		set.emplace(std::get<0>(pair), std::get<1>(pair));
-		ASSERT_TRUE(set.contains(std::get<0>(pair)));
-		ASSERT_EQ(*set.at(std::get<0>(pair)), std::get<1>(pair));
-		ASSERT_EQ(set[std::get<0>(pair)], std::get<1>(pair));
-		ASSERT_EQ(*std::ranges::find(set.keys(), std::get<0>(pair)), std::get<0>(pair));
-		ASSERT_EQ(*std::ranges::find(set.values(), std::get<1>(pair)), std::get<1>(pair));
-		ASSERT_EQ(*std::ranges::find(set.zip(), pair), pair);
-		set.erase(std::get<0>(pair));
-		ASSERT_FALSE(set.contains(std::get<0>(pair)));
-		ASSERT_FALSE(set.at(std::get<0>(pair)));
-		ASSERT_EQ(std::ranges::find(set.keys(), std::get<0>(pair)), set.keys().end());
-		ASSERT_EQ(std::ranges::find(set.values(), std::get<1>(pair)), set.values().end());
-		ASSERT_EQ(std::ranges::find(set.zip(), pair), set.zip().end());
-		set.emplace(std::get<0>(pair), std::get<1>(pair));
-		ASSERT_TRUE(set.contains(std::get<0>(pair)));
-		ASSERT_EQ(*set.at(std::get<0>(pair)), std::get<1>(pair));
-		ASSERT_EQ(set[std::get<0>(pair)], std::get<1>(pair));
-		ASSERT_EQ(*std::ranges::find(set.keys(), std::get<0>(pair)), std::get<0>(pair));
-		ASSERT_EQ(*std::ranges::find(set.values(), std::get<1>(pair)), std::get<1>(pair));
-		ASSERT_EQ(*std::ranges::find(set.zip(), pair), pair);
-	}
-	check_iters_mut(set);
-	check_iters_const(set);
-}
-
-TEST(ecs_sparse_set, should_reinsert_value_via_copy)
+TEST(ecs_sparse_set, should_reinsert_value)
 {
 	sparse_set<std::shared_ptr<std::int32_t>> set{};
 	const auto pair{std::ranges::views::zip(KEYS, VALUES).front()};
 	set.insert(std::get<0>(pair), std::get<1>(pair));
 	set.insert(std::get<0>(pair), std::get<1>(pair));
-	ASSERT_TRUE(set.contains(std::get<0>(pair)));
-	ASSERT_EQ(*set.at(std::get<0>(pair)), std::get<1>(pair));
-	ASSERT_EQ(set[std::get<0>(pair)], std::get<1>(pair));
-	ASSERT_EQ(set.keys().size(), 1);
-	ASSERT_EQ(*std::ranges::find(set.keys(), std::get<0>(pair)), std::get<0>(pair));
-	ASSERT_EQ(set.values().size(), 1);
-	ASSERT_EQ(*std::ranges::find(set.values(), std::get<1>(pair)), std::get<1>(pair));
-	ASSERT_EQ(set.zip().size(), 1);
-	ASSERT_EQ(*std::ranges::find(set.zip(), pair), pair);
-}
-
-TEST(ecs_sparse_set, should_reinsert_value_via_move)
-{
-	sparse_set<std::shared_ptr<std::int32_t>> set{};
-	const auto pair{std::ranges::views::zip(KEYS, VALUES).front()};
-	set.insert(std::get<0>(pair), std::shared_ptr<std::int32_t>{std::get<1>(pair)});
-	set.insert(std::get<0>(pair), std::shared_ptr<std::int32_t>{std::get<1>(pair)});
-	ASSERT_TRUE(set.contains(std::get<0>(pair)));
-	ASSERT_EQ(*set.at(std::get<0>(pair)), std::get<1>(pair));
-	ASSERT_EQ(set[std::get<0>(pair)], std::get<1>(pair));
-	ASSERT_EQ(set.keys().size(), 1);
-	ASSERT_EQ(*std::ranges::find(set.keys(), std::get<0>(pair)), std::get<0>(pair));
-	ASSERT_EQ(set.values().size(), 1);
-	ASSERT_EQ(*std::ranges::find(set.values(), std::get<1>(pair)), std::get<1>(pair));
-	ASSERT_EQ(set.zip().size(), 1);
-	ASSERT_EQ(*std::ranges::find(set.zip(), pair), pair);
-}
-
-TEST(ecs_sparse_set, should_reemplace_value)
-{
-	sparse_set<std::shared_ptr<std::int32_t>> set{};
-	const auto pair{std::ranges::views::zip(KEYS, VALUES).front()};
-	set.emplace(std::get<0>(pair), std::get<1>(pair));
-	set.emplace(std::get<0>(pair), std::get<1>(pair));
 	ASSERT_TRUE(set.contains(std::get<0>(pair)));
 	ASSERT_EQ(*set.at(std::get<0>(pair)), std::get<1>(pair));
 	ASSERT_EQ(set[std::get<0>(pair)], std::get<1>(pair));
