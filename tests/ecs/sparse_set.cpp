@@ -41,15 +41,7 @@ using namespace stellarlib::ecs;
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
 #pragma clang diagnostic ignored "-Wself-move"
 
-/* NOLINTBEGIN(cert-err58-cpp,cppcoreguidelines-avoid-do-while,cppcoreguidelines-macro-usage,performance-unnecessary-copy-initialization) */
-
-#define ASSERT_CONTAINS_EQ(set, key, value) do \
-{                                              \
-	ASSERT_TRUE((set).contains(key));          \
-	ASSERT_EQ(*(set).at(key), value);          \
-	ASSERT_EQ((set)[key], value);              \
-}                                              \
-while (false)
+/* NOLINTBEGIN(cert-err58-cpp,performance-unnecessary-copy-initialization) */
 
 constexpr std::array<std::size_t, 5>                                KEYS{2, 1, 0, 3, 4};
 static const std::array<std::shared_ptr<std::int32_t>, KEYS.size()> VALUES{
@@ -65,7 +57,9 @@ namespace
 void check_iters_mut(sparse_set<std::shared_ptr<std::int32_t>> &set)
 {
 	for (const auto [key, value] : std::ranges::views::zip(KEYS, VALUES)) {
-		ASSERT_CONTAINS_EQ(set, key, value);
+		ASSERT_TRUE(set.contains(key));
+		ASSERT_EQ(*set.at(key), value);
+		ASSERT_EQ(set[key], value);
 	}
 	ASSERT_TRUE(std::ranges::equal(set.keys(), KEYS));
 	ASSERT_TRUE(std::ranges::equal(set.values(), VALUES));
@@ -75,7 +69,9 @@ void check_iters_mut(sparse_set<std::shared_ptr<std::int32_t>> &set)
 void check_iters_const(const sparse_set<std::shared_ptr<std::int32_t>> &set)
 {
 	for (const auto [key, value] : std::ranges::views::zip(KEYS, VALUES)) {
-		ASSERT_CONTAINS_EQ(set, key, value);
+		ASSERT_TRUE(set.contains(key));
+		ASSERT_EQ(*set.at(key), value);
+		ASSERT_EQ(set[key], value);
 	}
 	ASSERT_TRUE(std::ranges::equal(set.keys(), KEYS));
 	ASSERT_TRUE(std::ranges::equal(set.values(), VALUES));
@@ -137,6 +133,35 @@ TEST(ecs_sparse_set, should_move_via_assignment)
 	check_iters_const(set2);
 }
 
-/* NOLINTEND(cert-err58-cpp,cppcoreguidelines-avoid-do-while,cppcoreguidelines-macro-usage,performance-unnecessary-copy-initialization) */
+TEST(ecs_sparse_set, should_insert_and_erase_values_via_copy)
+{
+	sparse_set<std::shared_ptr<std::int32_t>> set{};
+	for (const auto pair : std::ranges::views::zip(KEYS, VALUES)) {
+		set.insert(std::get<0>(pair), std::get<1>(pair));
+		ASSERT_TRUE(set.contains(std::get<0>(pair)));
+		ASSERT_EQ(*set.at(std::get<0>(pair)), std::get<1>(pair));
+		ASSERT_EQ(set[std::get<0>(pair)], std::get<1>(pair));
+		ASSERT_EQ(*std::ranges::find(set.keys(), std::get<0>(pair)), std::get<0>(pair));
+		ASSERT_EQ(*std::ranges::find(set.values(), std::get<1>(pair)), std::get<1>(pair));
+		ASSERT_EQ(*std::ranges::find(set.zip(), pair), pair);
+		set.erase(std::get<0>(pair));
+		ASSERT_FALSE(set.contains(std::get<0>(pair)));
+		ASSERT_FALSE(set.at(std::get<0>(pair)));
+		ASSERT_EQ(std::ranges::find(set.keys(), std::get<0>(pair)), set.keys().end());
+		ASSERT_EQ(std::ranges::find(set.values(), std::get<1>(pair)), set.values().end());
+		ASSERT_EQ(std::ranges::find(set.zip(), pair), set.zip().end());
+		set.insert(std::get<0>(pair), std::get<1>(pair));
+		ASSERT_TRUE(set.contains(std::get<0>(pair)));
+		ASSERT_EQ(*set.at(std::get<0>(pair)), std::get<1>(pair));
+		ASSERT_EQ(set[std::get<0>(pair)], std::get<1>(pair));
+		ASSERT_EQ(*std::ranges::find(set.keys(), std::get<0>(pair)), std::get<0>(pair));
+		ASSERT_EQ(*std::ranges::find(set.values(), std::get<1>(pair)), std::get<1>(pair));
+		ASSERT_EQ(*std::ranges::find(set.zip(), pair), pair);
+	}
+	check_iters_mut(set);
+	check_iters_const(set);
+}
+
+/* NOLINTEND(cert-err58-cpp,performance-unnecessary-copy-initialization) */
 
 #pragma clang diagnostic pop

@@ -40,7 +40,7 @@ using namespace stellarlib::ecs;
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
 #pragma clang diagnostic ignored "-Wself-move"
 
-/* NOLINTBEGIN(cert-err58-cpp,cppcoreguidelines-avoid-do-while,cppcoreguidelines-macro-usage,performance-unnecessary-copy-initialization) */
+/* NOLINTBEGIN(cert-err58-cpp,performance-unnecessary-copy-initialization) */
 
 static const std::vector<std::shared_ptr<std::int32_t>> VALUES{
 	std::make_shared<std::int32_t>(0),
@@ -258,7 +258,7 @@ TEST(ecs_stack_vector, should_push_and_pop_values_via_move)
 	check_iter_const(vector);
 }
 
-TEST(ecs_stack_vector, should_push_and_pop_values_via_placement)
+TEST(ecs_stack_vector, should_emplace_and_pop_values)
 {
 	stack_vector<std::shared_ptr<std::int32_t>> vector{};
 	for (decltype(VALUES.size()) i{}; i != VALUES.size(); ++i) {
@@ -281,6 +281,6 @@ TEST(ecs_stack_vector, should_push_and_pop_values_via_placement)
 	check_iter_const(vector);
 }
 
-/* NOLINTEND(cert-err58-cpp,cppcoreguidelines-avoid-do-while,cppcoreguidelines-macro-usage,performance-unnecessary-copy-initialization) */
+/* NOLINTEND(cert-err58-cpp,performance-unnecessary-copy-initialization) */
 
 #pragma clang diagnostic pop
