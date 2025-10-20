@@ -60,9 +60,7 @@ public:
 	void insert(const std::size_t key, Args &&...args)
 	{
 		if (!_sparse.extend(key + 1) && _sparse[key]) {
-			if constexpr (sizeof...(Args) == 1 &&
-				(std::is_same_v<std::remove_cvref_t<Args>, T> && ...)
-			) {
+			if constexpr (sizeof...(Args) == 1 && (std::is_same_v<std::remove_cvref_t<Args>, T> && ...)) {
 				(*this)[key].operator=(std::forward<Args>(args)...);
 			}
 			else {

@@ -154,6 +154,7 @@ TEST(ecs_stack_vector, should_copy_via_assignment)
 	decltype(vector1) vector2{};
 	vector2.push(VALUES.front());
 	vector2 = vector1;
+	ASSERT_NE(vector2.begin(), vector1.begin());
 	check_iter_mut(vector2);
 	check_iter_const(vector2);
 }
