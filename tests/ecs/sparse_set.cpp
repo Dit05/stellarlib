@@ -172,11 +172,11 @@ TEST(ecs_sparse_set, should_reinsert_value)
 	ASSERT_EQ(*set.at(std::get<0>(pair)), std::get<1>(pair));
 	ASSERT_EQ(set[std::get<0>(pair)], std::get<1>(pair));
 	ASSERT_EQ(set.keys().size(), 1);
-	ASSERT_EQ(*std::ranges::find(set.keys(), std::get<0>(pair)), std::get<0>(pair));
+	ASSERT_EQ(set.keys().front(), std::get<0>(pair));
 	ASSERT_EQ(set.values().size(), 1);
-	ASSERT_EQ(*std::ranges::find(set.values(), std::get<1>(pair)), std::get<1>(pair));
+	ASSERT_EQ(set.values().front(), std::get<1>(pair));
 	ASSERT_EQ(set.zip().size(), 1);
-	ASSERT_EQ(*std::ranges::find(set.zip(), pair), pair);
+	ASSERT_EQ(set.zip().front(), pair);
 }
 
 /* NOLINTEND(cert-err58-cpp,performance-unnecessary-copy-initialization) */
