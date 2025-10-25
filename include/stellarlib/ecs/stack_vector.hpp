@@ -42,7 +42,7 @@ public:
 	constexpr stack_vector(const stack_vector<T> &other)
 		: _capacity{other._capacity}
 	{
-		if (!_capacity) {
+		if (!static_cast<bool>(_capacity)) {
 			return;
 		}
 
