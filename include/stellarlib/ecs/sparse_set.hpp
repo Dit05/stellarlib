@@ -83,27 +83,14 @@ public:
 	}
 
 	[[nodiscard]]
-	auto at(const std::size_t key) noexcept
-	{
-		return contains(key) ? _values.begin() + *_sparse[key] : nullptr;
-	}
-
-	[[nodiscard]]
 	auto at(const std::size_t key) const noexcept
 	{
 		return contains(key) ? _values.begin() + *_sparse[key] : nullptr;
 	}
 
 	[[nodiscard]]
-	auto operator[](const std::size_t key) noexcept
-		-> T &
-	{
-		return _values[*_sparse[key]];
-	}
-
-	[[nodiscard]]
 	auto operator[](const std::size_t key) const noexcept
-		-> const T &
+		-> T &
 	{
 		return _values[*_sparse[key]];
 	}
@@ -111,13 +98,7 @@ public:
 	[[nodiscard]]
 	auto keys() const noexcept
 	{
-		return std::views::all(_keys);
-	}
-
-	[[nodiscard]]
-	auto values() noexcept
-	{
-		return std::views::all(_values);
+		return std::views::as_const(_keys);
 	}
 
 	[[nodiscard]]
@@ -127,15 +108,9 @@ public:
 	}
 
 	[[nodiscard]]
-	auto zip() noexcept
-	{
-		return std::views::zip(std::as_const(_keys), _values);
-	}
-
-	[[nodiscard]]
 	auto zip() const noexcept
 	{
-		return std::views::zip(_keys, _values);
+		return std::views::zip(keys(), values());
 	}
 
 	void erase(const std::size_t key) final

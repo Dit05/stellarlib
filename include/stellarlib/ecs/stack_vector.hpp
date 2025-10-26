@@ -157,35 +157,16 @@ public:
 	}
 
 	[[nodiscard]]
-	constexpr auto operator[](const std::size_t i) noexcept
+	constexpr auto operator[](const std::size_t i) const noexcept
 		-> T &
 	{
 		return _begin[i];
 	}
 
 	[[nodiscard]]
-	constexpr auto operator[](const std::size_t i) const noexcept
-		-> const T &
-	{
-		return _begin[i];
-	}
-
-	[[nodiscard]]
-	constexpr auto begin() noexcept
-	{
-		return _begin;
-	}
-
-	[[nodiscard]]
 	constexpr auto begin() const noexcept
 	{
 		return _begin;
-	}
-
-	[[nodiscard]]
-	constexpr auto end() noexcept
-	{
-		return _end;
 	}
 
 	[[nodiscard]]
