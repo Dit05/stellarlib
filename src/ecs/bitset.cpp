@@ -57,17 +57,18 @@ auto bitset::operator=(const bitset &other)
 		return *this;
 	}
 
-	_size = other._size;
-
-	if (_size == 0) {
-		std::free(_begin.release());
-		_end = _begin.get();
-	}
-	else {
+	if (_size < other._size) {
+		_size = other._size;
 		realloc(_size);
-		std::copy(other._begin.get(), other._end, _begin.get());
 		_end = _begin.get() + _size;
 	}
+	else if (other._size < _size) {
+		for (auto &segment : std::ranges::subrange(_begin.get() + other._size, _end)) {
+			segment = 0;
+		}
+	}
+
+	std::copy(other._begin.get(), other._end, _begin.get());
 
 	return *this;
 }
