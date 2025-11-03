@@ -165,7 +165,7 @@ TEST(ecs_bitset, should_evaluate_equal_subsets)
 }
 
 
-TEST(ecs_bitset, should_evaluate_disjount_sets)
+TEST(ecs_bitset, should_evaluate_disjoint_sets)
 {
 	bitset set1{};
 	set1.insert(std::ranges::min(ELEMS));
