@@ -146,6 +146,41 @@ TEST(ecs_bitset, should_insert_and_erase_values)
 	check_elems(set);
 }
 
+TEST(ecs_bitset, should_evaluate_equal_subsets)
+{
+	bitset set1{};
+	set1.insert(std::ranges::min(ELEMS));
+	bitset set2{};
+	set2.insert(std::ranges::min(ELEMS));
+	set2.insert(std::ranges::max(ELEMS));
+	set2.erase(std::ranges::max(ELEMS));
+	ASSERT_TRUE(set1 == set2);
+	ASSERT_TRUE(set2 == set1);
+	ASSERT_FALSE(set1 != set2);
+	ASSERT_FALSE(set2 != set1);
+	ASSERT_TRUE(set1 <= set2);
+	ASSERT_TRUE(set2 <= set1);
+	ASSERT_TRUE(set2 >= set1);
+	ASSERT_TRUE(set1 >= set2);
+}
+
+
+TEST(ecs_bitset, should_evaluate_disjount_sets)
+{
+	bitset set1{};
+	set1.insert(std::ranges::min(ELEMS));
+	bitset set2{};
+	set2.insert(std::ranges::max(ELEMS));
+	ASSERT_FALSE(set1 == set2);
+	ASSERT_FALSE(set2 == set1);
+	ASSERT_TRUE(set1 != set2);
+	ASSERT_TRUE(set2 != set1);
+	ASSERT_FALSE(set1 <= set2);
+	ASSERT_FALSE(set2 <= set1);
+	ASSERT_FALSE(set2 >= set1);
+	ASSERT_FALSE(set1 >= set2);
+}
+
 TEST(ecs_bitset, should_evaluate_tight_subset)
 {
 	bitset subset{};
@@ -173,41 +208,6 @@ TEST(ecs_bitset, should_evaluate_loose_subset)
 	ASSERT_FALSE(superset <= subset);
 	ASSERT_TRUE(superset >= subset);
 	ASSERT_FALSE(subset >= superset);
-}
-
-TEST(ecs_bitset, should_evaluate_equal_subsets)
-{
-	bitset set1{};
-	set1.insert(std::ranges::min(ELEMS));
-	bitset set2{};
-	set2.insert(std::ranges::min(ELEMS));
-	set2.insert(std::ranges::max(ELEMS));
-	set2.erase(std::ranges::max(ELEMS));
-	ASSERT_TRUE(set1 <= set2);
-	ASSERT_TRUE(set2 <= set1);
-	ASSERT_TRUE(set2 >= set1);
-	ASSERT_TRUE(set1 >= set2);
-	ASSERT_TRUE(set1 == set2);
-	ASSERT_TRUE(set2 == set1);
-	ASSERT_FALSE(set1 != set2);
-	ASSERT_FALSE(set2 != set1);
-}
-
-
-TEST(ecs_bitset, should_evaluate_disjount_sets)
-{
-	bitset set1{};
-	set1.insert(std::ranges::min(ELEMS));
-	bitset set2{};
-	set2.insert(std::ranges::max(ELEMS));
-	ASSERT_FALSE(set1 <= set2);
-	ASSERT_FALSE(set2 <= set1);
-	ASSERT_FALSE(set2 >= set1);
-	ASSERT_FALSE(set1 >= set2);
-	ASSERT_FALSE(set1 == set2);
-	ASSERT_FALSE(set2 == set1);
-	ASSERT_TRUE(set1 != set2);
-	ASSERT_TRUE(set2 != set1);
 }
 
 TEST(ecs_bitset, should_clear_values)

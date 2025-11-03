@@ -102,6 +102,28 @@ auto bitset::contains(const std::uint32_t key) const noexcept
 	return index < _size && (_begin.get()[index] & mask_of(key)) != 0;
 }
 
+auto bitset::operator==(const bitset &other) const noexcept
+	-> bool
+{
+	if (_size < other._size) {
+		return std::equal(_begin.get(), _end, other._begin.get())
+			&& std::none_of(other._begin.get() + _size, other._end, ext::truthy<std::uint32_t>);
+	}
+
+	if (other._size < _size) {
+		return std::equal(other._begin.get(), other._end, _begin.get())
+			&& std::none_of(_begin.get() + other._size, _end, ext::truthy<std::uint32_t>);
+	}
+
+	return std::equal(_begin.get(), _end, other._begin.get());
+}
+
+auto bitset::operator!=(const bitset &other) const noexcept
+	-> bool
+{
+	return !(*this == other);
+}
+
 auto bitset::operator<=(const bitset &other) const noexcept
 	-> bool
 {
@@ -113,18 +135,6 @@ auto bitset::operator>=(const bitset &other) const noexcept
 	-> bool
 {
 	return other <= *this;
-}
-
-auto bitset::operator==(const bitset &other) const noexcept
-	-> bool
-{
-	return *this <= other && other <= *this;
-}
-
-auto bitset::operator!=(const bitset &other) const noexcept
-	-> bool
-{
-	return !(*this == other);
 }
 
 void bitset::erase(const std::uint32_t key) noexcept

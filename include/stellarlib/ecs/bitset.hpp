@@ -58,19 +58,19 @@ public:
 		-> bool;
 
 	[[nodiscard]]
-	auto operator<=(const bitset &other) const noexcept
-		-> bool;
-
-	[[nodiscard]]
-	auto operator>=(const bitset &other) const noexcept
-		-> bool;
-
-	[[nodiscard]]
 	auto operator==(const bitset &other) const noexcept
 		-> bool;
 
 	[[nodiscard]]
 	auto operator!=(const bitset &other) const noexcept
+		-> bool;
+
+	[[nodiscard]]
+	auto operator<=(const bitset &other) const noexcept
+		-> bool;
+
+	[[nodiscard]]
+	auto operator>=(const bitset &other) const noexcept
 		-> bool;
 
 	void erase(std::uint32_t key) noexcept;
