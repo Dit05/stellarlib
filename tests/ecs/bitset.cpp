@@ -26,7 +26,7 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
-#include <cstddef>
+#include <cstdint>
 #include <limits>
 #include <utility>
 #include <vector>
@@ -41,17 +41,17 @@ using namespace stellarlib::ecs;
 
 /* NOLINTBEGIN(cert-err58-cpp,performance-unnecessary-copy-initialization) */
 
-static const std::vector<std::size_t> VALUES{
-	std::numeric_limits<std::size_t>::digits * 3 - 1,
+static const std::vector<std::uint32_t> VALUES{
+	std::numeric_limits<std::uint32_t>::digits * 3 - 1,
 	0,
-	std::numeric_limits<std::size_t>::digits * 3 / 2
+	std::numeric_limits<std::uint32_t>::digits * 3 / 2
 };
 
 namespace
 {
 void check_range(const bitset &set)
 {
-	for (std::size_t i{}; i != std::ranges::max(VALUES); ++i) {
+	for (std::uint32_t i{}; i != std::ranges::max(VALUES); ++i) {
 		ASSERT_EQ(set.contains(i), std::ranges::find(VALUES, i) != VALUES.end());
 	}
 }
@@ -153,7 +153,7 @@ TEST(ecs_bitset, should_clear_values)
 		set.insert(value);
 	}
 	set.clear();
-	for (std::size_t i{}; i != std::ranges::max(VALUES); ++i) {
+	for (std::uint32_t i{}; i != std::ranges::max(VALUES); ++i) {
 		ASSERT_FALSE(set.contains(i));
 	}
 }

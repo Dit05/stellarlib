@@ -24,7 +24,7 @@
 #ifndef STELLARLIB_ECS_BITSET_HPP
 #define STELLARLIB_ECS_BITSET_HPP
 
-#include <cstddef>
+#include <cstdint>
 #include <cstdlib>
 #include <memory>
 #include <ranges>
@@ -51,34 +51,35 @@ public:
 
 	~bitset() noexcept = default;
 
-	void insert(std::size_t key);
+	void insert(std::uint32_t key);
 
 	[[nodiscard]]
-	auto contains(std::size_t key) const noexcept
+	auto contains(std::uint32_t key) const noexcept
 		-> bool;
 
-	void erase(std::size_t key) noexcept;
+	void erase(std::uint32_t key) noexcept;
 
 	void clear() noexcept;
 
 private:
-	std::size_t                                     _size{};
-	std::unique_ptr<std::size_t, void (*)(void *)>  _begin{nullptr, std::free};
-	std::size_t                                    *_end{};
+	std::uint32_t                                     _size{};
+	[[maybe_unused]] std::uint32_t                    _padding{};
+	std::unique_ptr<std::uint32_t, void (*)(void *)>  _begin{nullptr, std::free};
+	std::uint32_t                                    *_end{};
 
 	[[nodiscard]]
-	static auto index_of(std::size_t key) noexcept
-		-> std::size_t;
+	static auto index_of(std::uint32_t key) noexcept
+		-> std::uint32_t;
 
 	[[nodiscard]]
-	static auto mask_of(std::size_t key) noexcept
-		-> std::size_t;
+	static auto mask_of(std::uint32_t key) noexcept
+		-> std::uint32_t;
 
-	void realloc(std::size_t size);
+	void realloc(std::uint32_t size);
 
 	[[nodiscard]]
 	auto range() const noexcept
-		-> std::ranges::subrange<std::size_t *, std::size_t *>;
+		-> std::ranges::subrange<std::uint32_t *, std::uint32_t *>;
 };
 }
 

@@ -27,7 +27,7 @@
 #include <stellarlib/ecs/any_set.hpp>
 #include <stellarlib/ecs/stack_vector.hpp>
 
-#include <cstddef>
+#include <cstdint>
 #include <optional>
 #include <ranges>
 #include <type_traits>
@@ -57,7 +57,7 @@ public:
 	~sparse_set() noexcept(false) final = default;
 
 	template <typename ...Args>
-	void insert(const std::size_t key, Args &&...args)
+	void insert(const std::uint32_t key, Args &&...args)
 	{
 		if (!_sparse.extend(key + 1) && _sparse[key]) {
 			if constexpr (sizeof...(Args) == 1 && (std::is_same_v<std::remove_cvref_t<Args>, T> && ...)) {
@@ -77,19 +77,19 @@ public:
 	}
 
 	[[nodiscard]]
-	auto contains(const std::size_t key) const noexcept
+	auto contains(const std::uint32_t key) const noexcept
 	{
 		return key < _sparse.size() && _sparse[key];
 	}
 
 	[[nodiscard]]
-	auto at(const std::size_t key) const noexcept
+	auto at(const std::uint32_t key) const noexcept
 	{
 		return contains(key) ? _values.begin() + *_sparse[key] : nullptr;
 	}
 
 	[[nodiscard]]
-	auto operator[](const std::size_t key) const noexcept
+	auto operator[](const std::uint32_t key) const noexcept
 		-> T &
 	{
 		return _values[*_sparse[key]];
@@ -113,7 +113,7 @@ public:
 		return std::views::zip(keys(), values());
 	}
 
-	void erase(const std::size_t key) final
+	void erase(const std::uint32_t key) final
 	{
 		if (!contains(key)) {
 			return;
@@ -133,9 +133,9 @@ public:
 	}
 
 private:
-	stack_vector<T>                          _values;
-	stack_vector<std::size_t>                _keys;
-	stack_vector<std::optional<std::size_t>> _sparse;
+	stack_vector<T>                            _values;
+	stack_vector<std::uint32_t>                _keys;
+	stack_vector<std::optional<std::uint32_t>> _sparse;
 };
 }
 

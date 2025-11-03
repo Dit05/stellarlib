@@ -24,7 +24,7 @@
 #ifndef STELLARLIB_ECS_ANY_SET_HPP
 #define STELLARLIB_ECS_ANY_SET_HPP
 
-#include <cstddef>
+#include <cstdint>
 
 namespace stellarlib::ecs
 {
@@ -36,7 +36,7 @@ public:
 
 	virtual ~any_set() noexcept(false);
 
-	virtual void erase(std::size_t) = 0;
+	virtual void erase(std::uint32_t) = 0;
 
 protected:
 	[[nodiscard]]

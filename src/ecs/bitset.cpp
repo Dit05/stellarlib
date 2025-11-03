@@ -24,7 +24,7 @@
 #include <stellarlib/ecs/bitset.hpp>
 
 #include <algorithm>
-#include <cstddef>
+#include <cstdint>
 #include <cstdlib>
 #include <limits>
 #include <memory>
@@ -40,7 +40,7 @@ bitset::bitset(const bitset &other)
 		return;
 	}
 
-	_begin.reset(static_cast<std::size_t *>(std::malloc(_size * sizeof(*_begin))));
+	_begin.reset(static_cast<std::uint32_t *>(std::malloc(_size * sizeof(*_begin))));
 
 	if (!_begin) {
 		throw std::bad_alloc{};
@@ -72,7 +72,7 @@ auto bitset::operator=(const bitset &other)
 	return *this;
 }
 
-void bitset::insert(const std::size_t key)
+void bitset::insert(const std::uint32_t key)
 {
 	const auto index{index_of(key)};
 
@@ -92,7 +92,7 @@ void bitset::insert(const std::size_t key)
 	}
 }
 
-auto bitset::contains(const std::size_t key) const noexcept
+auto bitset::contains(const std::uint32_t key) const noexcept
 	-> bool
 {
 	const auto index{index_of(key)};
@@ -100,7 +100,7 @@ auto bitset::contains(const std::size_t key) const noexcept
 	return index < _size && (_begin.get()[index] & mask_of(key)) != 0;
 }
 
-void bitset::erase(const std::size_t key) noexcept
+void bitset::erase(const std::uint32_t key) noexcept
 {
 	const auto index{index_of(key)};
 
@@ -116,21 +116,21 @@ void bitset::clear() noexcept
 	}
 }
 
-auto bitset::index_of(const std::size_t key) noexcept
-	-> std::size_t
+auto bitset::index_of(const std::uint32_t key) noexcept
+	-> std::uint32_t
 {
-	return key / std::numeric_limits<std::size_t>::digits;
+	return key / std::numeric_limits<std::uint32_t>::digits;
 }
 
-auto bitset::mask_of(const std::size_t key) noexcept
-	-> std::size_t
+auto bitset::mask_of(const std::uint32_t key) noexcept
+	-> std::uint32_t
 {
-	return std::size_t{1} << key % std::numeric_limits<std::size_t>::digits;
+	return std::uint32_t{1} << key % std::numeric_limits<std::uint32_t>::digits;
 }
 
-void bitset::realloc(const std::size_t size)
+void bitset::realloc(const std::uint32_t size)
 {
-	_begin.reset(static_cast<std::size_t *>(std::realloc(_begin.release(), size * sizeof(*_begin))));
+	_begin.reset(static_cast<std::uint32_t *>(std::realloc(_begin.release(), size * sizeof(*_begin))));
 
 	if (!_begin) {
 		throw std::bad_alloc{};
@@ -138,7 +138,7 @@ void bitset::realloc(const std::size_t size)
 }
 
 auto bitset::range() const noexcept
-	-> std::ranges::subrange<std::size_t *, std::size_t *>
+	-> std::ranges::subrange<std::uint32_t *, std::uint32_t *>
 {
 	return std::ranges::subrange{_begin.get(), _end};
 }

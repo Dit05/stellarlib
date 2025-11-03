@@ -24,7 +24,7 @@
 #ifndef STELLARLIB_ECS_STACK_VECTOR_HPP
 #define STELLARLIB_ECS_STACK_VECTOR_HPP
 
-#include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <ranges>
 #include <utility>
@@ -58,8 +58,8 @@ public:
 	[[nodiscard]]
 	constexpr stack_vector(stack_vector<T> &&other) noexcept
 		: _capacity{other._capacity}
-		, _begin{other._begin}
 		, _size{other._size}
+		, _begin{other._begin}
 		, _end{other._end}
 	{
 		other._end      = nullptr;
@@ -114,7 +114,7 @@ public:
 		std::allocator<T>::deallocate(_begin, _capacity);
 	}
 
-	constexpr auto extend(const std::size_t size)
+	constexpr auto extend(const std::uint32_t size)
 	{
 		if (size <= _size) {
 			return false;
@@ -156,7 +156,7 @@ public:
 	}
 
 	[[nodiscard]]
-	constexpr auto operator[](const std::size_t i) const noexcept
+	constexpr auto operator[](const std::uint32_t i) const noexcept
 		-> T &
 	{
 		return _begin[i];
@@ -182,12 +182,12 @@ public:
 	}
 
 private:
-	std::size_t  _capacity{};
-	T           *_begin{};
-	std::size_t  _size{};
-	T           *_end{};
+	std::uint32_t  _capacity{};
+	std::uint32_t  _size{};
+	T             *_begin{};
+	T             *_end{};
 
-	constexpr void realloc(const std::size_t capacity)
+	constexpr void realloc(const std::uint32_t capacity)
 	{
 		auto tmp{std::allocator<T>::allocate(capacity)};
 
