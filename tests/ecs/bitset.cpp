@@ -41,7 +41,7 @@ using namespace stellarlib::ecs;
 
 /* NOLINTBEGIN(cert-err58-cpp,performance-unnecessary-copy-initialization) */
 
-static const std::vector<std::uint32_t> VALUES{
+static const std::vector<std::uint32_t> ELEMS{
 	std::numeric_limits<std::uint32_t>::digits * 3 - 1,
 	0,
 	std::numeric_limits<std::uint32_t>::digits * 3 / 2
@@ -49,10 +49,10 @@ static const std::vector<std::uint32_t> VALUES{
 
 namespace
 {
-void check_range(const bitset &set)
+void check_elems(const bitset &set)
 {
-	for (std::uint32_t i{}; i != std::ranges::max(VALUES); ++i) {
-		ASSERT_EQ(set.contains(i), std::ranges::find(VALUES, i) != VALUES.end());
+	for (std::uint32_t elem{}; elem != std::ranges::max(ELEMS); ++elem) {
+		ASSERT_EQ(set.contains(elem), std::ranges::find(ELEMS, elem) != ELEMS.end());
 	}
 }
 }
@@ -73,88 +73,88 @@ TEST(ecs_bitset, should_skip_empty_copy_via_ctor)
 TEST(ecs_bitset, should_copy_via_ctor)
 {
 	bitset set1{};
-	for (const auto value : VALUES) {
-		set1.insert(value);
+	for (const auto elem : ELEMS) {
+		set1.insert(elem);
 	}
-	auto set2{set1};
-	check_range(set2);
+	const auto set2{set1};
+	check_elems(set2);
 }
 
 TEST(ecs_bitset, should_move_via_ctor)
 {
 	bitset set1{};
-	for (const auto value : VALUES) {
-		set1.insert(value);
+	for (const auto elem : ELEMS) {
+		set1.insert(elem);
 	}
-	auto set2{std::move(set1)};
-	check_range(set2);
+	const auto set2{std::move(set1)};
+	check_elems(set2);
 }
 
 TEST(ecs_bitset, should_handle_empty_copy_via_assignment_vica)
 {
 	const bitset set1{};
 	bitset set2{};
-	set2.insert(VALUES.front());
+	set2.insert(ELEMS.front());
 	set2 = set1;
-	ASSERT_FALSE(set2.contains(VALUES.front()));
+	ASSERT_FALSE(set2.contains(ELEMS.front()));
 }
 
 TEST(ecs_bitset, should_handle_empty_copy_via_assignment_versa)
 {
 	bitset set1{};
-	set1.insert(VALUES.front());
+	set1.insert(ELEMS.front());
 	bitset set2{};
 	set2 = set1;
-	ASSERT_TRUE(set2.contains(VALUES.front()));
+	ASSERT_TRUE(set2.contains(ELEMS.front()));
 }
 
 TEST(ecs_bitset, should_copy_via_assignment)
 {
 	bitset set1{};
-	for (const auto value : VALUES) {
-		set1.insert(value);
+	for (const auto elem : ELEMS) {
+		set1.insert(elem);
 	}
 	bitset set2{};
-	set2.insert(VALUES.front());
+	set2.insert(ELEMS.front());
 	set2 = set1;
-	check_range(set2);
+	check_elems(set2);
 }
 
 TEST(ecs_bitset, should_move_via_assignment)
 {
 	bitset set1{};
-	for (const auto value : VALUES) {
-		set1.insert(value);
+	for (const auto elem : ELEMS) {
+		set1.insert(elem);
 	}
 	bitset set2{};
-	set2.insert(VALUES.front());
+	set2.insert(ELEMS.front());
 	set2 = std::move(set1);
-	check_range(set2);
+	check_elems(set2);
 }
 
 TEST(ecs_bitset, should_insert_and_erase_values)
 {
 	bitset set{};
-	for (const auto value : VALUES) {
-		set.insert(value);
-		ASSERT_TRUE(set.contains(value));
-		set.erase(value);
-		ASSERT_FALSE(set.contains(value));
-		set.insert(value);
-		ASSERT_TRUE(set.contains(value));
+	for (const auto elem : ELEMS) {
+		set.insert(elem);
+		ASSERT_TRUE(set.contains(elem));
+		set.erase(elem);
+		ASSERT_FALSE(set.contains(elem));
+		set.insert(elem);
+		ASSERT_TRUE(set.contains(elem));
 	}
-	check_range(set);
+	check_elems(set);
 }
 
 TEST(ecs_bitset, should_clear_values)
 {
 	bitset set{};
-	for (const auto value : VALUES) {
-		set.insert(value);
+	for (const auto elem : ELEMS) {
+		set.insert(elem);
 	}
 	set.clear();
-	for (std::uint32_t i{}; i != std::ranges::max(VALUES); ++i) {
-		ASSERT_FALSE(set.contains(i));
+	for (std::uint32_t elem{}; elem != std::ranges::max(ELEMS); ++elem) {
+		ASSERT_FALSE(set.contains(elem));
 	}
 }
 
