@@ -27,6 +27,8 @@
 #include <stellarlib/ecs/stack_vector.hpp>
 
 #include <cstdint>
+#include <memory>
+#include <optional>
 #include <utility>
 
 namespace stellarlib::ecs

@@ -55,18 +55,19 @@ TEST(ecs_ring_storage, should_reuse_keys)
 
 TEST(ecs_ring_storage, should_acquire_and_release_keys)
 {
-	ring_storage<std::vector<std::uint32_t>> storage{};
-	auto key{storage.acquire()};
-	ASSERT_TRUE(storage.at(key));
-	storage.at(key)->push_back(key);
-	ASSERT_EQ(storage.at(key)->size(), 1);
-	const auto data{storage.at(key)->data()};
-	storage.release(key);
-	ASSERT_FALSE(storage.at(key));
-	key = storage.acquire();
-	ASSERT_TRUE(storage.at(key));
-	ASSERT_TRUE(storage.at(key)->empty());
-	ASSERT_EQ(storage.at(key)->data(), data);
+	ring_storage<std::vector<std::int32_t>> storage{};
+	ASSERT_FALSE(storage.at(0));
+	ASSERT_EQ(storage.acquire(), 0);
+	ASSERT_TRUE(storage.at(0));
+	storage.at(0)->emplace_back();
+	ASSERT_EQ(storage.at(0)->size(), 1);
+	const auto data{storage.at(0)->data()};
+	storage.release(0);
+	ASSERT_FALSE(storage.at(0));
+	ASSERT_EQ(storage.acquire(), 0);
+	ASSERT_TRUE(storage.at(0));
+	ASSERT_TRUE(storage.at(0)->empty());
+	ASSERT_EQ(storage.at(0)->data(), data);
 }
 
 /* NOLINTEND(cert-err58-cpp,performance-unnecessary-copy-initialization) */
