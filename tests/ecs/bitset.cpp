@@ -57,7 +57,7 @@ void check_elems(const bitset &set)
 }
 }
 
-TEST(ecs_bitset, should_init_via_default_ctor)
+TEST(ecs_bitset, should_init_via_ctor)
 {
 	const bitset set{};
 	ASSERT_FALSE(set.contains(0));

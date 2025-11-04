@@ -78,7 +78,7 @@ void check_ranges_const(const sparse_set<std::shared_ptr<std::int32_t>> &set)
 }
 }
 
-TEST(ecs_sparse_set, should_init_via_default_ctor)
+TEST(ecs_sparse_set, should_init_via_ctor)
 {
 	const sparse_set<std::shared_ptr<std::int32_t>> set{};
 	ASSERT_TRUE(set.keys().empty());

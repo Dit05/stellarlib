@@ -40,7 +40,7 @@ using namespace stellarlib::ecs;
 
 /* NOLINTBEGIN(cert-err58-cpp,performance-unnecessary-copy-initialization) */
 
-TEST(ecs_sparse_storage, should_init_via_default_ctor)
+TEST(ecs_sparse_storage, should_init_via_ctor)
 {
 	sparse_storage storage{};
 	ASSERT_EQ(storage.id_of<std::int32_t>(), 0);
