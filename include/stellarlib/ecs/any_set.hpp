@@ -32,23 +32,23 @@ class any_set
 {
 public:
 	[[nodiscard]]
-	explicit any_set() noexcept = default;
+	explicit any_set() = default;
 
-	virtual ~any_set() noexcept(false);
+	virtual ~any_set();
 
 	virtual void erase(std::uint32_t) = 0;
 
 protected:
 	[[nodiscard]]
-	any_set(const any_set &) noexcept = default;
+	any_set(const any_set &) = default;
 
 	[[nodiscard]]
-	any_set(any_set &&) noexcept = default;
+	any_set(any_set &&) = default;
 
-	auto operator=(const any_set &) noexcept
+	auto operator=(const any_set &)
 		-> any_set & = default;
 
-	auto operator=(any_set &&) noexcept
+	auto operator=(any_set &&)
 		-> any_set & = default;
 };
 }

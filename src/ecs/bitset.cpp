@@ -94,7 +94,7 @@ void bitset::insert(const std::size_t key)
 	}
 }
 
-auto bitset::contains(const std::size_t key) const noexcept
+auto bitset::contains(const std::size_t key) const
 	-> bool
 {
 	const auto index{index_of(key)};
@@ -102,7 +102,7 @@ auto bitset::contains(const std::size_t key) const noexcept
 	return index < _size && (_begin.get()[index] & mask_of(key)) != 0;
 }
 
-auto bitset::operator==(const bitset &other) const noexcept
+auto bitset::operator==(const bitset &other) const
 	-> bool
 {
 	if (_size < other._size) {
@@ -118,26 +118,26 @@ auto bitset::operator==(const bitset &other) const noexcept
 	return std::equal(_begin.get(), _end, other._begin.get());
 }
 
-auto bitset::operator!=(const bitset &other) const noexcept
+auto bitset::operator!=(const bitset &other) const
 	-> bool
 {
 	return !(*this == other);
 }
 
-auto bitset::operator<=(const bitset &other) const noexcept
+auto bitset::operator<=(const bitset &other) const
 	-> bool
 {
 	return (_size <= other._size || std::none_of(_begin.get() + other._size, _end, ext::truthy<std::size_t>))
 		&& std::ranges::all_of(std::views::zip(range(), other.range()), ext::zip_subset<std::size_t>);
 }
 
-auto bitset::operator>=(const bitset &other) const noexcept
+auto bitset::operator>=(const bitset &other) const
 	-> bool
 {
 	return other <= *this;
 }
 
-void bitset::erase(const std::size_t key) noexcept
+void bitset::erase(const std::size_t key)
 {
 	const auto index{index_of(key)};
 
@@ -146,20 +146,20 @@ void bitset::erase(const std::size_t key) noexcept
 	}
 }
 
-void bitset::reset() noexcept
+void bitset::reset()
 {
 	for (auto &segment : range()) {
 		segment = 0;
 	}
 }
 
-auto bitset::index_of(const std::size_t key) noexcept
+auto bitset::index_of(const std::size_t key)
 	-> std::size_t
 {
 	return key / std::numeric_limits<std::size_t>::digits;
 }
 
-auto bitset::mask_of(const std::size_t key) noexcept
+auto bitset::mask_of(const std::size_t key)
 	-> std::size_t
 {
 	return std::size_t{1} << key % std::numeric_limits<std::size_t>::digits;
@@ -174,7 +174,7 @@ void bitset::realloc(const std::size_t size)
 	}
 }
 
-auto bitset::range() const noexcept
+auto bitset::range() const
 	-> std::ranges::subrange<std::size_t *, std::size_t *>
 {
 	return std::ranges::subrange{_begin.get(), _end};

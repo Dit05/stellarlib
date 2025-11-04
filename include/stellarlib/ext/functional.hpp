@@ -30,42 +30,42 @@ namespace stellarlib::ext
 {
 template <typename T>
 [[nodiscard]]
-constexpr auto truthy(const T &arg) noexcept
+constexpr auto truthy(const T &arg)
 {
 	return static_cast<bool>(arg);
 }
 
 template <typename T>
 [[nodiscard]]
-constexpr auto falsy(const T &arg) noexcept
+constexpr auto falsy(const T &arg)
 {
 	return !static_cast<bool>(arg);
 }
 
 template <typename T>
 [[nodiscard]]
-constexpr auto subset(const T &lhs, const T &rhs) noexcept
+constexpr auto subset(const T &lhs, const T &rhs)
 {
 	return (lhs & rhs) == lhs;
 }
 
 template <typename T>
 [[nodiscard]]
-constexpr auto zip_subset(const std::pair<T, T> &arg) noexcept
+constexpr auto zip_subset(const std::pair<T, T> &arg)
 {
 	return (arg.first & arg.second) == arg.first;
 }
 
 template <typename T>
 [[nodiscard]]
-constexpr auto superset(const T &lhs, const T &rhs) noexcept
+constexpr auto superset(const T &lhs, const T &rhs)
 {
 	return (rhs & lhs) == rhs;
 }
 
 template <typename T>
 [[nodiscard]]
-constexpr auto zip_superset(const std::pair<T, T> &arg) noexcept
+constexpr auto zip_superset(const std::pair<T, T> &arg)
 {
 	return (arg.second & arg.first) == arg.second;
 }

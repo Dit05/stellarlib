@@ -25,5 +25,5 @@
 
 namespace stellarlib::ecs
 {
-any_set::~any_set() noexcept(false) = default;
+any_set::~any_set() = default;
 }

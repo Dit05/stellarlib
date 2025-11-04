@@ -35,47 +35,47 @@ class bitset final
 {
 public:
 	[[nodiscard]]
-	explicit bitset() noexcept = default;
+	explicit bitset() = default;
 
 	[[nodiscard]]
 	bitset(const bitset &other);
 
 	[[nodiscard]]
-	bitset(bitset &&) noexcept = default;
+	bitset(bitset &&) = default;
 
 	auto operator=(const bitset &other)
 		-> bitset &;
 
-	auto operator=(bitset &&) noexcept
+	auto operator=(bitset &&)
 		-> bitset & = default;
 
-	~bitset() noexcept = default;
+	~bitset() = default;
 
 	void insert(std::size_t key);
 
 	[[nodiscard]]
-	auto contains(std::size_t key) const noexcept
+	auto contains(std::size_t key) const
 		-> bool;
 
 	[[nodiscard]]
-	auto operator==(const bitset &other) const noexcept
+	auto operator==(const bitset &other) const
 		-> bool;
 
 	[[nodiscard]]
-	auto operator!=(const bitset &other) const noexcept
+	auto operator!=(const bitset &other) const
 		-> bool;
 
 	[[nodiscard]]
-	auto operator<=(const bitset &other) const noexcept
+	auto operator<=(const bitset &other) const
 		-> bool;
 
 	[[nodiscard]]
-	auto operator>=(const bitset &other) const noexcept
+	auto operator>=(const bitset &other) const
 		-> bool;
 
-	void erase(std::size_t key) noexcept;
+	void erase(std::size_t key);
 
-	void reset() noexcept;
+	void reset();
 
 private:
 	std::size_t                                     _size{};
@@ -84,17 +84,17 @@ private:
 	std::size_t                                    *_end{};
 
 	[[nodiscard]]
-	static auto index_of(std::size_t key) noexcept
+	static auto index_of(std::size_t key)
 		-> std::size_t;
 
 	[[nodiscard]]
-	static auto mask_of(std::size_t key) noexcept
+	static auto mask_of(std::size_t key)
 		-> std::size_t;
 
 	void realloc(std::size_t size);
 
 	[[nodiscard]]
-	auto range() const noexcept
+	auto range() const
 		-> std::ranges::subrange<std::size_t *, std::size_t *>;
 };
 }

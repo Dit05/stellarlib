@@ -40,21 +40,21 @@ class sparse_set final : public any_set
 {
 public:
 	[[nodiscard]]
-	explicit sparse_set() noexcept = default;
+	explicit sparse_set() = default;
 
 	[[nodiscard]]
-	sparse_set(const sparse_set<T> &) noexcept(false) = default;
+	sparse_set(const sparse_set<T> &) = default;
 
 	[[nodiscard]]
-	sparse_set(sparse_set<T> &&) noexcept = default;
+	sparse_set(sparse_set<T> &&) = default;
 
-	auto operator=(const sparse_set<T> &) noexcept(false)
+	auto operator=(const sparse_set<T> &)
 		-> sparse_set<T> & = default;
 
-	auto operator=(sparse_set<T> &&) noexcept(false)
+	auto operator=(sparse_set<T> &&)
 		-> sparse_set<T> & = default;
 
-	~sparse_set() noexcept(false) final = default;
+	~sparse_set() final = default;
 
 	template <typename ...Args>
 	void insert(const std::uint32_t key, Args &&...args)
@@ -77,38 +77,38 @@ public:
 	}
 
 	[[nodiscard]]
-	auto contains(const std::uint32_t key) const noexcept
+	auto contains(const std::uint32_t key) const
 	{
 		return key < _sparse.size() && _sparse[key];
 	}
 
 	[[nodiscard]]
-	auto at(const std::uint32_t key) const noexcept
+	auto at(const std::uint32_t key) const
 	{
 		return contains(key) ? _values.begin() + *_sparse[key] : nullptr;
 	}
 
 	[[nodiscard]]
-	auto operator[](const std::uint32_t key) const noexcept
+	auto operator[](const std::uint32_t key) const
 		-> T &
 	{
 		return _values[*_sparse[key]];
 	}
 
 	[[nodiscard]]
-	auto keys() const noexcept
+	auto keys() const
 	{
 		return std::views::as_const(_keys);
 	}
 
 	[[nodiscard]]
-	auto values() const noexcept
+	auto values() const
 	{
 		return std::views::all(_values);
 	}
 
 	[[nodiscard]]
-	auto zip() const noexcept
+	auto zip() const
 	{
 		return std::views::zip(keys(), values());
 	}

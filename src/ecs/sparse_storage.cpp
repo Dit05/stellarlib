@@ -29,7 +29,7 @@
 
 namespace stellarlib::ecs
 {
-auto sparse_storage::by_id(const std::size_t id) const noexcept
+auto sparse_storage::by_id(const std::size_t id) const
 	-> any_set *
 {
 	return id < _sets.size() ? _sets[id].get() : nullptr;

@@ -57,7 +57,7 @@ public:
 	}
 
 	[[nodiscard]]
-	auto by_id(std::size_t id) const noexcept
+	auto by_id(std::size_t id) const
 		-> any_set *;
 
 	template <typename T>

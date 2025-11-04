@@ -36,7 +36,7 @@ class stack_vector final : std::allocator<T>
 {
 public:
 	[[nodiscard]]
-	explicit constexpr stack_vector() noexcept = default;
+	explicit constexpr stack_vector() = default;
 
 	[[nodiscard]]
 	constexpr stack_vector(const stack_vector<T> &other)
@@ -56,7 +56,7 @@ public:
 	}
 
 	[[nodiscard]]
-	constexpr stack_vector(stack_vector<T> &&other) noexcept
+	constexpr stack_vector(stack_vector<T> &&other)
 		: _capacity{other._capacity}
 		, _size{other._size}
 		, _begin{other._begin}
@@ -150,26 +150,26 @@ public:
 	}
 
 	[[nodiscard]]
-	constexpr auto size() const noexcept
+	constexpr auto size() const
 	{
 		return _size;
 	}
 
 	[[nodiscard]]
-	constexpr auto operator[](const std::uint32_t i) const noexcept
+	constexpr auto operator[](const std::uint32_t i) const
 		-> T &
 	{
 		return _begin[i];
 	}
 
 	[[nodiscard]]
-	constexpr auto begin() const noexcept
+	constexpr auto begin() const
 	{
 		return _begin;
 	}
 
 	[[nodiscard]]
-	constexpr auto end() const noexcept
+	constexpr auto end() const
 	{
 		return _end;
 	}

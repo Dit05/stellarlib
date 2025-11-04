@@ -27,7 +27,7 @@
 
 namespace stellarlib
 {
-void hello_world() noexcept
+void hello_world()
 {
 	std::puts("hello, world");
 }
