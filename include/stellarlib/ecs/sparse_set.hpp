@@ -61,7 +61,7 @@ public:
 	{
 		if (!_sparse.extend(key + 1) && _sparse[key]) {
 			if constexpr (sizeof...(Args) == 1 && (std::is_same_v<std::remove_cvref_t<Args>, T> && ...)) {
-				(*this)[key].operator=(std::forward<Args>(args)...);
+				(*this)[key] = (std::forward<Args>(args), ...);
 			}
 			else {
 				auto ptr{_values.begin() + *_sparse[key]};
