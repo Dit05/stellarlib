@@ -48,7 +48,7 @@ bitset::bitset(const bitset &other)
 		throw std::bad_alloc{};
 	}
 
-	std::copy(other._begin.get(), other._end, _begin.get());
+	std::ranges::copy(other.range(), _begin.get());
 	_end = _begin.get() + _size;
 }
 
@@ -65,7 +65,7 @@ auto bitset::operator=(const bitset &other)
 		_end = _begin.get() + _size;
 	}
 
-	std::copy(other._begin.get(), other._end, _begin.get());
+	std::ranges::copy(other.range(), _begin.get());
 
 	for (auto &segment : std::ranges::subrange{_begin.get() + other._size, _end}) {
 		segment = 0;
