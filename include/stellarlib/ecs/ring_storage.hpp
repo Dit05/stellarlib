@@ -62,6 +62,13 @@ public:
 	}
 
 	[[nodiscard]]
+	auto operator[](const std::uint32_t key) const
+		-> T &
+	{
+		return *_sparse[key];
+	}
+
+	[[nodiscard]]
 	auto release(const std::uint32_t key)
 	{
 		if (_sparse.size() <= key || !_sparse[key]) {

@@ -60,14 +60,19 @@ TEST(ecs_ring_storage, should_acquire_and_release_keys)
 	ASSERT_EQ(storage.acquire(), 0);
 	ASSERT_TRUE(storage.at(0));
 	storage.at(0)->emplace_back();
-	ASSERT_EQ(storage.at(0)->size(), 1);
+	storage[0].emplace_back();
+	ASSERT_EQ(storage.at(0)->size(), 2);
+	ASSERT_EQ(storage[0].size(), 2);
 	const auto data{storage.at(0)->data()};
+	ASSERT_EQ(storage[0].data(), data);
 	storage.release(0);
 	ASSERT_FALSE(storage.at(0));
 	ASSERT_EQ(storage.acquire(), 0);
 	ASSERT_TRUE(storage.at(0));
 	ASSERT_TRUE(storage.at(0)->empty());
+	ASSERT_TRUE(storage[0].empty());
 	ASSERT_EQ(storage.at(0)->data(), data);
+	ASSERT_EQ(storage[0].data(), data);
 }
 
 /* NOLINTEND(cert-err58-cpp,performance-unnecessary-copy-initialization) */
