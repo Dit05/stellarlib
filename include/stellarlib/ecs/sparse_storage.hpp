@@ -73,14 +73,14 @@ public:
 
 	[[nodiscard]]
 	auto by_id(std::size_t id) const
-		-> any_set *;
+		-> any_set &;
 
 	template <typename T>
 	[[nodiscard]]
 	auto by_type()
 		-> sparse_set<T> &
 	{
-		return dynamic_cast<sparse_set<T> &>(*_sets[id_of<T>()]);
+		return static_cast<sparse_set<T> &>(*_sets[id_of<T>()]);
 	}
 
 private:

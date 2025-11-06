@@ -102,8 +102,8 @@ TEST(ecs_sparse_storagem, should_pick_set_by_id)
 	sparse_storage storage{};
 	storage.by_type<std::int32_t>().insert(0, 1);
 	storage.by_type<std::int64_t>().insert(0, 2);
-	ASSERT_EQ(dynamic_cast<sparse_set<std::int32_t> &>(*storage.by_id(storage.id_of<std::int32_t>()))[0], 1);
-	ASSERT_EQ(dynamic_cast<sparse_set<std::int64_t> &>(*storage.by_id(storage.id_of<std::int64_t>()))[0], 2);
+	ASSERT_EQ(dynamic_cast<sparse_set<std::int32_t> &>(storage.by_id(storage.id_of<std::int32_t>()))[0], 1);
+	ASSERT_EQ(dynamic_cast<sparse_set<std::int64_t> &>(storage.by_id(storage.id_of<std::int64_t>()))[0], 2);
 }
 
 TEST(ecs_sparse_storage, should_pick_set_by_type)
