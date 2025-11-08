@@ -29,8 +29,6 @@
 
 #include <cstddef>
 #include <memory>
-#include <unordered_map>
-#include <vector>
 
 namespace stellarlib::ecs
 {
@@ -56,38 +54,18 @@ public:
 
 	template <typename T>
 	[[nodiscard]]
-	auto id_of()
+	static auto id_of()
 	{
-		const auto it{_ids.find(typeid(T).hash_code())};
-		std::size_t id{};
-
-		if (it == _ids.end()) {
-			id = _sets.size();
-			_ids.emplace(typeid(T).hash_code(), id);
-			_sets.emplace_back(std::make_unique<sparse_set<T>>());
-		}
-		else {
-			id = it->second;
-		}
-
+		static auto id{next_id()};
 		return id;
 	}
 
-	[[nodiscard]]
-	auto by_id(std::size_t id) const
-		-> any_set<std::size_t> &;
-
-	template <typename T>
-	[[nodiscard]]
-	auto by_type()
-		-> sparse_set<T> &
-	{
-		return static_cast<sparse_set<T> &>(*_sets[id_of<T>()]);
-	}
-
 private:
-	std::unordered_map<std::size_t, std::size_t> _ids;
-	std::vector<std::unique_ptr<any_set<std::size_t>>> _sets;
+	sparse_set<std::shared_ptr<any_set<std::size_t>>> _sets;
+
+	[[nodiscard]]
+	static auto next_id()
+		-> std::size_t;
 };
 }
 

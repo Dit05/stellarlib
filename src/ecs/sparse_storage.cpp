@@ -23,18 +23,15 @@
 
 #include <stellarlib/ecs/sparse_storage.hpp>
 
-#include <stellarlib/ecs/any_set.hpp>
-
 #include <cstddef>
 #include <memory>
 
 namespace stellarlib::ecs
 {
 sparse_storage::sparse_storage(const sparse_storage &other)
-	: _ids{other._ids}
 {
-	for (const auto &set : other._sets) {
-		_sets.emplace_back(set->clone());
+	for (const auto [id, set] : other._sets.zip()) {
+		_sets.insert(id, set->clone());
 	}
 }
 
@@ -45,19 +42,19 @@ auto sparse_storage::operator=(const sparse_storage &other)
 		return *this;
 	}
 
-	_ids = other._ids;
 	_sets.clear();
 
-	for (const auto &set : other._sets) {
-		_sets.emplace_back(set->clone());
+	for (const auto [id, set] : other._sets.zip()) {
+		_sets.insert(id, set->clone());
 	}
 
 	return *this;
 }
 
-auto sparse_storage::by_id(const std::size_t id) const
-	-> any_set<std::size_t> &
+auto sparse_storage::next_id()
+	-> std::size_t
 {
-	return *_sets[id];
+	static std::size_t id{};
+	return id++;
 }
 }
