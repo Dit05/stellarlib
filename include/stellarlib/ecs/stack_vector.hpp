@@ -24,14 +24,14 @@
 #ifndef STELLARLIB_ECS_STACK_VECTOR_HPP
 #define STELLARLIB_ECS_STACK_VECTOR_HPP
 
-#include <cstdint>
+#include <cstddef>
 #include <memory>
 #include <ranges>
 #include <utility>
 
 namespace stellarlib::ecs
 {
-template <typename T>
+template <typename T, typename size_type = std::size_t>
 class stack_vector final : std::allocator<T>
 {
 public:
@@ -39,7 +39,7 @@ public:
 	explicit constexpr stack_vector() = default;
 
 	[[nodiscard]]
-	constexpr stack_vector(const stack_vector<T> &other)
+	constexpr stack_vector(const stack_vector<T, size_type> &other)
 		: _capacity{other._capacity}
 	{
 		if (_capacity == 0) {
@@ -56,7 +56,7 @@ public:
 	}
 
 	[[nodiscard]]
-	constexpr stack_vector(stack_vector<T> &&other)
+	constexpr stack_vector(stack_vector<T, size_type> &&other)
 		: _capacity{other._capacity}
 		, _size{other._size}
 		, _begin{other._begin}
@@ -67,8 +67,8 @@ public:
 		other._capacity = 0;
 	}
 
-	constexpr auto operator=(const stack_vector<T> &other)
-		-> stack_vector<T> &
+	constexpr auto operator=(const stack_vector<T, size_type> &other)
+		-> stack_vector<T, size_type> &
 	{
 		if (std::addressof(other) == this) {
 			return *this;
@@ -94,8 +94,8 @@ public:
 		return *this;
 	}
 
-	constexpr auto operator=(stack_vector<T> &&other)
-		-> stack_vector<T> &
+	constexpr auto operator=(stack_vector<T, size_type> &&other)
+		-> stack_vector<T, size_type> &
 	{
 		if (std::addressof(other) != this) {
 			this->~stack_vector();
@@ -114,7 +114,7 @@ public:
 		std::allocator<T>::deallocate(_begin, _capacity);
 	}
 
-	constexpr auto extend(const std::uint32_t size)
+	constexpr auto extend(const size_type size)
 	{
 		if (size <= _size) {
 			return false;
@@ -155,7 +155,7 @@ public:
 	}
 
 	[[nodiscard]]
-	constexpr auto operator[](const std::uint32_t i) const
+	constexpr auto operator[](const size_type i) const
 		-> T &
 	{
 		return _begin[i];
@@ -181,12 +181,12 @@ public:
 	}
 
 private:
-	std::uint32_t _capacity{};
-	std::uint32_t _size{};
+	size_type _capacity{};
+	size_type _size{};
 	T *_begin{};
 	T *_end{};
 
-	constexpr void realloc(const std::uint32_t capacity)
+	constexpr void realloc(const size_type capacity)
 	{
 		auto tmp{std::allocator<T>::allocate(capacity)};
 

@@ -88,8 +88,8 @@ public:
 	}
 
 private:
-	stack_vector<std::optional<T>> _sparse;
-	stack_vector<std::pair<std::uint32_t, T>> _queue;
+	stack_vector<std::optional<T>, std::uint32_t> _sparse;
+	stack_vector<std::pair<std::uint32_t, T>, std::uint32_t> _queue;
 };
 }
 

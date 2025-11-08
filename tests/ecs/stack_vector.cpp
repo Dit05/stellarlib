@@ -26,6 +26,7 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <ranges>
@@ -55,7 +56,7 @@ namespace
 void check_range_mut(stack_vector<std::shared_ptr<std::int32_t>> &vector)
 {
 	ASSERT_EQ(vector.size(), VALUES.size());
-	for (std::uint32_t i{}; i != VALUES.size(); ++i) {
+	for (std::size_t i{}; i != VALUES.size(); ++i) {
 		ASSERT_EQ(vector[i], VALUES[i]);
 	}
 	ASSERT_EQ(vector.end() - vector.begin(), vector.size());
@@ -65,7 +66,7 @@ void check_range_mut(stack_vector<std::shared_ptr<std::int32_t>> &vector)
 void check_range_const(const stack_vector<std::shared_ptr<std::int32_t>> &vector)
 {
 	ASSERT_EQ(vector.size(), VALUES.size());
-	for (std::uint32_t i{}; i != VALUES.size(); ++i) {
+	for (std::size_t i{}; i != VALUES.size(); ++i) {
 		ASSERT_EQ(vector[i], VALUES[i]);
 	}
 	ASSERT_EQ(vector.end() - vector.begin(), vector.size());
@@ -204,10 +205,10 @@ TEST(ecs_stack_vector, should_extend)
 {
 	stack_vector<std::shared_ptr<std::int32_t>> vector{};
 	vector.push(VALUES.front());
-	ASSERT_TRUE(vector.extend(static_cast<std::uint32_t>(VALUES.size())));
+	ASSERT_TRUE(vector.extend(VALUES.size()));
 	ASSERT_EQ(vector.size(), VALUES.size());
 	ASSERT_EQ(vector[0], VALUES.front());
-	for (std::uint32_t i{1}; i != VALUES.size(); ++i) {
+	for (std::size_t i{1}; i != VALUES.size(); ++i) {
 		ASSERT_EQ(vector[i], std::shared_ptr<std::int32_t>{});
 	}
 	ASSERT_EQ(vector.end() - vector.begin(), vector.size());
@@ -216,7 +217,7 @@ TEST(ecs_stack_vector, should_extend)
 TEST(ecs_stack_vector, should_push_and_pop_values)
 {
 	stack_vector<std::shared_ptr<std::int32_t>> vector{};
-	for (std::uint32_t i{}; i != VALUES.size(); ++i) {
+	for (std::size_t i{}; i != VALUES.size(); ++i) {
 		vector.push(VALUES[i]);
 		ASSERT_EQ(vector.size(), i + 1);
 		ASSERT_EQ(vector[i], VALUES[i]);
