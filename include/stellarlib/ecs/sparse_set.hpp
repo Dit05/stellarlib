@@ -66,20 +66,20 @@ public:
 	template <typename ...Args>
 	void insert(const std::uint32_t key, Args &&...args)
 	{
-		if (!_sparse.extend(key + 1) && _sparse[key]) {
-			if constexpr (sizeof...(Args) == 1 && (std::is_same_v<std::remove_cvref_t<Args>, T> && ...)) {
-				(*this)[key] = (std::forward<Args>(args), ...);
-			}
-			else {
-				auto ptr{_values.begin() + *_sparse[key]};
-				ptr->~T();
-				new (ptr) T{std::forward<Args>(args)...};
-			}
-		}
-		else {
+		if (_sparse.extend(key + 1) || !_sparse[key]) {
 			_values.push(std::forward<Args>(args)...);
 			_sparse[key] = _keys.size();
 			_keys.push(key);
+			return;
+		}
+
+		if constexpr (sizeof...(Args) == 1 && (std::is_same_v<std::remove_cvref_t<Args>, T> && ...)) {
+			(*this)[key] = (std::forward<Args>(args), ...);
+		}
+		else {
+			auto ptr{_values.begin() + *_sparse[key]};
+			ptr->~T();
+			new (ptr) T{std::forward<Args>(args)...};
 		}
 	}
 

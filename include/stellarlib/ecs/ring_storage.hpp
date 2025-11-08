@@ -40,16 +40,19 @@ public:
 	[[nodiscard]]
 	auto acquire()
 	{
+		std::uint32_t key{};
+
 		if (_queue.size()) {
 			const auto last{_queue.end() - 1};
-			const auto key{last->first};
+			key = last->first;
 			_sparse[key] = std::move(last->second);
 			_queue.pop();
-			return key;
+		}
+		else {
+			key = _sparse.size();
+			_sparse.push(T{});
 		}
 
-		const auto key{_sparse.size()};
-		_sparse.push(T{});
 		return key;
 	}
 

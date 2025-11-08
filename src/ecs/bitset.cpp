@@ -80,18 +80,18 @@ void bitset::insert(const std::size_t elem)
 
 	if (index < _size) {
 		_begin.get()[index] |= mask_of(elem);
+		return;
 	}
-	else {
-		realloc(index + 1);
 
-		for (; _size != index; ++_size) {
-			_begin.get()[_size] = 0;
-		}
+	realloc(index + 1);
 
-		++_size;
-		_begin.get()[index] = mask_of(elem);
-		_end = _begin.get() + _size;
+	for (; _size != index; ++_size) {
+		_begin.get()[_size] = 0;
 	}
+
+	++_size;
+	_begin.get()[index] = mask_of(elem);
+	_end = _begin.get() + _size;
 }
 
 auto bitset::contains(const std::size_t elem) const
