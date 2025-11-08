@@ -30,12 +30,14 @@
 #include <cstddef>
 #include <optional>
 #include <ranges>
+#include <stdexcept>
+#include <string>
 #include <type_traits>
 #include <utility>
 
 namespace stellarlib::ecs
 {
-template <typename T, typename size_type = std::size_t>
+template <typename T, typename size_type = std::size_t, bool copy = true>
 class sparse_set final : public any_set<size_type>
 {
 public:
@@ -43,23 +45,30 @@ public:
 	explicit sparse_set() = default;
 
 	[[nodiscard]]
-	sparse_set(const sparse_set<T, size_type> &) = default;
+	sparse_set(const sparse_set<T, size_type, copy> &)
+		requires copy = default;
 
 	[[nodiscard]]
-	sparse_set(sparse_set<T, size_type> &&) = default;
+	sparse_set(sparse_set<T, size_type, copy> &&) = default;
 
-	auto operator=(const sparse_set<T, size_type> &)
-		-> sparse_set<T, size_type> & = default;
+	auto operator=(const sparse_set<T, size_type, copy> &)
+		-> sparse_set<T, size_type, copy> &
+		requires copy = default;
 
-	auto operator=(sparse_set<T, size_type> &&)
-		-> sparse_set<T, size_type> & = default;
+	auto operator=(sparse_set<T, size_type, copy> &&)
+		-> sparse_set<T, size_type, copy> & = default;
 
-	[[nodiscard]]
-	auto clone() const
-		-> sparse_set<T, size_type> * final
-	{
-		return new sparse_set<T, size_type>{*this};
-	}
+    [[nodiscard]]
+    auto clone() const
+        -> sparse_set<T, size_type, copy> * final
+    {
+		if constexpr (copy) {
+			return new sparse_set<T, size_type>{*this};
+		}
+		else {
+			throw std::runtime_error{__FILE_NAME__ ":" + std::to_string(__LINE__) + "T is non-copyable"};
+		}
+    }
 
 	~sparse_set() final = default;
 

@@ -61,7 +61,7 @@ public:
 	}
 
 private:
-	sparse_set<std::shared_ptr<any_set<std::size_t>>> _sets;
+	sparse_set<std::unique_ptr<any_set<std::size_t>>, std::size_t, false> _sets;
 
 	[[nodiscard]]
 	static auto next_id()
