@@ -25,6 +25,7 @@
 
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cstdint>
 
 using namespace stellarlib::ecs;
@@ -40,7 +41,7 @@ using namespace stellarlib::ecs;
 namespace
 {
 template <typename T>
-void assert_component_eq(const world &world, std::uint32_t entity, const T &component)
+void check_insert(const world &world, std::uint32_t entity, const T &component)
 {
 	ASSERT_TRUE(world.contains(entity));
 	ASSERT_TRUE(world.contains<T>(entity));
@@ -53,12 +54,21 @@ void assert_component_eq(const world &world, std::uint32_t entity, const T &comp
 }
 
 template <typename T>
-void assert_component_false(const world &world, std::uint32_t entity)
+void check_erase(const world &world, std::uint32_t entity)
 {
 	ASSERT_TRUE(world.contains(entity));
 	ASSERT_FALSE(world.contains<T>(entity));
 	ASSERT_TRUE(world.at(entity));
 	ASSERT_FALSE(world.at(entity)->contains(world.type_of<T>()));
+	ASSERT_FALSE(world.at<T>(entity));
+}
+
+template <typename T>
+void check_despawn(const world &world, std::uint32_t entity)
+{
+	ASSERT_FALSE(world.contains(entity));
+	ASSERT_FALSE(world.contains<T>(entity));
+	ASSERT_FALSE(world.at(entity));
 	ASSERT_FALSE(world.at<T>(entity));
 }
 }
@@ -67,11 +77,11 @@ TEST(ecs_world, should_spawn_entities)
 {
 	world world{};
 	const auto entity1{world.spawn(std::int32_t{1}, std::int64_t{2})};
-	assert_component_eq(world, entity1, std::int32_t{1});
-	assert_component_eq(world, entity1, std::int64_t{2});
+	check_insert(world, entity1, std::int32_t{1});
+	check_insert(world, entity1, std::int64_t{2});
 	const auto entity2{world.spawn(std::int32_t{3}, std::int64_t{4})};
-	assert_component_eq(world, entity2, std::int32_t{3});
-	assert_component_eq(world, entity2, std::int64_t{4});
+	check_insert(world, entity2, std::int32_t{3});
+	check_insert(world, entity2, std::int64_t{4});
 }
 
 TEST(ecs_world, should_insert_components)
@@ -79,10 +89,10 @@ TEST(ecs_world, should_insert_components)
 	world world{};
 	const auto entity{world.spawn(std::int8_t{1}, std::int16_t{2})};
 	world.insert(entity, std::int32_t{3}, std::int64_t{4});
-	assert_component_eq(world, entity, std::int8_t{1});
-	assert_component_eq(world, entity, std::int16_t{2});
-	assert_component_eq(world, entity, std::int32_t{3});
-	assert_component_eq(world, entity, std::int64_t{4});
+	check_insert(world, entity, std::int8_t{1});
+	check_insert(world, entity, std::int16_t{2});
+	check_insert(world, entity, std::int32_t{3});
+	check_insert(world, entity, std::int64_t{4});
 }
 
 TEST(ecs_world, should_erase_components)
@@ -90,8 +100,8 @@ TEST(ecs_world, should_erase_components)
 	world world{};
 	const auto entity{world.spawn(std::int32_t{1}, std::int64_t{2})};
 	world.erase<std::int32_t, std::int64_t>(entity);
-	assert_component_false<std::int32_t>(world, entity);
-	assert_component_false<std::int64_t>(world, entity);
+	check_erase<std::int32_t>(world, entity);
+	check_erase<std::int64_t>(world, entity);
 }
 
 TEST(ecs_world, should_despawn_entities)
@@ -100,13 +110,34 @@ TEST(ecs_world, should_despawn_entities)
 	const auto entity1{world.spawn(std::int32_t{1}, std::int64_t{2})};
 	const auto entity2{world.spawn(std::int32_t{3}, std::int64_t{4})};
 	world.despawn(entity1);
-	assert_component_false<std::int32_t>(world, entity1);
-	assert_component_false<std::int64_t>(world, entity1);
-	assert_component_eq(world, entity2, std::int32_t{1});
-	assert_component_eq(world, entity2, std::int64_t{2});
+	check_despawn<std::int32_t>(world, entity1);
+	check_despawn<std::int64_t>(world, entity1);
+	check_insert(world, entity2, std::int32_t{3});
+	check_insert(world, entity2, std::int64_t{4});
 	world.despawn(entity2);
-	assert_component_false<std::int32_t>(world, entity2);
-	assert_component_false<std::int64_t>(world, entity2);
+	check_despawn<std::int32_t>(world, entity2);
+	check_despawn<std::int64_t>(world, entity2);
+}
+
+TEST(ecs_world, should_evaluate_solo_query)
+{
+	world world{};
+	const auto entity1{world.spawn(std::int32_t{1}, std::int64_t{2})};
+	const auto entity2{world.spawn(std::int32_t{3}, std::int64_t{4})};
+	ASSERT_FALSE(world.query<std::int8_t>().size());
+	ASSERT_FALSE(world.query<std::int16_t>().size());
+	ASSERT_EQ(world.query<std::int32_t>().size(), 2);
+	ASSERT_TRUE(std::ranges::all_of(world.query<std::int32_t>(), [=](const auto &set) -> bool
+	{
+		return std::get<0>(set) == entity1 && std::get<1>(set) == 1
+			|| std::get<0>(set) == entity2 && std::get<1>(set) == 3;
+	}));
+	ASSERT_EQ(world.query<std::int64_t>().size(), 2);
+	ASSERT_TRUE(std::ranges::all_of(world.query<std::int64_t>(), [=](const auto &set) -> bool
+	{
+		return std::get<0>(set) == entity1 && std::get<1>(set) == 2
+			|| std::get<0>(set) == entity2 && std::get<1>(set) == 4;
+	}));
 }
 
 /* NOLINTEND(cert-err58-cpp,performance-unnecessary-copy-initialization) */

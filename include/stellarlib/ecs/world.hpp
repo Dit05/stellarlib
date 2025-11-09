@@ -39,7 +39,7 @@ class world final
 public:
 	template <typename T>
 	[[nodiscard]]
-	static auto type_of()
+	static auto id_of()
 	{
 		return sparse_storage::id_of<T>();
 	}
@@ -168,6 +168,14 @@ public:
 	}
 
 	void despawn(std::uint32_t entity);
+
+	template <typename T>
+	[[nodiscard]]
+	auto query() const
+	{
+		const auto set{_components.by_type<T>()};
+		return set ? set->zip() : sparse_set<T>{}.zip();
+	}
 
 private:
 	ring_storage<bitset> _entities;
