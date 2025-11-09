@@ -56,11 +56,11 @@ TEST(ecs_world, should_spawn_entities)
 	ASSERT_EQ(*world.get<std::int64_t>(entity2), 4);
 }
 
-TEST(ecs_world, should_add_components)
+TEST(ecs_world, should_insert_components)
 {
 	world world{};
 	const auto entity{world.spawn(std::int8_t{1}, std::int16_t{2})};
-	world.add(entity, std::int32_t{3}, std::int64_t{4});
+	world.insert(entity, std::int32_t{3}, std::int64_t{4});
 	ASSERT_TRUE(world.get<std::int8_t>(entity));
 	ASSERT_EQ(*world.get<std::int8_t>(entity), 1);
 	ASSERT_TRUE(world.get<std::int16_t>(entity));
@@ -71,13 +71,30 @@ TEST(ecs_world, should_add_components)
 	ASSERT_EQ(*world.get<std::int64_t>(entity), 4);
 }
 
-TEST(ecs_world, should_remove_components)
+TEST(ecs_world, should_erase_components)
 {
 	world world{};
 	const auto entity{world.spawn(std::int32_t{1}, std::int64_t{2})};
-	world.remove<std::int32_t, std::int64_t>(entity);
+	world.erase<std::int32_t, std::int64_t>(entity);
 	ASSERT_FALSE(world.get<std::int32_t>(entity));
 	ASSERT_FALSE(world.get<std::int64_t>(entity));
+}
+
+TEST(ecs_world, should_despawn_entities)
+{
+	world world{};
+	const auto entity1{world.spawn(std::int32_t{1}, std::int64_t{2})};
+	const auto entity2{world.spawn(std::int32_t{3}, std::int64_t{4})};
+	world.despawn(entity1);
+	ASSERT_FALSE(world.get<std::int32_t>(entity1));
+	ASSERT_FALSE(world.get<std::int64_t>(entity1));
+	ASSERT_TRUE(world.get<std::int32_t>(entity2));
+	ASSERT_EQ(*world.get<std::int32_t>(entity2), 3);
+	ASSERT_TRUE(world.get<std::int64_t>(entity2));
+	ASSERT_EQ(*world.get<std::int64_t>(entity2), 4);
+	world.despawn(entity2);
+	ASSERT_FALSE(world.get<std::int32_t>(entity2));
+	ASSERT_FALSE(world.get<std::int64_t>(entity2));
 }
 
 /* NOLINTEND(cert-err58-cpp,performance-unnecessary-copy-initialization) */

@@ -30,6 +30,7 @@
 #include <stellarlib/ecs/sparse_storage.hpp>
 
 #include <cstdint>
+#include <tuple>
 
 namespace stellarlib::ecs
 {
@@ -57,7 +58,7 @@ public:
 	}
 
 	template <typename ...T>
-	void add(const std::uint32_t entity, T ...components)
+	void insert(const std::uint32_t entity, T ...components)
 	{
 		const auto data{_entities.at(entity)};
 
@@ -77,6 +78,22 @@ public:
 
 	template <typename T>
 	[[nodiscard]]
+	auto contains(const std::uint32_t entity) const
+	{
+		const auto set{_components.by_type<T>()};
+		return set ? set->contains(entity) : false;
+	}
+
+	template <typename ...T>
+	[[nodiscard]]
+	auto contains(const std::uint32_t entity) const
+		requires (1 < sizeof...(T))
+	{
+		return std::make_tuple(contains<T>(entity)...);
+	}
+
+	template <typename T>
+	[[nodiscard]]
 	auto get(const std::uint32_t entity) const
 	{
 		const auto set{_components.by_type<T>()};
@@ -84,7 +101,15 @@ public:
 	}
 
 	template <typename ...T>
-	void remove(const std::uint32_t entity)
+	[[nodiscard]]
+	auto get(const std::uint32_t entity) const
+		requires (1 < sizeof...(T))
+	{
+		return std::make_tuple(get<T>(entity)...);
+	}
+
+	template <typename ...T>
+	void erase(const std::uint32_t entity)
 	{
 		const auto data{_entities.at(entity)};
 
@@ -104,6 +129,19 @@ public:
 			}(),
 			...
 		);
+	}
+
+	void despawn(const std::uint32_t entity)
+	{
+		if (!_entities.contains(entity)) {
+			return;
+		}
+
+		_entities.release(entity);
+
+		for (auto &set : _components.sets()) {
+			set.erase(entity);
+		}
 	}
 
 private:
