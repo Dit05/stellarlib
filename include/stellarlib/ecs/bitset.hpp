@@ -91,11 +91,11 @@ private:
 	static auto mask_of(std::size_t elem)
 		-> std::size_t;
 
-	void realloc(std::size_t size);
-
 	[[nodiscard]]
-	auto range() const
+	auto segments() const
 		-> std::ranges::subrange<std::size_t *, std::size_t *>;
+
+	void realloc(std::size_t size);
 };
 }
 

@@ -23,10 +23,30 @@
 
 #include <stellarlib/ecs/world.hpp>
 
+#include <stellarlib/ecs/bitset.hpp>
+
 #include <cstdint>
 
 namespace stellarlib::ecs
 {
+auto world::contains(const std::uint32_t entity) const
+	-> bool
+{
+	return _entities.contains(entity);
+}
+
+auto world::at(const std::uint32_t entity) const
+	-> const bitset *
+{
+	return _entities.at(entity);
+}
+
+auto world::operator[](const std::uint32_t entity) const
+	-> const bitset &
+{
+	return _entities[entity];
+}
+
 void world::despawn(const std::uint32_t entity)
 {
 	if (!_entities.contains(entity)) {

@@ -37,6 +37,13 @@ namespace stellarlib::ecs
 class world final
 {
 public:
+	template <typename T>
+	[[nodiscard]]
+	static auto type_of()
+	{
+		return sparse_storage::id_of<T>();
+	}
+
 	template <typename ...T>
 	[[nodiscard]]
 	auto spawn(T ...components)
@@ -76,6 +83,10 @@ public:
 		);
 	}
 
+	[[nodiscard]]
+	auto contains(std::uint32_t entity) const
+		-> bool;
+
 	template <typename T>
 	[[nodiscard]]
 	auto contains(const std::uint32_t entity) const
@@ -92,9 +103,13 @@ public:
 		return std::make_tuple(contains<T>(entity)...);
 	}
 
+	[[nodiscard]]
+	auto at(std::uint32_t entity) const
+		-> const bitset *;
+
 	template <typename T>
 	[[nodiscard]]
-	auto get(const std::uint32_t entity) const
+	auto at(const std::uint32_t entity) const
 	{
 		const auto set{_components.by_type<T>()};
 		return set ? set->at(entity) : nullptr;
@@ -102,10 +117,31 @@ public:
 
 	template <typename ...T>
 	[[nodiscard]]
-	auto get(const std::uint32_t entity) const
+	auto at(const std::uint32_t entity) const
 		requires (1 < sizeof...(T))
 	{
 		return std::make_tuple(get<T>(entity)...);
+	}
+
+	[[nodiscard]]
+	auto operator[](std::uint32_t entity) const
+		-> const bitset &;
+
+	template <typename T>
+	[[nodiscard]]
+	auto operator[](const std::uint32_t entity) const
+		-> T &
+	{
+		return (*_components.by_type<T>())[entity];
+	}
+
+	template <typename ...T>
+	[[nodiscard]]
+	auto operator[](const std::uint32_t entity) const
+		-> std::tuple<T &...>
+		requires (1 < sizeof...(T))
+	{
+		return std::make_tuple(operator[]<T>(entity)...);
 	}
 
 	template <typename ...T>

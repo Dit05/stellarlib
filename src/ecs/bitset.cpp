@@ -48,7 +48,7 @@ bitset::bitset(const bitset &other)
 		throw std::bad_alloc{};
 	}
 
-	std::ranges::copy(other.range(), _begin.get());
+	std::ranges::copy(other.segments(), _begin.get());
 	_end = _begin.get() + _size;
 }
 
@@ -65,7 +65,7 @@ auto bitset::operator=(const bitset &other)
 		_end = _begin.get() + _size;
 	}
 
-	std::ranges::copy(other.range(), _begin.get());
+	std::ranges::copy(other.segments(), _begin.get());
 
 	for (auto &segment : std::ranges::subrange{_begin.get() + other._size, _end}) {
 		segment = 0;
@@ -127,7 +127,7 @@ auto bitset::operator<=(const bitset &other) const
 	-> bool
 {
 	return (_size <= other._size || std::none_of(_begin.get() + other._size, _end, ext::truthy<std::size_t>))
-		&& std::ranges::all_of(std::views::zip(range(), other.range()), ext::zip_subset<std::size_t>);
+		&& std::ranges::all_of(std::views::zip(segments(), other.segments()), ext::zip_subset<std::size_t>);
 }
 
 auto bitset::operator>=(const bitset &other) const
@@ -147,7 +147,7 @@ void bitset::erase(const std::size_t elem)
 
 void bitset::clear()
 {
-	for (auto &segment : range()) {
+	for (auto &segment : segments()) {
 		segment = 0;
 	}
 }
@@ -164,6 +164,12 @@ auto bitset::mask_of(const std::size_t elem)
 	return std::size_t{1} << elem % std::numeric_limits<std::size_t>::digits;
 }
 
+auto bitset::segments() const
+	-> std::ranges::subrange<std::size_t *, std::size_t *>
+{
+	return std::ranges::subrange{_begin.get(), _end};
+}
+
 void bitset::realloc(const std::size_t size)
 {
 	_begin.reset(static_cast<std::size_t *>(std::realloc(_begin.release(), size * sizeof(*_begin))));
@@ -171,11 +177,5 @@ void bitset::realloc(const std::size_t size)
 	if (!_begin) {
 		throw std::bad_alloc{};
 	}
-}
-
-auto bitset::range() const
-	-> std::ranges::subrange<std::size_t *, std::size_t *>
-{
-	return std::ranges::subrange{_begin.get(), _end};
 }
 }

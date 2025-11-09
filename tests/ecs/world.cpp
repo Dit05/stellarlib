@@ -37,23 +37,41 @@ using namespace stellarlib::ecs;
 
 /* NOLINTBEGIN(cert-err58-cpp,performance-unnecessary-copy-initialization) */
 
+namespace
+{
+template <typename T>
+void assert_component_eq(const world &world, std::uint32_t entity, const T &component)
+{
+	ASSERT_TRUE(world.contains(entity));
+	ASSERT_TRUE(world.contains<T>(entity));
+	ASSERT_TRUE(world.at(entity));
+	ASSERT_TRUE(world.at(entity)->contains(world.type_of<T>()));
+	ASSERT_TRUE(world.at<T>(entity));
+	ASSERT_EQ(*world.at<T>(entity), component);
+	ASSERT_TRUE(world[entity].contains(world.type_of<T>()));
+	ASSERT_EQ(world.operator[]<T>(entity), component);
+}
+
+template <typename T>
+void assert_component_false(const world &world, std::uint32_t entity)
+{
+	ASSERT_TRUE(world.contains(entity));
+	ASSERT_FALSE(world.contains<T>(entity));
+	ASSERT_TRUE(world.at(entity));
+	ASSERT_FALSE(world.at(entity)->contains(world.type_of<T>()));
+	ASSERT_FALSE(world.at<T>(entity));
+}
+}
+
 TEST(ecs_world, should_spawn_entities)
 {
 	world world{};
 	const auto entity1{world.spawn(std::int32_t{1}, std::int64_t{2})};
-	ASSERT_FALSE(world.get<std::int8_t>(entity1));
-	ASSERT_FALSE(world.get<std::int16_t>(entity1));
-	ASSERT_TRUE(world.get<std::int32_t>(entity1));
-	ASSERT_EQ(*world.get<std::int32_t>(entity1), 1);
-	ASSERT_TRUE(world.get<std::int64_t>(entity1));
-	ASSERT_EQ(*world.get<std::int64_t>(entity1), 2);
+	assert_component_eq(world, entity1, std::int32_t{1});
+	assert_component_eq(world, entity1, std::int64_t{2});
 	const auto entity2{world.spawn(std::int32_t{3}, std::int64_t{4})};
-	ASSERT_FALSE(world.get<std::int8_t>(entity2));
-	ASSERT_FALSE(world.get<std::int16_t>(entity2));
-	ASSERT_TRUE(world.get<std::int32_t>(entity2));
-	ASSERT_EQ(*world.get<std::int32_t>(entity2), 3);
-	ASSERT_TRUE(world.get<std::int64_t>(entity2));
-	ASSERT_EQ(*world.get<std::int64_t>(entity2), 4);
+	assert_component_eq(world, entity2, std::int32_t{3});
+	assert_component_eq(world, entity2, std::int64_t{4});
 }
 
 TEST(ecs_world, should_insert_components)
@@ -61,14 +79,10 @@ TEST(ecs_world, should_insert_components)
 	world world{};
 	const auto entity{world.spawn(std::int8_t{1}, std::int16_t{2})};
 	world.insert(entity, std::int32_t{3}, std::int64_t{4});
-	ASSERT_TRUE(world.get<std::int8_t>(entity));
-	ASSERT_EQ(*world.get<std::int8_t>(entity), 1);
-	ASSERT_TRUE(world.get<std::int16_t>(entity));
-	ASSERT_EQ(*world.get<std::int16_t>(entity), 2);
-	ASSERT_TRUE(world.get<std::int32_t>(entity));
-	ASSERT_EQ(*world.get<std::int32_t>(entity), 3);
-	ASSERT_TRUE(world.get<std::int64_t>(entity));
-	ASSERT_EQ(*world.get<std::int64_t>(entity), 4);
+	assert_component_eq(world, entity, std::int8_t{1});
+	assert_component_eq(world, entity, std::int16_t{2});
+	assert_component_eq(world, entity, std::int32_t{3});
+	assert_component_eq(world, entity, std::int64_t{4});
 }
 
 TEST(ecs_world, should_erase_components)
@@ -76,8 +90,8 @@ TEST(ecs_world, should_erase_components)
 	world world{};
 	const auto entity{world.spawn(std::int32_t{1}, std::int64_t{2})};
 	world.erase<std::int32_t, std::int64_t>(entity);
-	ASSERT_FALSE(world.get<std::int32_t>(entity));
-	ASSERT_FALSE(world.get<std::int64_t>(entity));
+	assert_component_false<std::int32_t>(world, entity);
+	assert_component_false<std::int64_t>(world, entity);
 }
 
 TEST(ecs_world, should_despawn_entities)
@@ -86,15 +100,13 @@ TEST(ecs_world, should_despawn_entities)
 	const auto entity1{world.spawn(std::int32_t{1}, std::int64_t{2})};
 	const auto entity2{world.spawn(std::int32_t{3}, std::int64_t{4})};
 	world.despawn(entity1);
-	ASSERT_FALSE(world.get<std::int32_t>(entity1));
-	ASSERT_FALSE(world.get<std::int64_t>(entity1));
-	ASSERT_TRUE(world.get<std::int32_t>(entity2));
-	ASSERT_EQ(*world.get<std::int32_t>(entity2), 3);
-	ASSERT_TRUE(world.get<std::int64_t>(entity2));
-	ASSERT_EQ(*world.get<std::int64_t>(entity2), 4);
+	assert_component_false<std::int32_t>(world, entity1);
+	assert_component_false<std::int64_t>(world, entity1);
+	assert_component_eq(world, entity2, std::int32_t{1});
+	assert_component_eq(world, entity2, std::int64_t{2});
 	world.despawn(entity2);
-	ASSERT_FALSE(world.get<std::int32_t>(entity2));
-	ASSERT_FALSE(world.get<std::int64_t>(entity2));
+	assert_component_false<std::int32_t>(world, entity2);
+	assert_component_false<std::int64_t>(world, entity2);
 }
 
 /* NOLINTEND(cert-err58-cpp,performance-unnecessary-copy-initialization) */
