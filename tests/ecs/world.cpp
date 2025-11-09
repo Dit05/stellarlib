@@ -46,10 +46,10 @@ void check_insert(const world &world, std::uint32_t entity, const T &component)
 	ASSERT_TRUE(world.contains(entity));
 	ASSERT_TRUE(world.contains<T>(entity));
 	ASSERT_TRUE(world.at(entity));
-	ASSERT_TRUE(world.at(entity)->contains(world.type_of<T>()));
+	ASSERT_TRUE(world.at(entity)->contains(world::id_of<T>()));
 	ASSERT_TRUE(world.at<T>(entity));
 	ASSERT_EQ(*world.at<T>(entity), component);
-	ASSERT_TRUE(world[entity].contains(world.type_of<T>()));
+	ASSERT_TRUE(world[entity].contains(world::id_of<T>()));
 	ASSERT_EQ(world.operator[]<T>(entity), component);
 }
 
@@ -59,7 +59,7 @@ void check_erase(const world &world, std::uint32_t entity)
 	ASSERT_TRUE(world.contains(entity));
 	ASSERT_FALSE(world.contains<T>(entity));
 	ASSERT_TRUE(world.at(entity));
-	ASSERT_FALSE(world.at(entity)->contains(world.type_of<T>()));
+	ASSERT_FALSE(world.at(entity)->contains(world::id_of<T>()));
 	ASSERT_FALSE(world.at<T>(entity));
 }
 
