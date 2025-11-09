@@ -29,6 +29,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <ranges>
 
 namespace stellarlib::ecs
 {
@@ -82,6 +83,15 @@ public:
 		const auto set{new sparse_set<T>{}};
 		_sets.insert(id, set);
 		return *set;
+	}
+
+	[[nodiscard]]
+	auto sets() const
+	{
+		return std::views::transform(_sets.values(), [](const auto &set) -> any_set<std::size_t> &
+		{
+			return *set.get();
+		});
 	}
 
 private:

@@ -103,6 +103,19 @@ TEST(ecs_sparse_storage, should_pick_set_by_type)
 	check_values(storage);
 }
 
+TEST(ecs_sparse_storage, should_iter_sets)
+{
+	sparse_storage storage{};
+	storage.by_type<std::int32_t>().insert(0, 1);
+	storage.by_type<std::int64_t>().insert(0, 2);
+	ASSERT_EQ(storage.sets().size(), 2);
+	for (auto &set : storage.sets()) {
+		set.erase(0);
+	}
+	ASSERT_FALSE(storage.by_type<std::int32_t>().contains(0));
+	ASSERT_FALSE(storage.by_type<std::int64_t>().contains(0));
+}
+
 /* NOLINTEND(cert-err58-cpp,performance-unnecessary-copy-initialization) */
 
 #pragma clang diagnostic pop
