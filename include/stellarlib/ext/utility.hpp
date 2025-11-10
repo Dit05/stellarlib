@@ -21,32 +21,22 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <stellarlib/ecs/sparse_storage.hpp>
+#ifndef STELLARLIB_EXT_UTILITY_HPP
+#define STELLARLIB_EXT_UTILITY_HPP
 
-#include <memory>
+#include <atomic>
+#include <cstddef>
 
-namespace stellarlib::ecs
+namespace stellarlib::ext
 {
-sparse_storage::sparse_storage(const sparse_storage &other)
+template <typename scope, typename size_type = std::size_t>
+[[nodiscard]]
+auto sequential_id()
+	-> size_type
 {
-	for (const auto [id, set] : other._sets.zip()) {
-		_sets.insert(id, set->clone());
-	}
-}
-
-auto sparse_storage::operator=(const sparse_storage &other)
-	-> sparse_storage &
-{
-	if (std::addressof(other) == this) {
-		return *this;
-	}
-
-	_sets.clear();
-
-	for (const auto [id, set] : other._sets.zip()) {
-		_sets.insert(id, set->clone());
-	}
-
-	return *this;
+	static std::atomic<size_type> id{static_cast<size_type>(-1)};
+	return ++id;
 }
 }
+
+#endif

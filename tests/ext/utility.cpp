@@ -21,32 +21,36 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <stellarlib/ecs/sparse_storage.hpp>
+#include <stellarlib/ext/utility.hpp>
 
-#include <memory>
+#include <gtest/gtest.h>
 
-namespace stellarlib::ecs
+#include <cstdint>
+
+using namespace stellarlib::ext;
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wexit-time-destructors"
+#pragma clang diagnostic ignored "-Wglobal-constructors"
+#pragma clang diagnostic ignored "-Wself-assign-overloaded"
+#pragma clang diagnostic ignored "-Wself-move"
+
+/* NOLINTBEGIN(cert-err58-cpp,performance-unnecessary-copy-initialization) */
+
+class foo final { };
+
+class bar final { };
+
+TEST(ext_utility, sequential_id)
 {
-sparse_storage::sparse_storage(const sparse_storage &other)
-{
-	for (const auto [id, set] : other._sets.zip()) {
-		_sets.insert(id, set->clone());
-	}
+	ASSERT_EQ(sequential_id<foo>(), 0);
+	ASSERT_EQ(sequential_id<foo>(), 1);
+	ASSERT_EQ(sequential_id<foo>(), 2);
+	ASSERT_EQ((sequential_id<bar, std::int64_t>()), 0);
+	ASSERT_EQ((sequential_id<bar, std::int64_t>()), 1);
+	ASSERT_EQ((sequential_id<bar, std::int64_t>()), 2);
 }
 
-auto sparse_storage::operator=(const sparse_storage &other)
-	-> sparse_storage &
-{
-	if (std::addressof(other) == this) {
-		return *this;
-	}
+/* NOLINTEND(cert-err58-cpp,performance-unnecessary-copy-initialization) */
 
-	_sets.clear();
-
-	for (const auto [id, set] : other._sets.zip()) {
-		_sets.insert(id, set->clone());
-	}
-
-	return *this;
-}
-}
+#pragma clang diagnostic pop

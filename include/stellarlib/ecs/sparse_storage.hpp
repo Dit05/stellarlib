@@ -26,6 +26,7 @@
 
 #include <stellarlib/ecs/any_set.hpp>
 #include <stellarlib/ecs/sparse_set.hpp>
+#include <stellarlib/ext/utility.hpp>
 
 #include <cstddef>
 #include <memory>
@@ -57,7 +58,7 @@ public:
 	[[nodiscard]]
 	static auto id_of()
 	{
-		static auto id{next_id()};
+		static auto id{ext::sequential_id<sparse_storage>()};
 		return id;
 	}
 
@@ -96,10 +97,6 @@ public:
 
 private:
 	sparse_set<std::unique_ptr<any_set<std::size_t>>> _sets;
-
-	[[nodiscard]]
-	static auto next_id()
-		-> std::size_t;
 };
 }
 
