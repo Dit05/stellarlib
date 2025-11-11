@@ -37,6 +37,14 @@ auto sequential_id()
 	static std::atomic<size_type> id{static_cast<size_type>(-1)};
 	return ++id;
 }
+
+template <typename scope, typename T, typename size_type = std::size_t>
+[[nodiscard]]
+auto scoped_typeid()
+{
+	static auto id{sequential_id<scope, size_type>()};
+	return id;
+}
 }
 
 #endif

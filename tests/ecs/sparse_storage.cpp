@@ -40,7 +40,7 @@ using namespace stellarlib::ecs;
 
 namespace
 {
-void check_values(sparse_storage &storage)
+void check_values(sparse_storage<void> &storage)
 {
 	ASSERT_TRUE(std::as_const(storage).by_type<std::int32_t>());
 	ASSERT_EQ((*std::as_const(storage).by_type<std::int32_t>())[0], 1);
@@ -53,13 +53,13 @@ void check_values(sparse_storage &storage)
 
 TEST(ecs_sparse_storage, should_init_via_ctor)
 {
-	const sparse_storage storage{};
+	const sparse_storage<void> storage{};
 	ASSERT_FALSE(std::as_const(storage).by_type<std::int32_t>());
 }
 
 TEST(ecs_sparse_storage, should_copy_via_ctor)
 {
-	sparse_storage storage1{};
+	sparse_storage<void> storage1{};
 	storage1.by_type<std::int32_t>().insert(0, 1);
 	storage1.by_type<std::int64_t>().insert(0, 2);
 	auto storage2{storage1};
@@ -68,7 +68,7 @@ TEST(ecs_sparse_storage, should_copy_via_ctor)
 
 TEST(ecs_sparse_storage, should_move_via_ctor)
 {
-	sparse_storage storage1{};
+	sparse_storage<void> storage1{};
 	storage1.by_type<std::int32_t>().insert(0, 1);
 	storage1.by_type<std::int64_t>().insert(0, 2);
 	auto storage2{std::move(storage1)};
@@ -77,27 +77,27 @@ TEST(ecs_sparse_storage, should_move_via_ctor)
 
 TEST(ecs_sparse_storage, should_copy_via_assignment)
 {
-	sparse_storage storage1{};
+	sparse_storage<void> storage1{};
 	storage1.by_type<std::int32_t>().insert(0, 1);
 	storage1.by_type<std::int64_t>().insert(0, 2);
-	sparse_storage storage2{};
+	sparse_storage<void> storage2{};
 	storage2 = storage1;
 	check_values(storage2);
 }
 
 TEST(ecs_sparse_storage, should_move_via_assignment)
 {
-	sparse_storage storage1{};
+	sparse_storage<void> storage1{};
 	storage1.by_type<std::int32_t>().insert(0, 1);
 	storage1.by_type<std::int64_t>().insert(0, 2);
-	sparse_storage storage2{};
+	sparse_storage<void> storage2{};
 	storage2 = std::move(storage1);
 	check_values(storage2);
 }
 
 TEST(ecs_sparse_storage, should_pick_set_by_type)
 {
-	sparse_storage storage{};
+	sparse_storage<void> storage{};
 	storage.by_type<std::int32_t>().insert(0, 1);
 	storage.by_type<std::int64_t>().insert(0, 2);
 	check_values(storage);
@@ -105,7 +105,7 @@ TEST(ecs_sparse_storage, should_pick_set_by_type)
 
 TEST(ecs_sparse_storage, should_iter_sets)
 {
-	sparse_storage storage{};
+	sparse_storage<void> storage{};
 	storage.by_type<std::int32_t>().insert(0, 1);
 	storage.by_type<std::int64_t>().insert(0, 2);
 	ASSERT_EQ(storage.sets().size(), 2);

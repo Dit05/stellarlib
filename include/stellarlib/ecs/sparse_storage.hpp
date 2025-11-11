@@ -34,6 +34,7 @@
 
 namespace stellarlib::ecs
 {
+template <typename scope>
 class sparse_storage final
 {
 public:
@@ -41,13 +42,31 @@ public:
 	explicit sparse_storage() = default;
 
 	[[nodiscard]]
-	sparse_storage(const sparse_storage &other);
+	sparse_storage(const sparse_storage &other)
+	{
+		for (const auto [id, set] : other._sets.zip()) {
+			_sets.insert(id, set->clone());
+		}
+	}
 
 	[[nodiscard]]
 	sparse_storage(sparse_storage &&) = default;
 
 	auto operator=(const sparse_storage &other)
-		-> sparse_storage &;
+		-> sparse_storage &
+	{
+		if (std::addressof(other) == this) {
+			return *this;
+		}
+
+		_sets.clear();
+
+		for (const auto [id, set] : other._sets.zip()) {
+			_sets.insert(id, set->clone());
+		}
+
+		return *this;
+	}
 
 	auto operator=(sparse_storage &&)
 		-> sparse_storage & = default;
@@ -58,8 +77,7 @@ public:
 	[[nodiscard]]
 	static auto id_of()
 	{
-		static auto id{ext::sequential_id<sparse_storage>()};
-		return id;
+		return ext::scoped_typeid<scope, T>();
 	}
 
 	template <typename T>

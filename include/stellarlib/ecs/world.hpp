@@ -41,7 +41,7 @@ public:
 	[[nodiscard]]
 	static auto id_of()
 	{
-		return sparse_storage::id_of<T>();
+		return sparse_storage<world>::id_of<T>();
 	}
 
 	template <typename ...T>
@@ -179,7 +179,7 @@ public:
 
 private:
 	ring_storage<bitset> _entities;
-	sparse_storage _components;
+	sparse_storage<world> _components;
 };
 }
 
