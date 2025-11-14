@@ -49,22 +49,22 @@ TEST(ext_utility, sequential_id)
 	ASSERT_EQ((sequential_id<foo, std::uint64_t>()), 1);
 	ASSERT_EQ((sequential_id<foo, std::uint64_t>()), 2);
 	ASSERT_EQ((sequential_id<foo, std::uint64_t>()), 3);
-	ASSERT_EQ((sequential_id<bar, std::int64_t>()), 0);
-	ASSERT_EQ((sequential_id<bar, std::int64_t>()), 1);
-	ASSERT_EQ((sequential_id<bar, std::int64_t>()), 2);
-	ASSERT_EQ((sequential_id<bar, std::int64_t>()), 3);
+	ASSERT_EQ((sequential_id<foo, std::int64_t>()), 0);
+	ASSERT_EQ((sequential_id<foo, std::int64_t>()), 1);
+	ASSERT_EQ((sequential_id<foo, std::int64_t>()), 2);
+	ASSERT_EQ((sequential_id<foo, std::int64_t>()), 3);
+	ASSERT_EQ((sequential_id<bar, std::uint64_t>()), 0);
+	ASSERT_EQ((sequential_id<bar, std::uint64_t>()), 1);
+	ASSERT_EQ((sequential_id<bar, std::uint64_t>()), 2);
+	ASSERT_EQ((sequential_id<bar, std::uint64_t>()), 3);
 }
 
 TEST(ext_utility, scoped_typeid)
 {
-	ASSERT_EQ((scoped_typeid<foo, std::int32_t, std::int64_t>()), 0);
-	ASSERT_EQ((scoped_typeid<foo, std::int32_t, std::int64_t>()), 0);
-	ASSERT_EQ((scoped_typeid<foo, std::int64_t, std::int64_t>()), 1);
-	ASSERT_EQ((scoped_typeid<foo, std::int64_t, std::int64_t>()), 1);
-	ASSERT_EQ((scoped_typeid<bar, std::int32_t, std::uint64_t>()), 0);
-	ASSERT_EQ((scoped_typeid<bar, std::int32_t, std::uint64_t>()), 0);
-	ASSERT_EQ((scoped_typeid<bar, std::int64_t, std::uint64_t>()), 1);
-	ASSERT_EQ((scoped_typeid<bar, std::int64_t, std::uint64_t>()), 1);
+	ASSERT_EQ((scoped_typeid<bar, std::int32_t, std::int64_t>()), 0);
+	ASSERT_EQ((scoped_typeid<bar, std::int32_t, std::int64_t>()), 0);
+	ASSERT_EQ((scoped_typeid<bar, std::int64_t, std::int64_t>()), 1);
+	ASSERT_EQ((scoped_typeid<bar, std::int64_t, std::int64_t>()), 1);
 	ASSERT_EQ((scoped_typeid<baz, std::int32_t, std::uint64_t>()), 0);
 	ASSERT_EQ((scoped_typeid<baz, std::int32_t, std::uint64_t>()), 0);
 	ASSERT_EQ((scoped_typeid<baz, std::int64_t, std::uint64_t>()), 1);
