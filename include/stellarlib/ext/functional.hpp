@@ -39,7 +39,7 @@ template <typename T>
 [[nodiscard]]
 constexpr auto falsy(const T &arg)
 {
-	return !static_cast<bool>(arg);
+	return !truthy(arg);
 }
 
 template <typename T>
@@ -53,7 +53,7 @@ template <typename T>
 [[nodiscard]]
 constexpr auto superset(const T &lhs, const T &rhs)
 {
-	return (rhs & lhs) == rhs;
+	return subset(rhs, lhs);
 }
 
 namespace zip
@@ -62,14 +62,14 @@ template <typename T>
 [[nodiscard]]
 constexpr auto subset(const std::pair<T, T> &arg)
 {
-	return (arg.first & arg.second) == arg.first;
+	return ext::subset(arg.first, arg.second);
 }
 
 template <typename T>
 [[nodiscard]]
 constexpr auto superset(const std::pair<T, T> &arg)
 {
-	return (arg.second & arg.first) == arg.second;
+	return ext::superset(arg.first, arg.second);
 }
 }
 }

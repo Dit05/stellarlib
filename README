@@ -3,5 +3,7 @@ s/stellarlib.cpp
 
 i/utility.hpp
 t/utility.cpp
+i/functional.hpp
+t/functional.cpp
 
 i/any_set.hpp
