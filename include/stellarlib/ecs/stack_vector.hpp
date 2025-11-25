@@ -107,7 +107,7 @@ public:
 
 	constexpr ~stack_vector()
 	{
-		for (auto &value : *this) {
+		for (const auto &value : *this) {
 			value.~T();
 		}
 
@@ -175,19 +175,20 @@ public:
 
 	constexpr void pop()
 	{
+		--_size;
 		--_end;
 		_end->~T();
-		--_size;
 	}
 
 	constexpr void clear()
 	{
-		for (auto &value : *this) {
+		_size = 0;
+
+		for (const auto &value : *this) {
 			value.~T();
 		}
 
 		_end = _begin;
-		_size = 0;
 	}
 
 private:

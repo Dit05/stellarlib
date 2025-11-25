@@ -8,3 +8,21 @@ i/functional.hpp
 t/functional.cpp
 
 i/any_set.hpp
+
+clang format off
+license
+header guard
+include
+std
+spaces
+member init
+& * { ->
+constexpr
+nodiscard
+
+dtor()
+size()
+operator[]
+begin()
+end()
+clear()
