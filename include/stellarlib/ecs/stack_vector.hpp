@@ -24,15 +24,19 @@
 #ifndef STELLARLIB_ECS_STACK_VECTOR_HPP
 #define STELLARLIB_ECS_STACK_VECTOR_HPP
 
+#include <stellarlib/ext/functional.hpp>
+
 #include <bit>
 #include <cstddef>
+#include <cstdlib>
 #include <memory>
+#include <type_traits>
 #include <utility>
 
 namespace stellarlib::ecs
 {
 template <typename T, typename size_type = std::size_t>
-class stack_vector final : std::allocator<T>
+class stack_vector final
 {
 public:
 	[[nodiscard]]
@@ -43,7 +47,7 @@ public:
 		: _capacity{other._capacity}
 	{
 		if (_capacity != 0) {
-			_begin = std::allocator<T>::allocate(_capacity);
+			_begin = alloc(_capacity);
 			std::uninitialized_copy(other._begin, other._end, _begin);
 			_size = other._size;
 			_end = _begin + _size;
@@ -59,7 +63,6 @@ public:
 	{
 		other._end = nullptr;
 		other._begin = nullptr;
-		other._capacity = 0;
 	}
 
 	constexpr auto operator=(const stack_vector<T, size_type> &other)
@@ -72,9 +75,9 @@ public:
 		std::ranges::destroy(*this);
 
 		if (_capacity < other._size) {
-			std::allocator<T>::deallocate(_begin, _capacity);
+			std::free(_begin);
 			_capacity = std::bit_ceil(other._size);
-			_begin = std::allocator<T>::allocate(_capacity);
+			_begin = alloc(_capacity);
 		}
 
 		std::uninitialized_copy(other._begin, other._end, _begin);
@@ -97,7 +100,7 @@ public:
 	constexpr ~stack_vector()
 	{
 		std::ranges::destroy(*this);
-		std::allocator<T>::deallocate(_begin, _capacity);
+		std::free(_begin);
 	}
 
 	constexpr auto extend(const size_type size)
@@ -174,19 +177,36 @@ private:
 	T *_begin{};
 	T *_end{};
 
-	constexpr void realloc(size_type capacity)
+	[[nodiscard]]
+	constexpr auto alloc(const size_type size)
 	{
-		capacity = std::bit_ceil(capacity);
-		auto tmp{std::allocator<T>::allocate(capacity)};
+		const auto ptr{static_cast<T *>(std::malloc(sizeof(T) * size))};
 
-		for (auto dst{tmp}, src{_begin}; src != _end; ++dst, ++src) {
-			new (dst) T{std::move(*src)};
-			src->~T();
+		if (ext::falsy(ptr)) {
+			throw std::bad_alloc{};
 		}
 
-		std::allocator<T>::deallocate(_begin, _capacity);
-		_capacity = capacity;
-		_begin = tmp;
+		return ptr;
+	}
+
+	constexpr void realloc(const size_type capacity)
+	{
+		_capacity = std::bit_ceil(capacity);
+
+		if constexpr (std::is_trivially_copyable_v<T>) {
+			_begin = static_cast<decltype(_begin)>(std::realloc(_begin, sizeof(*_begin) * _capacity));
+
+			if (ext::falsy(_begin)) {
+				throw std::bad_alloc{};
+			}
+		}
+		else {
+			const auto tmp{alloc(_capacity)};
+			std::uninitialized_move(_begin, _end, tmp);
+			std::ranges::destroy(*this);
+			std::free(_begin);
+			_begin = tmp;
+		}
 	}
 };
 }
