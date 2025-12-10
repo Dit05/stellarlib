@@ -117,12 +117,6 @@ auto bitset::operator==(const bitset &other) const
 	return std::equal(_begin.get(), _end, other._begin.get());
 }
 
-auto bitset::operator!=(const bitset &other) const
-	-> bool
-{
-	return !(*this == other);
-}
-
 auto bitset::operator<=(const bitset &other) const
 	-> bool
 {

@@ -21,41 +21,16 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef STELLARLIB_ECS_ANY_SET_HPP
-#define STELLARLIB_ECS_ANY_SET_HPP
+#ifndef STELLARLIB_EXT_TYPE_TRAITS_HPP
+#define STELLARLIB_EXT_TYPE_TRAITS_HPP
 
-#include <cstddef>
+#include <type_traits>
 
-namespace stellarlib::ecs
+namespace stellarlib::ext
 {
-template <typename size_type = std::size_t>
-class any_set
-{
-public:
-	virtual ~any_set() = default;
-
-	[[nodiscard]]
-	virtual auto clone() const
-		-> any_set * = 0;
-
-	virtual void erase(size_type) = 0;
-
-protected:
-	[[nodiscard]]
-	explicit any_set() = default;
-
-	[[nodiscard]]
-	any_set(const any_set &) = default;
-
-	[[nodiscard]]
-	any_set(any_set &&) = default;
-
-	auto operator=(const any_set &)
-		-> any_set & = default;
-
-	auto operator=(any_set &&)
-		-> any_set & = default;
-};
+template <typename T>
+constexpr bool is_trivially_relocatable_v = std::is_standard_layout_v<T>
+	&& std::is_trivially_move_constructible_v<T> && std::is_trivially_destructible_v<T>;
 }
 
 #endif

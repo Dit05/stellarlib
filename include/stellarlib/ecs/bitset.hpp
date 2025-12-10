@@ -62,10 +62,6 @@ public:
 		-> bool;
 
 	[[nodiscard]]
-	auto operator!=(const bitset &other) const
-		-> bool;
-
-	[[nodiscard]]
 	auto operator<=(const bitset &other) const
 		-> bool;
 

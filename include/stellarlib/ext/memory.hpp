@@ -25,66 +25,76 @@
 #define STELLARLIB_EXT_MEMORY_HPP
 
 #include <stellarlib/ext/functional.hpp>
+#include <stellarlib/ext/type_traits.hpp>
 
 #include <bit>
 #include <cstdlib>
 #include <memory>
 #include <new>
-#include <type_traits>
 
 namespace stellarlib::ext
 {
-template <typename T, typename size_type>
-class arena_allocator : std::allocator<T>
+template <typename _value_type, typename _size_type>
+class arena_allocator : std::allocator<_value_type>
 {
 public:
-	static constexpr auto is_pod{std::is_standard_layout_v<T> && std::is_trivially_copyable_v<T>};
+	using value_type = std::allocator<_value_type>::value_type;
+	using size_type = _size_type;
+	using difference_type = std::allocator<value_type>::difference_type;
+	using propagate_on_container_move_assignment = std::allocator<value_type>::propagate_on_container_move_assignment;
 
-	constexpr void allocate(T *&begin, size_type &capacity)
+	constexpr void allocate(value_type *&begin, size_type &capacity)
 	{
 		capacity = std::bit_ceil(capacity);
 
-		if constexpr (is_pod) {
-			begin = static_cast<T *>(std::malloc(sizeof(T) * capacity));
+		if constexpr (is_trivially_relocatable_v<value_type>) {
+			begin = static_cast<value_type *>(std::malloc(sizeof(*begin) * capacity));
 
-			if (ext::falsy(begin)) {
+			if (falsy(begin)) {
 				throw std::bad_alloc{};
 			}
-		} else {
-			begin = std::allocator<T>::allocate(capacity);
+		}
+		else {
+			begin = std::allocator<value_type>::allocate(capacity);
 		}
 	}
 
-	constexpr void reallocate(size_type size, size_type required, T *&begin, size_type &capacity)
+	constexpr void reallocate(size_type size, size_type required, value_type *&begin, size_type &capacity)
 	{
 
-		if constexpr (is_pod) {
+		if constexpr (is_trivially_relocatable_v<value_type>) {
 			capacity = std::bit_ceil(required);
-			begin = static_cast<T *>(std::realloc(begin, sizeof(T) * capacity));
+			begin = static_cast<value_type *>(std::realloc(begin, sizeof(*begin) * capacity));
 
-			if (ext::falsy(begin)) {
+			if (falsy(begin)) {
 				throw std::bad_alloc{};
 			}
 		}
 		else {
 			required = std::bit_ceil(required);
-			const auto tmp{std::allocator<T>::allocate(required)};
+			const auto tmp{std::allocator<value_type>::allocate(required)};
 			std::uninitialized_move_n(begin, size, tmp);
 			std::destroy_n(begin, size);
-			std::allocator<T>::deallocate(begin, capacity);
+			std::allocator<value_type>::deallocate(begin, capacity);
 			capacity = required;
 			begin = tmp;
 		}
 	}
 
-	constexpr void deallocate(T *begin, const size_type capacity)
+	constexpr void deallocate(value_type *begin, const size_type capacity)
 	{
-		if constexpr (is_pod) {
+		if constexpr (is_trivially_relocatable_v<value_type>) {
 			std::free(begin);
 		}
 		else {
-			std::allocator<T>::deallocate(begin, capacity);
+			std::allocator<value_type>::deallocate(begin, capacity);
 		}
+	}
+
+	[[nodiscard]]
+	constexpr auto operator==([[maybe_unused]] const arena_allocator<value_type, size_type> &other) const
+	{
+		return std::allocator<value_type>::operator==(other);
 	}
 };
 }
