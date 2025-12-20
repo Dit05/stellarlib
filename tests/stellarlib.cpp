@@ -35,7 +35,7 @@ using namespace stellarlib;
 
 /* NOLINTBEGIN(cert-err58-cpp,performance-unnecessary-copy-initialization) */
 
-TEST(stellarlib, hello_world)
+TEST(stellarlib_stellarlib, hello_world)
 {
 	testing::internal::CaptureStdout();
 	hello_world();

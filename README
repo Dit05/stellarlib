@@ -1,36 +1,29 @@
 i/stellarlib.hpp
 s/stellarlib.cpp
 t/stellarlib.cpp
-
 i/utility.hpp
 t/utility.cpp
 i/functional.hpp
 t/functional.cpp
-
 i/any_set.hpp
+
+---------------------------
 
 clang format off
 license
 header guard
 include
 std
-spaces
+spaces (19)
 member init
+=
 & * { ->
 constexpr
 nodiscard
-++ -- += -=
+++ -- += -= *= /= %=
 != true false
 return
 else
 const auto
+const correction
 <>
-
-dtor()
-push()
-size()
-operator[]
-begin()
-end()
-pop()
-clear()
