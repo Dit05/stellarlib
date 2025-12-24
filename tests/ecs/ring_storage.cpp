@@ -37,7 +37,7 @@ using namespace stellarlib::ecs;
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
 #pragma clang diagnostic ignored "-Wself-move"
 
-/* NOLINTBEGIN(cert-err58-cpp,performance-unnecessary-copy-initialization) */
+/* NOLINTBEGIN(cert-err58-cpp,cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes,performance-unnecessary-copy-initialization) */
 
 TEST(stellarlib_ecs_ring_storage, should_reuse_keys)
 {
@@ -79,6 +79,6 @@ TEST(stellarlib_ecs_ring_storage, should_acquire_and_release_keys)
 	ASSERT_EQ(storage[0].data(), data);
 }
 
-/* NOLINTEND(cert-err58-cpp,performance-unnecessary-copy-initialization) */
+/* NOLINTEND(cert-err58-cpp,cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes,performance-unnecessary-copy-initialization) */
 
 #pragma clang diagnostic pop

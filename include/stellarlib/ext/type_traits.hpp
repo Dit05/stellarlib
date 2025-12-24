@@ -29,8 +29,9 @@
 namespace stellarlib::ext
 {
 template <typename T>
-constexpr bool is_trivially_relocatable_v = std::is_standard_layout_v<T>
-	&& std::is_trivially_move_constructible_v<T> && std::is_trivially_destructible_v<T>;
+constexpr bool is_trivially_relocatable_v{
+	std::is_standard_layout_v<T> && std::is_trivially_move_constructible_v<T> && std::is_trivially_destructible_v<T>
+};
 }
 
 #endif
