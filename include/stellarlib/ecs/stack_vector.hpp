@@ -102,7 +102,8 @@ public:
 		ext::arena_allocator<T, size_type>::deallocate(_begin, _capacity);
 	}
 
-	constexpr auto extend(const size_type size)
+	template <typename ...Args>
+	constexpr auto extend(const size_type size, Args &&...args)
 	{
 		if (size <= _size) {
 			return false;
@@ -113,7 +114,7 @@ public:
 		}
 
 		_end = _begin + size;
-		std::uninitialized_default_construct(_begin + _size, _end);
+		 std::uninitialized_fill(_begin + _size, _end, T{std::forward<Args>(args)...});
 		_size = size;
 		return true;
 	}

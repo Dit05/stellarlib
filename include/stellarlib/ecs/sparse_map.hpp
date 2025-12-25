@@ -27,7 +27,6 @@
 #include <stellarlib/ecs/any_set.hpp>
 #include <stellarlib/ecs/stack_vector.hpp>
 
-#include <optional>
 #include <ranges>
 #include <stdexcept>
 #include <string>
@@ -55,7 +54,7 @@ public:
 	template <typename ...Args>
 	void insert(const Key key, Args &&...args)
 	{
-		if (_sparse.extend(key + 1) || !_sparse[key]) {
+		if (_sparse.extend(key + 1, static_cast<Key>(-1)) || _sparse[key] == static_cast<Key>(-1)) {
 			_values.push(std::forward<Args>(args)...);
 			_sparse[key] = _keys.size();
 			_keys.push(key);
@@ -66,7 +65,7 @@ public:
 			(*this)[key] = (std::forward<Args>(args), ...);
 		}
 		else {
-			auto ptr{_values.begin() + *_sparse[key]};
+			auto ptr{_values.begin() + _sparse[key]};
 			ptr->~T();
 			new (ptr) T{std::forward<Args>(args)...};
 		}
@@ -81,20 +80,20 @@ public:
 	[[nodiscard]]
 	auto contains(const Key key) const
 	{
-		return key < _sparse.size() && _sparse[key];
+		return key < _sparse.size() && _sparse[key] != static_cast<Key>(-1);
 	}
 
 	[[nodiscard]]
 	auto at(const Key key) const
 	{
-		return contains(key) ? _values.begin() + *_sparse[key] : nullptr;
+		return contains(key) ? _values.begin() + _sparse[key] : nullptr;
 	}
 
 	[[nodiscard]]
 	auto operator[](const Key key) const
 		-> T &
 	{
-		return _values[*_sparse[key]];
+		return _values[_sparse[key]];
 	}
 
 	[[nodiscard]]
@@ -121,8 +120,8 @@ public:
 			return;
 		}
 
-		const auto index{*_sparse[key]};
-		_sparse[key].reset();
+		const auto index{_sparse[key]};
+		_sparse[key] = static_cast<Key>(-1);
 
 		if (index != _keys.size() - 1) {
 			std::swap(_values[index], *(_values.end() - 1));
@@ -144,7 +143,7 @@ public:
 private:
 	stack_vector<T, Key> _values;
 	stack_vector<Key, Key> _keys;
-	stack_vector<std::optional<Key>, Key> _sparse;
+	stack_vector<Key, Key> _sparse;
 };
 }
 

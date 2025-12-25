@@ -26,7 +26,6 @@
 
 #include <stellarlib/ecs/stack_vector.hpp>
 
-#include <optional>
 #include <utility>
 
 namespace stellarlib::ecs
@@ -37,7 +36,7 @@ class sparse_set final
 public:
 	void insert(const T value)
 	{
-		if (_sparse.extend(value + 1) || !_sparse[value]) {
+		if (_sparse.extend(value + 1, static_cast<T>(-1)) || _sparse[value] == static_cast<T>(-1)) {
 			_sparse[value] = _values.size();
 			_values.push(value);
 		}
@@ -52,7 +51,7 @@ public:
 	[[nodiscard]]
 	auto contains(const T value) const
 	{
-		return value < _sparse.size() && _sparse[value];
+		return value < _sparse.size() && _sparse[value] != static_cast<T>(-1);
 	}
 
 	[[nodiscard]]
@@ -75,8 +74,8 @@ public:
 			return;
 		}
 
-		const auto index{*_sparse[value]};
-		_sparse[value].reset();
+		const auto index{_sparse[value]};
+		_sparse[value] = static_cast<T>(-1);
 
 		if (index != _values.size() - 1) {
 			std::swap(_values[index], *(_values.end() - 1));
@@ -94,7 +93,7 @@ public:
 
 private:
 	stack_vector<T, T> _values;
-	stack_vector<std::optional<T>, T> _sparse;
+	stack_vector<T, T> _sparse;
 };
 }
 
