@@ -7,6 +7,7 @@ i/functional.hpp
 t/functional.cpp
 i/any_set.hpp
 i/type_traits.hpp
+t/type_traits.hpp
 
 ---------------------------
 
@@ -21,6 +22,7 @@ member init
 & * { ->
 constexpr
 nodiscard
+explicit
 ++ -- += -= *= /= %=
 != true false
 return

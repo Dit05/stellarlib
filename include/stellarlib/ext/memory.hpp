@@ -27,7 +27,6 @@
 #include <stellarlib/ext/functional.hpp>
 #include <stellarlib/ext/type_traits.hpp>
 
-#include <bit>
 #include <cstdlib>
 #include <memory>
 #include <new>
@@ -45,7 +44,7 @@ public:
 
 	constexpr void allocate(value_type *&begin, size_type &capacity)
 	{
-		capacity = std::bit_ceil(capacity);
+		capacity = grow(capacity);
 
 		if constexpr (is_trivially_relocatable_v<value_type>) {
 			begin = static_cast<value_type *>(std::malloc(sizeof(*begin) * capacity));
@@ -62,7 +61,7 @@ public:
 	constexpr void reallocate(size_type size, size_type required, value_type *&begin, size_type &capacity)
 	{
 		if constexpr (is_trivially_relocatable_v<value_type>) {
-			capacity = std::bit_ceil(required);
+			capacity = grow(required);
 			begin = static_cast<value_type *>(std::realloc(begin, sizeof(*begin) * capacity));
 
 			if (falsy(begin)) {
@@ -70,7 +69,7 @@ public:
 			}
 		}
 		else {
-			required = std::bit_ceil(required);
+			required = grow(required);
 			const auto tmp{std::allocator<value_type>::allocate(required)};
 			std::uninitialized_move_n(begin, size, tmp);
 			std::destroy_n(begin, size);
@@ -94,6 +93,13 @@ public:
 	constexpr auto operator==(const arena_allocator<value_type, size_type> &other) const
 	{
 		return std::allocator<value_type>::operator==(other);
+	}
+
+private:
+	[[nodiscard]]
+	static constexpr auto grow(const size_type required)
+	{
+		return required + required / 2;
 	}
 };
 }

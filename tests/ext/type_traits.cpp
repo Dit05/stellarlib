@@ -41,7 +41,7 @@ public:
 	trivially_relocatable(const trivially_relocatable &);
 
 	[[nodiscard]]
-	trivially_relocatable(trivially_relocatable &&) = default;
+	constexpr trivially_relocatable(trivially_relocatable &&) = default;
 
 	auto operator=(const trivially_relocatable &)
 		-> trivially_relocatable &;
@@ -49,7 +49,7 @@ public:
 	auto operator=(trivially_relocatable &&)
 		-> trivially_relocatable &;
 
-	~trivially_relocatable() = default;
+	constexpr ~trivially_relocatable() = default;
 };
 
 class non_standard_layout final
@@ -62,7 +62,7 @@ public:
 	non_standard_layout(const non_standard_layout &);
 
 	[[nodiscard]]
-	non_standard_layout(non_standard_layout &&) = default;
+	constexpr non_standard_layout(non_standard_layout &&) = default;
 
 	auto operator=(const non_standard_layout &)
 		-> non_standard_layout &;
@@ -70,7 +70,7 @@ public:
 	auto operator=(non_standard_layout &&)
 		-> non_standard_layout &;
 
-	~non_standard_layout() = default;
+	constexpr ~non_standard_layout() = default;
 
 private:
 	bool _field1{};
@@ -97,7 +97,7 @@ public:
 	auto operator=(non_trivially_move_constructible &&)
 		-> non_trivially_move_constructible &;
 
-	~non_trivially_move_constructible() = default;
+	constexpr ~non_trivially_move_constructible() = default;
 };
 
 class non_trivially_destructible final
@@ -110,7 +110,7 @@ public:
 	non_trivially_destructible(const non_trivially_destructible &);
 
 	[[nodiscard]]
-	non_trivially_destructible(non_trivially_destructible &&) = default;
+	constexpr non_trivially_destructible(non_trivially_destructible &&) = default;
 
 	auto operator=(const non_trivially_destructible &)
 		-> non_trivially_destructible &;
