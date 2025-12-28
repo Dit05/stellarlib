@@ -25,10 +25,10 @@
 #define STELLARLIB_EXT_MEMORY_HPP
 
 #include <stellarlib/ext/functional.hpp>
+#include <stellarlib/ext/type_traits.hpp>
 
 #include <cstdlib>
 #include <memory>
-#include <new>
 
 namespace stellarlib::ext
 {
@@ -45,22 +45,14 @@ public:
 	{
 		capacity = grow(capacity);
 		begin = reinterpret_cast<value_type *>(std::malloc(sizeof(*begin) * capacity));
-
-		if (falsy(begin)) {
-			throw std::bad_alloc{};
-		}
 	}
 
 	constexpr void reallocate(value_type *&begin, size_type size, size_type &capacity) const
 	{
 		capacity = grow(capacity);
 
-		if constexpr (std::is_trivially_move_constructible_v<T> && std::is_trivially_destructible_v<T>) {
+		if constexpr (is_trivially_relocatable_v<value_type>) {
 			begin = reinterpret_cast<value_type *>(std::realloc(begin, sizeof(*begin) * capacity));
-
-			if (falsy(begin)) {
-				throw std::bad_alloc{};
-			}
 		}
 		else {
 			const auto tmp{reinterpret_cast<value_type *>(std::malloc(sizeof(*begin) * capacity))};
@@ -77,13 +69,19 @@ public:
 	}
 
 	[[nodiscard]]
-	constexpr auto operator==(const arena_allocator<value_type, size_type> &) const -> bool = default;
+	constexpr auto operator==(const arena_allocator<value_type, size_type> &) const
+		-> bool = default;
 
 private:
 	[[nodiscard]]
 	static constexpr auto grow(const size_type required)
 	{
-		return required + required / 2;
+		if constexpr (is_trivially_relocatable_v<value_type>) {
+			return required + required / 2;
+		}
+		else {
+			return required * 2;
+		}
 	}
 };
 }

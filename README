@@ -6,6 +6,9 @@ t/utility.cpp
 i/functional.hpp
 t/functional.cpp
 i/any_set.hpp
+i/type_traits.hpp
+t/type_traits.cpp
+t/memory.cpp
 
 ---------------------------
 

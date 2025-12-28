@@ -24,6 +24,7 @@ Checks: >
   -cppcoreguidelines-pro-type-reinterpret-cast,
   -hicpp-noexcept-move,
   -hicpp-no-malloc,
+  -misc-const-correctness,
   -performance-noexcept-move-constructor,
   -readability-function-cognitive-complexity,
   -readability-identifier-length,
