@@ -28,6 +28,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <ranges>
 #include <string>
 #include <type_traits>
 
@@ -74,7 +75,7 @@ TEST(stellarlib_ext_memory, vector_allocator_should_resize_trivial_arena)
 	std::int32_t *arena{};
 	std::size_t capacity{100};
 	allocator.allocate(arena, capacity);
-	for (std::size_t i{}; i != capacity; ++i) {
+	for (const auto i : std::views::iota(std::size_t{}, capacity)) {
 		std::construct_at(arena + i, i);
 	}
 	auto size{capacity};
@@ -82,7 +83,7 @@ TEST(stellarlib_ext_memory, vector_allocator_should_resize_trivial_arena)
 	ASSERT_TRUE(arena);
 	ASSERT_EQ(capacity, 125);
 	std::uninitialized_fill(arena + size, arena + capacity, -1);
-	for (std::size_t i{}; i != size; ++i) {
+	for (const auto i : std::views::iota(std::size_t{}, size)) {
 		ASSERT_EQ(arena[i], i);
 	}
 	size = 50;
@@ -100,7 +101,7 @@ TEST(stellarlib_ext_memory, vector_allocator_should_resize_non_trivial_arena)
 	std::string *arena{};
 	std::size_t capacity{100};
 	allocator.allocate(arena, capacity);
-	for (std::size_t i{}; i != capacity; ++i) {
+	for (const auto i : std::views::iota(std::size_t{}, capacity)) {
 		std::construct_at(arena + i, std::to_string(i));
 	}
 	auto size{capacity};
@@ -108,7 +109,7 @@ TEST(stellarlib_ext_memory, vector_allocator_should_resize_non_trivial_arena)
 	ASSERT_TRUE(arena);
 	ASSERT_EQ(capacity, 200);
 	std::uninitialized_fill(arena + size, arena + capacity, std::to_string(-1));
-	for (std::size_t i{}; i != size; ++i) {
+	for (const auto i : std::views::iota(std::size_t{}, size)) {
 		ASSERT_EQ(arena[i], std::to_string(i));
 	}
 	size = 50;

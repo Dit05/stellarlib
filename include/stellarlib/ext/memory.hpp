@@ -29,6 +29,7 @@
 #include <cstddef>
 #include <cstdlib>
 #include <memory>
+#include <ranges>
 #include <utility>
 
 namespace stellarlib::ext
@@ -56,10 +57,10 @@ public:
 		else {
 			capacity *= 2;
 			const auto dst{reinterpret_cast<value_type *>(std::malloc(capacity * sizeof(value_type)))};
+			const auto diff{dst - begin};
 
-			for (size_type i{}; i != size; ++i) {
-				const auto src{begin + i};
-				std::construct_at(dst + i, std::move(*src));
+			for (const auto src : std::views::iota(begin, begin + size)) {
+				std::construct_at(src + diff, std::move(*src));
 				std::destroy_at(src);
 			}
 
