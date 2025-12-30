@@ -54,11 +54,16 @@ public:
 		}
 		else {
 			capacity *= 2;
-			const auto tmp{reinterpret_cast<value_type *>(std::malloc(capacity * sizeof(value_type)))};
-			std::uninitialized_move_n(begin, size, tmp);
-			std::destroy_n(begin, size);
+			const auto dst{reinterpret_cast<value_type *>(std::malloc(capacity * sizeof(value_type)))};
+
+			for (size_type i{}; i != size; ++i) {
+				const auto src{begin + i};
+				std::construct_at(dst + i, std::move(*src));
+				std::destroy_at(src);
+			}
+
 			std::free(begin);
-			begin = tmp;
+			begin = dst;
 		}
 	}
 
