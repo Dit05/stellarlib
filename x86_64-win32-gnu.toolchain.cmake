@@ -1,3 +1,0 @@
-set(CMAKE_CXX_COMPILER_TARGET x86_64-win32-gnu)
-set(CMAKE_FIND_ROOT_PATH /usr/x86_64-w64-mingw32)
-set(CMAKE_SYSTEM_NAME Windows)

@@ -1,0 +1,2 @@
+set(CMAKE_CXX_COMPILER_TARGET x86_64-w64-mingw32)
+set(CMAKE_FIND_ROOT_PATH /usr/x86_64-w64-mingw32/)
