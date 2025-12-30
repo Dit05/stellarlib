@@ -43,6 +43,23 @@ public:
 	using difference_type = std::allocator<value_type>::difference_type;
 	using propagate_on_container_move_assignment = std::allocator<value_type>::propagate_on_container_move_assignment;
 
+	[[nodiscard]]
+	explicit constexpr vector_allocator() = default;
+
+	[[nodiscard]]
+	constexpr vector_allocator(const vector_allocator &) = default;
+
+	[[nodiscard]]
+	constexpr vector_allocator(vector_allocator &&) = default;
+
+	constexpr auto operator=(const vector_allocator &)
+		-> vector_allocator & = default;
+
+	constexpr auto operator=(vector_allocator &&)
+		-> vector_allocator & = default;
+
+	constexpr ~vector_allocator() = default;
+
 	constexpr void allocate(value_type *&begin, const size_type capacity) const
 	{
 		begin = reinterpret_cast<value_type *>(std::malloc(capacity * sizeof(value_type)));
