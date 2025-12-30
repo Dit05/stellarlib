@@ -24,9 +24,9 @@
 #ifndef STELLARLIB_EXT_MEMORY_HPP
 #define STELLARLIB_EXT_MEMORY_HPP
 
-#include <stellarlib/ext/functional.hpp>
 #include <stellarlib/ext/type_traits.hpp>
 
+#include <cstddef>
 #include <cstdlib>
 #include <memory>
 
@@ -44,18 +44,18 @@ public:
 	constexpr void allocate(value_type *&begin, size_type &capacity) const
 	{
 		capacity = grow(capacity);
-		begin = reinterpret_cast<value_type *>(std::malloc(sizeof(value_type) * capacity));
+		begin = reinterpret_cast<value_type *>(std::malloc(capacity * sizeof(value_type)));
 	}
 
-	constexpr void reallocate(value_type *&begin, size_type size, size_type &capacity) const
+	constexpr void reallocate(value_type *&begin, const size_type size, size_type &capacity) const
 	{
 		capacity = grow(capacity);
 
 		if constexpr (is_trivially_relocatable_v<value_type>) {
-			begin = reinterpret_cast<value_type *>(std::realloc(begin, sizeof(value_type) * capacity));
+			begin = reinterpret_cast<value_type *>(std::realloc(begin, capacity * sizeof(value_type)));
 		}
 		else {
-			const auto tmp{reinterpret_cast<value_type *>(std::malloc(sizeof(value_type) * capacity))};
+			const auto tmp{reinterpret_cast<value_type *>(std::malloc(capacity * sizeof(value_type)))};
 			std::uninitialized_move_n(begin, size, tmp);
 			std::destroy_n(begin, size);
 			std::free(begin);
@@ -74,13 +74,13 @@ public:
 
 private:
 	[[nodiscard]]
-	static constexpr auto grow(const size_type required)
+	static constexpr auto grow(const size_type capacity)
 	{
 		if constexpr (is_trivially_relocatable_v<value_type>) {
-			return required + required / 2;
+			return capacity + capacity / 4;
 		}
 		else {
-			return required * 2;
+			return capacity * 2;
 		}
 	}
 };
