@@ -73,12 +73,12 @@ TEST(stellarlib_ext_memory, vector_allocator_should_resize_trivial_arena)
 {
 	const vector_allocator<std::int32_t> allocator{};
 	std::int32_t *arena{};
-	std::size_t capacity{100};
-	allocator.allocate(arena, capacity);
-	for (const auto i : std::views::iota(std::size_t{}, capacity)) {
+	std::size_t size{100};
+	allocator.allocate(arena, size);
+	for (const auto i : std::views::iota(std::size_t{}, size)) {
 		std::construct_at(arena + i, i);
 	}
-	auto size{capacity};
+	auto capacity{size};
 	allocator.reallocate(arena, size, capacity);
 	ASSERT_TRUE(arena);
 	ASSERT_EQ(capacity, 125);
@@ -90,7 +90,11 @@ TEST(stellarlib_ext_memory, vector_allocator_should_resize_trivial_arena)
 	std::destroy(arena + size, arena + capacity);
 	capacity = size;
 	allocator.reallocate(arena, size, capacity);
+	ASSERT_TRUE(arena);
 	ASSERT_EQ(capacity, 62);
+	for (const auto i : std::views::iota(std::size_t{}, size)) {
+		ASSERT_EQ(arena[i], i);
+	}
 	std::destroy_n(arena, size);
 	allocator.deallocate(arena);
 }
@@ -99,12 +103,12 @@ TEST(stellarlib_ext_memory, vector_allocator_should_resize_non_trivial_arena)
 {
 	const vector_allocator<std::string> allocator{};
 	std::string *arena{};
-	std::size_t capacity{100};
-	allocator.allocate(arena, capacity);
-	for (const auto i : std::views::iota(std::size_t{}, capacity)) {
+	std::size_t size{100};
+	allocator.allocate(arena, size);
+	for (const auto i : std::views::iota(std::size_t{}, size)) {
 		std::construct_at(arena + i, std::to_string(i));
 	}
-	auto size{capacity};
+	auto capacity{size};
 	allocator.reallocate(arena, size, capacity);
 	ASSERT_TRUE(arena);
 	ASSERT_EQ(capacity, 200);
@@ -116,7 +120,11 @@ TEST(stellarlib_ext_memory, vector_allocator_should_resize_non_trivial_arena)
 	std::destroy(arena + size, arena + capacity);
 	capacity = size;
 	allocator.reallocate(arena, size, capacity);
+	ASSERT_TRUE(arena);
 	ASSERT_EQ(capacity, 100);
+	for (const auto i : std::views::iota(std::size_t{}, size)) {
+		ASSERT_EQ(arena[i], std::to_string(i));
+	}
 	std::destroy_n(arena, size);
 	allocator.deallocate(arena);
 }
