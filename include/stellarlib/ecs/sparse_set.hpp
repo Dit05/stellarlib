@@ -92,8 +92,8 @@ public:
 	}
 
 private:
-	stack_vector<T, T> _values;
-	stack_vector<T, T> _sparse;
+	internal::stack_vector<T, T> _values;
+	internal::stack_vector<T, T> _sparse;
 };
 }
 

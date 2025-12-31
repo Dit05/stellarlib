@@ -33,7 +33,7 @@
 #include <utility>
 #include <vector>
 
-using namespace stellarlib::ecs;
+using namespace stellarlib;
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
@@ -51,20 +51,10 @@ static const std::vector<std::shared_ptr<std::int32_t>> VALUES{
 
 namespace
 {
-void check_range_mut(stack_vector<std::shared_ptr<std::int32_t>> &vector)
+void check_values(const ecs::internal::stack_vector<std::shared_ptr<std::int32_t>> &vector)
 {
 	ASSERT_EQ(vector.size(), VALUES.size());
-	for (std::size_t i{}; i != VALUES.size(); ++i) {
-		ASSERT_EQ(vector[i], VALUES[i]);
-	}
-	ASSERT_EQ(vector.end() - vector.begin(), vector.size());
-	ASSERT_TRUE(std::ranges::equal(vector, VALUES));
-}
-
-void check_range_const(const stack_vector<std::shared_ptr<std::int32_t>> &vector)
-{
-	ASSERT_EQ(vector.size(), VALUES.size());
-	for (std::size_t i{}; i != VALUES.size(); ++i) {
+	for (const auto i : std::views::iota(std::size_t{}, vector.size())) {
 		ASSERT_EQ(vector[i], VALUES[i]);
 	}
 	ASSERT_EQ(vector.end() - vector.begin(), vector.size());
@@ -74,7 +64,7 @@ void check_range_const(const stack_vector<std::shared_ptr<std::int32_t>> &vector
 
 TEST(stellarlib_ecs_stack_vector, should_init_via_ctor)
 {
-	const stack_vector<std::shared_ptr<std::int32_t>> vector{};
+	const ecs::internal::stack_vector<std::shared_ptr<std::int32_t>> vector{};
 	ASSERT_FALSE(vector.size());
 	ASSERT_FALSE(vector.begin());
 	ASSERT_FALSE(vector.end());
@@ -82,7 +72,7 @@ TEST(stellarlib_ecs_stack_vector, should_init_via_ctor)
 
 TEST(stellarlib_ecs_stack_vector, should_skip_empty_copy_via_ctor)
 {
-	const stack_vector<std::shared_ptr<std::int32_t>> vector1{};
+	const ecs::internal::stack_vector<std::shared_ptr<std::int32_t>> vector1{};
 	const auto vector2{vector1};
 	ASSERT_FALSE(vector2.size());
 	ASSERT_FALSE(vector2.begin());
@@ -91,122 +81,114 @@ TEST(stellarlib_ecs_stack_vector, should_skip_empty_copy_via_ctor)
 
 TEST(stellarlib_ecs_stack_vector, should_copy_via_ctor)
 {
-	stack_vector<std::shared_ptr<std::int32_t>> vector1{};
+	ecs::internal::stack_vector<std::shared_ptr<std::int32_t>> vector1{};
 	for (const auto &value : VALUES) {
 		vector1.push(value);
 	}
 	auto vector2{vector1};
 	ASSERT_NE(vector2.begin(), vector1.begin());
-	check_range_mut(vector2);
-	check_range_const(vector2);
+	check_values(vector2);
 }
 
 TEST(stellarlib_ecs_stack_vector, should_move_via_ctor)
 {
-	stack_vector<std::shared_ptr<std::int32_t>> vector1{};
+	ecs::internal::stack_vector<std::shared_ptr<std::int32_t>> vector1{};
 	for (const auto &value : VALUES) {
 		vector1.push(value);
 	}
 	const auto begin{vector1.begin()};
 	auto vector2{std::move(vector1)};
 	ASSERT_EQ(vector2.begin(), begin);
-	check_range_mut(vector2);
-	check_range_const(vector2);
+	check_values(vector2);
 }
 
 TEST(stellarlib_ecs_stack_vector, should_skip_self_copy_via_assignment)
 {
-	stack_vector<std::shared_ptr<std::int32_t>> vector{};
+	ecs::internal::stack_vector<std::shared_ptr<std::int32_t>> vector{};
 	for (const auto &value : VALUES) {
 		vector.push(value);
 	}
 	const auto begin{vector.begin()};
 	vector = vector;
 	ASSERT_EQ(vector.begin(), begin);
-	check_range_mut(vector);
-	check_range_const(vector);
+	check_values(vector);
 }
 
 TEST(stellarlib_ecs_stack_vector, should_optimize_copy_via_assignment)
 {
-	stack_vector<std::shared_ptr<std::int32_t>> vector1{};
+	ecs::internal::stack_vector<std::shared_ptr<std::int32_t>> vector1{};
 	for (const auto &value : VALUES) {
 		vector1.push(value);
 	}
-	stack_vector<std::shared_ptr<std::int32_t>> vector2{};
+	ecs::internal::stack_vector<std::shared_ptr<std::int32_t>> vector2{};
 	for (const auto &value : std::ranges::reverse_view{VALUES}) {
 		vector2.push(value);
 	}
 	const auto begin{vector2.begin()};
 	vector2 = vector1;
 	ASSERT_EQ(vector2.begin(), begin);
-	check_range_mut(vector2);
-	check_range_const(vector2);
+	check_values(vector2);
 }
 
 TEST(stellarlib_ecs_stack_vector, should_copy_via_assignment)
 {
-	stack_vector<std::shared_ptr<std::int32_t>> vector1{};
+	ecs::internal::stack_vector<std::shared_ptr<std::int32_t>> vector1{};
 	for (const auto &value : VALUES) {
 		vector1.push(value);
 	}
-	stack_vector<std::shared_ptr<std::int32_t>> vector2{};
+	ecs::internal::stack_vector<std::shared_ptr<std::int32_t>> vector2{};
 	vector2.push(VALUES.front());
 	vector2 = vector1;
 	ASSERT_NE(vector2.begin(), vector1.begin());
-	check_range_mut(vector2);
-	check_range_const(vector2);
+	check_values(vector2);
 }
 
 TEST(stellarlib_ecs_stack_vector, should_skip_self_move_via_assignment)
 {
-	stack_vector<std::shared_ptr<std::int32_t>> vector{};
+	ecs::internal::stack_vector<std::shared_ptr<std::int32_t>> vector{};
 	for (const auto &value : VALUES) {
 		vector.push(value);
 	}
 	const auto begin{vector.begin()};
 	vector = std::move(vector);
 	ASSERT_EQ(vector.begin(), begin);
-	check_range_mut(vector);
-	check_range_const(vector);
+	check_values(vector);
 }
 
 TEST(stellarlib_ecs_stack_vector, should_move_via_assignment)
 {
-	stack_vector<std::shared_ptr<std::int32_t>> vector1{};
+	ecs::internal::stack_vector<std::shared_ptr<std::int32_t>> vector1{};
 	for (const auto &value : VALUES) {
 		vector1.push(value);
 	}
-	stack_vector<std::shared_ptr<std::int32_t>> vector2{};
+	ecs::internal::stack_vector<std::shared_ptr<std::int32_t>> vector2{};
 	vector2.push(VALUES.front());
 	const auto begin{vector1.begin()};
 	vector2 = std::move(vector1);
 	ASSERT_EQ(vector2.begin(), begin);
-	check_range_mut(vector2);
-	check_range_const(vector2);
+	check_values(vector2);
 }
 
 TEST(stellarlib_ecs_stack_vector, should_optimize_extend)
 {
-	stack_vector<std::shared_ptr<std::int32_t>> vector{};
+	ecs::internal::stack_vector<std::shared_ptr<std::int32_t>> vector{};
 	for (const auto &value : VALUES) {
 		vector.push(value);
 	}
 	const auto begin{vector.begin()};
 	ASSERT_FALSE(vector.extend(vector.size()));
 	ASSERT_EQ(vector.begin(), begin);
-	check_range_mut(vector);
-	check_range_const(vector);
+	check_values(vector);
 }
 
 TEST(stellarlib_ecs_stack_vector, should_extend)
 {
-	stack_vector<std::shared_ptr<std::int32_t>> vector{};
+	ecs::internal::stack_vector<std::shared_ptr<std::int32_t>> vector{};
 	vector.push(VALUES.front());
 	ASSERT_TRUE(vector.extend(VALUES.size()));
 	ASSERT_EQ(vector.size(), VALUES.size());
 	ASSERT_EQ(vector[0], VALUES.front());
-	for (std::size_t i{1}; i != VALUES.size(); ++i) {
+	for (const auto i : std::views::iota(std::size_t{1}, vector.size())) {
 		ASSERT_EQ(vector[i], std::shared_ptr<std::int32_t>{});
 	}
 	ASSERT_EQ(vector.end() - vector.begin(), vector.size());
@@ -214,8 +196,8 @@ TEST(stellarlib_ecs_stack_vector, should_extend)
 
 TEST(stellarlib_ecs_stack_vector, should_push_and_pop_values)
 {
-	stack_vector<std::shared_ptr<std::int32_t>> vector{};
-	for (std::size_t i{}; i != VALUES.size(); ++i) {
+	ecs::internal::stack_vector<std::shared_ptr<std::int32_t>> vector{};
+	for (const auto i : std::views::iota(std::size_t{}, VALUES.size())) {
 		vector.push(VALUES[i]);
 		ASSERT_EQ(vector.size(), i + 1);
 		ASSERT_EQ(vector[i], VALUES[i]);
@@ -234,13 +216,12 @@ TEST(stellarlib_ecs_stack_vector, should_push_and_pop_values)
 		ASSERT_EQ(vector.end() - vector.begin(), i + 1);
 		ASSERT_EQ(*std::ranges::find(vector, VALUES[i]), VALUES[i]);
 	}
-	check_range_mut(vector);
-	check_range_const(vector);
+	check_values(vector);
 }
 
 TEST(stellarlib_ecs_stack_vector, should_clear_values)
 {
-	stack_vector<std::shared_ptr<std::int32_t>> vector{};
+	ecs::internal::stack_vector<std::shared_ptr<std::int32_t>> vector{};
 	for (const auto &value : std::ranges::reverse_view{VALUES}) {
 		vector.push(value);
 	}
@@ -252,8 +233,7 @@ TEST(stellarlib_ecs_stack_vector, should_clear_values)
 		vector.push(value);
 	}
 	ASSERT_EQ(vector.begin(), begin);
-	check_range_mut(vector);
-	check_range_const(vector);
+	check_values(vector);
 }
 
 /* NOLINTEND(cert-err58-cpp,cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes,performance-unnecessary-copy-initialization) */

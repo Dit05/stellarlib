@@ -236,7 +236,7 @@ public:
 		if (!query) {
 			bitset archetype{};
 			(archetype.insert(id_of<T>()), ...);
-			stack_vector<std::size_t> indices{};
+			internal::stack_vector<std::size_t> indices{};
 
 			for (std::size_t i{}; i != _archetypes.size(); ++i) {
 				if (archetype <= _archetypes[i].first) {
@@ -249,7 +249,7 @@ public:
 		}
 
 		return query->second
-			| std::views::transform([this](const auto index) -> stack_vector<std::uint32_t> & {
+			| std::views::transform([this](const auto index) -> internal::stack_vector<std::uint32_t> & {
 				return _archetypes[index].second.keys();
 			})
 			| std::views::join
@@ -261,9 +261,9 @@ public:
 private:
 	sparse_storage<world> _components;
 	sparse_map<std::uint32_t, std::uint32_t> _entities;
-	stack_vector<std::uint32_t> _queue;
-	stack_vector<std::pair<bitset, sparse_set<std::uint32_t>>> _archetypes;
-	sparse_map<std::size_t, std::pair<bitset, stack_vector<std::size_t>>> _queries;
+	internal::stack_vector<std::uint32_t> _queue;
+	internal::stack_vector<std::pair<bitset, sparse_set<std::uint32_t>>> _archetypes;
+	sparse_map<std::size_t, std::pair<bitset, internal::stack_vector<std::size_t>>> _queries;
 	static thread_local bitset _cache;
 };
 }

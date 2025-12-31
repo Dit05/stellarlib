@@ -114,7 +114,7 @@ private:
 	uint32_t _key{};
 	uint32_t _padding{};
 	sparse_map<std::uint32_t, T> _set;
-	stack_vector<std::pair<std::uint32_t, T>, std::uint32_t> _stack;
+	internal::stack_vector<std::pair<std::uint32_t, T>, std::uint32_t> _stack;
 };
 }
 

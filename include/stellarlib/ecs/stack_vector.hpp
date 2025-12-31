@@ -31,7 +31,7 @@
 #include <memory>
 #include <utility>
 
-namespace stellarlib::ecs
+namespace stellarlib::ecs::internal
 {
 template <typename T, typename size_type = std::size_t>
 class stack_vector final : ext::vector_allocator<T, size_type>
