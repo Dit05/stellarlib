@@ -23,7 +23,7 @@
 
 #include <stellarlib/ext/type_traits.hpp>
 
-using namespace stellarlib::ext;
+using namespace stellarlib;
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
@@ -94,9 +94,9 @@ public:
 	~non_trivially_destructible();
 };
 
-static_assert(is_trivially_relocatable_v<trivially_relocatable>);
-static_assert(!is_trivially_relocatable_v<non_trivially_move_constructible>);
-static_assert(!is_trivially_relocatable_v<non_trivially_destructible>);
+static_assert(ext::is_trivially_relocatable_v<trivially_relocatable>);
+static_assert(!ext::is_trivially_relocatable_v<non_trivially_move_constructible>);
+static_assert(!ext::is_trivially_relocatable_v<non_trivially_destructible>);
 
 /* NOLINTEND(cert-err58-cpp,cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes,performance-unnecessary-copy-initialization) */
 
