@@ -38,7 +38,7 @@ if(TARGET GTest::gtest_main)
 	target_link_libraries(tests PRIVATE GTest::gtest_main ${PROJECT_NAME})
 	add_custom_command(
 		TARGET tests POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:tests> $<TARGET_FILE_DIR:tests>
+		COMMAND ${CMAKE_COMMAND} -E copy -t $<TARGET_FILE_DIR:tests> $<TARGET_RUNTIME_DLLS:tests>
 		COMMAND_EXPAND_LISTS
 	)
 	include(GoogleTest)
@@ -52,7 +52,7 @@ foreach(SOURCE ${EXAMPLES})
 	target_link_libraries(${EXAMPLE} PRIVATE ${PROJECT_NAME})
 	add_custom_command(
 		TARGET ${EXAMPLE} POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:${EXAMPLE}> $<TARGET_FILE_DIR:${EXAMPLE}>
+		COMMAND ${CMAKE_COMMAND} -E copy -t $<TARGET_FILE_DIR:${EXAMPLE}> $<TARGET_RUNTIME_DLLS:${EXAMPLE}>
 		COMMAND_EXPAND_LISTS
 	)
 endforeach()
