@@ -1,6 +1,7 @@
 ---
 Checks: >
   -*,
+  android-*,
   bugprone-*,
   cert-*,
   clang-analyzer-*,
