@@ -3,7 +3,6 @@
 -fuse-ld=lld
 -O3
 -Qunused-arguments
--stdlib=libc++
 -Werror
 -Weverything
 -Wno-c++98-compat-pedantic
