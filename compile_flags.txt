@@ -1,8 +1,10 @@
 -ffast-math
 -flto
 -fuse-ld=lld
+-Iinclude
 -O3
 -Qunused-arguments
+-std=c++26
 -Werror
 -Weverything
 -Wno-c++98-compat-pedantic
