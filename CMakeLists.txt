@@ -5,7 +5,6 @@ set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_EXTENSIONS OFF)
 file(READ ${CMAKE_SOURCE_DIR}/compile_flags.txt CMAKE_CXX_FLAGS)
 string(REPLACE \n \  CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-set(CMAKE_CXX_FLAGS_RELEASE -march=native)
 
 find_program(CLANG_TIDY clang-tidy)
 if(CLANG_TIDY)
@@ -15,17 +14,28 @@ endif()
 project(stellarlib LANGUAGES CXX)
 include_directories(${CMAKE_SOURCE_DIR}/include)
 file(GLOB_RECURSE SOURCES ${CMAKE_SOURCE_DIR}/src/*.cpp)
-add_library(${PROJECT_NAME} ${SOURCES})
+add_library(${PROJECT_NAME} STATIC ${SOURCES})
+find_package(SDL3 REQUIRED)
+target_link_libraries(${PROJECT_NAME} SDL3::SDL3)
 
-if(${WIN32})
-	file(
-		COPY
-		${CMAKE_FIND_ROOT_PATH}/bin/libgcc_s_seh-1.dll
-		${CMAKE_FIND_ROOT_PATH}/bin/libssp-0.dll
-		${CMAKE_FIND_ROOT_PATH}/bin/libstdc++-6.dll
-		${CMAKE_FIND_ROOT_PATH}/bin/libwinpthread-1.dll
-		DESTINATION
-		${CMAKE_BINARY_DIR}
+include(GNUInstallDirs)
+if(${ANDROID})
+	get_target_property(SDL3_LOCATION SDL3::SDL3 LOCATION)
+	add_custom_command(
+		TARGET ${PROJECT_NAME} POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${SDL3_LOCATION} $<TARGET_FILE_DIR:${PROJECT_NAME}>
+		COMMAND_EXPAND_LISTS
+	)
+elseif(${WIN32})
+	add_custom_command(
+		TARGET ${PROJECT_NAME} POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			${CMAKE_FIND_ROOT_PATH}/${CMAKE_INSTALL_BINDIR}/libgcc_s_seh-1.dll
+			${CMAKE_FIND_ROOT_PATH}/${CMAKE_INSTALL_BINDIR}/libssp-0.dll
+			${CMAKE_FIND_ROOT_PATH}/${CMAKE_INSTALL_BINDIR}/libstdc++-6.dll
+			${CMAKE_FIND_ROOT_PATH}/${CMAKE_INSTALL_BINDIR}/libwinpthread-1.dll
+			$<TARGET_FILE_DIR:${PROJECT_NAME}>
+		COMMAND_EXPAND_LISTS
 	)
 endif()
 
@@ -57,7 +67,6 @@ foreach(SOURCE ${EXAMPLES})
 	)
 endforeach()
 
-include(GNUInstallDirs)
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 install(TARGETS ${PROJECT_NAME})
 install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION ${CMAKE_INSTALL_DATADIR}/licenses/${PROJECT_NAME})
