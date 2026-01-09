@@ -1,3 +1,4 @@
+include(${CMAKE_CURRENT_LIST_DIR}/sdl.cmake)
 set(ANDROID_ABI arm64-v8a)
 set(ANDROID_PLATFORM 21)
 include(/opt/android-ndk/build/cmake/android.toolchain.cmake)
