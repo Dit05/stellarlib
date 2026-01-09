@@ -1,3 +1,5 @@
-/build/
+/android/app/src/main/jniLibs/
+build/
 .cache/
+.gradle
 *.vim
