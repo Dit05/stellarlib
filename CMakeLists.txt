@@ -19,14 +19,7 @@ find_package(SDL3 REQUIRED)
 target_link_libraries(${PROJECT_NAME} SDL3::SDL3)
 
 include(GNUInstallDirs)
-if(${ANDROID})
-	get_target_property(SDL3_LOCATION SDL3::SDL3 LOCATION)
-	add_custom_command(
-		TARGET ${PROJECT_NAME} POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${SDL3_LOCATION} $<TARGET_FILE_DIR:${PROJECT_NAME}>
-		COMMAND_EXPAND_LISTS
-	)
-elseif(${WIN32})
+if(${WIN32})
 	add_custom_command(
 		TARGET ${PROJECT_NAME} POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -37,6 +30,14 @@ elseif(${WIN32})
 			$<TARGET_FILE_DIR:${PROJECT_NAME}>
 		COMMAND_EXPAND_LISTS
 	)
+elseif(${ANDROID})
+	set(ANDROID_JNI_DIR ${CMAKE_SOURCE_DIR}/android/app/src/main/jniLibs/${ANDROID_ABI})
+	file(MAKE_DIRECTORY ${ANDROID_JNI_DIR})
+	get_target_property(SDL3_LOCATION SDL3::SDL3 LOCATION)
+	add_custom_command(
+		TARGET ${PROJECT_NAME} POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${SDL3_LOCATION} ${ANDROID_JNI_DIR}
+	)
 endif()
 
 find_package(GTest)
@@ -44,11 +45,13 @@ if(TARGET GTest::gtest_main)
 	file(GLOB_RECURSE TESTS ${CMAKE_SOURCE_DIR}/tests/*.cpp)
 	add_executable(tests EXCLUDE_FROM_ALL ${TESTS})
 	target_link_libraries(tests GTest::gtest_main ${PROJECT_NAME})
-	add_custom_command(
-		TARGET tests POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy -t $<TARGET_FILE_DIR:tests> $<TARGET_RUNTIME_DLLS:tests>
-		COMMAND_EXPAND_LISTS
-	)
+	if(${WIN32})
+		add_custom_command(
+			TARGET tests POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy -t $<TARGET_FILE_DIR:tests> $<TARGET_RUNTIME_DLLS:tests>
+			COMMAND_EXPAND_LISTS
+		)
+	endif()
 endif()
 
 file(GLOB_RECURSE EXAMPLES ${CMAKE_SOURCE_DIR}/examples/*.cpp)
@@ -60,11 +63,22 @@ foreach(SOURCE ${EXAMPLES})
 		add_executable(${EXAMPLE} WIN32 EXCLUDE_FROM_ALL ${SOURCE})
 	endif()
 	target_link_libraries(${EXAMPLE} ${PROJECT_NAME})
-	add_custom_command(
-		TARGET ${EXAMPLE} POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy -t $<TARGET_FILE_DIR:${EXAMPLE}> $<TARGET_RUNTIME_DLLS:${EXAMPLE}>
-		COMMAND_EXPAND_LISTS
-	)
+	if(${WIN32})
+		add_custom_command(
+			TARGET ${EXAMPLE} POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy -t $<TARGET_FILE_DIR:${EXAMPLE}> $<TARGET_RUNTIME_DLLS:${EXAMPLE}>
+			COMMAND_EXPAND_LISTS
+		)
+	elseif(${ANDROID})
+		add_custom_command(
+			TARGET ${EXAMPLE} POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${EXAMPLE}> ${ANDROID_JNI_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}main${CMAKE_SHARED_LIBRARY_SUFFIX}
+			COMMAND ./gradlew assembleDebug
+			COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/android/app/build/outputs/apk/debug/app-debug.apk ${CMAKE_BINARY_DIR}/${EXAMPLE}.apk
+			WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/android
+			COMMAND_EXPAND_LISTS
+		)
+	endif()
 endforeach()
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
