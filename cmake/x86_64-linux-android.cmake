@@ -1,4 +1,4 @@
-include(${CMAKE_CURRENT_LIST_DIR}/sdl.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/SDL3Subsystems.cmake)
 set(ANDROID_ABI x86_64)
 set(ANDROID_PLATFORM 21)
 include(/opt/android-ndk/build/cmake/android.toolchain.cmake)
