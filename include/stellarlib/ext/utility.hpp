@@ -29,19 +29,19 @@
 
 namespace stellarlib::ext
 {
-template <typename scope, typename size_type = std::size_t>
+template <typename Scope, typename SizeType = std::size_t>
 [[nodiscard]]
 auto sequential_id()
 {
-	static std::atomic<size_type> id{static_cast<size_type>(-1)};
+	static std::atomic<SizeType> id{static_cast<SizeType>(-1)};
 	return ++id;
 }
 
-template <typename scope, typename T, typename size_type = std::size_t>
+template <typename Scope, typename T, typename SizeType = std::size_t>
 [[nodiscard]]
 auto scoped_typeid()
 {
-	static const auto id{sequential_id<scope, size_type>()};
+	static const auto id{sequential_id<Scope, SizeType>()};
 	return id;
 }
 }

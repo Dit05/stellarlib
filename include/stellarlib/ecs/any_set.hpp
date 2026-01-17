@@ -28,7 +28,7 @@
 
 namespace stellarlib::ecs::internal
 {
-template <typename size_type = std::size_t>
+template <typename SizeType = std::size_t>
 class any_set
 {
 public:
@@ -38,7 +38,7 @@ public:
 	virtual auto clone() const
 		-> any_set * = 0;
 
-	virtual void erase(size_type) = 0;
+	virtual void erase(SizeType) = 0;
 
 protected:
 	[[nodiscard]]
