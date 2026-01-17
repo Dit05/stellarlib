@@ -26,7 +26,7 @@
 
 #include <cstddef>
 
-namespace stellarlib::ecs
+namespace stellarlib::ecs::internal
 {
 template <typename size_type = std::size_t>
 class any_set

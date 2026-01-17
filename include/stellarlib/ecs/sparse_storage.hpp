@@ -107,14 +107,14 @@ public:
 	[[nodiscard]]
 	auto sets() const
 	{
-		return std::views::transform(_sets.values(), [](const auto &set) -> any_set<std::size_t> &
+		return std::views::transform(_sets.values(), [](const auto &set) -> internal::any_set<std::size_t> &
 		{
 			return *set.get();
 		});
 	}
 
 private:
-	sparse_map<std::size_t, std::unique_ptr<any_set<std::size_t>>> _sets;
+	sparse_map<std::size_t, std::unique_ptr<internal::any_set<std::size_t>>> _sets;
 };
 }
 
