@@ -35,11 +35,11 @@ using namespace stellarlib;
 
 /* NOLINTBEGIN(cert-err58-cpp,cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes,performance-unnecessary-copy-initialization) */
 
-class foo final { };
+class foo final {};
 
-class bar final { };
+class bar final {};
 
-class baz final { };
+class baz final {};
 
 TEST(stellarlib_ext_utility, sequential_id)
 {
