@@ -65,11 +65,16 @@ public:
 		begin = reinterpret_cast<value_type *>(std::malloc(capacity * sizeof(value_type)));
 	}
 
+	constexpr void reallocate(value_type *&begin, const size_type capacity) const
+	{
+		begin = reinterpret_cast<value_type *>(std::realloc(begin, capacity * sizeof(value_type)));
+	}
+
 	constexpr void reallocate(value_type *&begin, const size_type size, size_type &capacity) const
 	{
 		if constexpr (is_trivially_relocatable_v<value_type>) {
 			capacity += capacity / 4;
-			begin = reinterpret_cast<value_type *>(std::realloc(begin, capacity * sizeof(value_type)));
+			reallocate(begin, capacity);
 		}
 		else {
 			capacity *= 2;

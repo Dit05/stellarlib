@@ -69,6 +69,31 @@ TEST(stellarlib_ext_memory, vector_allocator_should_acquire_and_release_non_triv
 	allocator.deallocate(arena);
 }
 
+TEST(stellarlib_ext_memory, vector_allocator_should_handle_unsafe_arena)
+{
+	const ext::vector_allocator<std::int32_t> allocator{};
+	std::int32_t *arena{};
+	const std::size_t size1{100};
+	allocator.allocate(arena, size1);
+	for (const auto i : std::views::iota(std::size_t{}, size1)) {
+		std::construct_at(arena + i, i);
+	}
+	const std::size_t size2{125};
+	allocator.reallocate(arena, size2);
+	ASSERT_TRUE(arena);
+	std::uninitialized_fill(arena + size1, arena + size2, -1);
+	for (const auto i : std::views::iota(std::size_t{}, size1)) {
+		ASSERT_EQ(arena[i], i);
+	}
+	const std::size_t size3{62};
+	allocator.reallocate(arena, size3);
+	ASSERT_TRUE(arena);
+	for (const auto i : std::views::iota(std::size_t{}, size3)) {
+		ASSERT_EQ(arena[i], i);
+	}
+	allocator.deallocate(arena);
+}
+
 TEST(stellarlib_ext_memory, vector_allocator_should_resize_trivial_arena)
 {
 	const ext::vector_allocator<std::int32_t> allocator{};
