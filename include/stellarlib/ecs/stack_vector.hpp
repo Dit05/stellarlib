@@ -138,10 +138,10 @@ public:
 	}
 
 	[[nodiscard]]
-	constexpr auto operator[](const SizeType i) const
+	constexpr auto operator[](const SizeType index) const
 		-> T &
 	{
-		return _begin[i];
+		return _begin[index];
 	}
 
 	[[nodiscard]]

@@ -10,6 +10,7 @@ i/type_traits.hpp
 t/type_traits.cpp
 i/memory.hpp
 t/memory.cpp
+i/stack_vector.hpp
 
 ---------------------------
 
