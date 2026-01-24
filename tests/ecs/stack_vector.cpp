@@ -26,12 +26,12 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <ranges>
 #include <utility>
-#include <vector>
 
 using namespace stellarlib;
 
@@ -41,7 +41,7 @@ using namespace stellarlib;
 
 /* NOLINTBEGIN(cert-err58-cpp,cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes,performance-unnecessary-copy-initialization) */
 
-static const std::vector<std::shared_ptr<std::int32_t>> VALUES{
+const std::array<std::shared_ptr<std::int32_t>, 5> VALUES{
 	std::make_shared<std::int32_t>(0),
 	std::make_shared<std::int32_t>(5),
 	std::make_shared<std::int32_t>(10),
@@ -51,7 +51,7 @@ static const std::vector<std::shared_ptr<std::int32_t>> VALUES{
 
 namespace
 {
-void check_values(const ecs::internal::stack_vector<std::shared_ptr<std::int32_t>> &vector)
+constexpr void check_values(const ecs::internal::stack_vector<std::shared_ptr<std::int32_t>> &vector)
 {
 	ASSERT_EQ(vector.size(), VALUES.size());
 	for (const auto i : std::views::iota(std::size_t{}, vector.size())) {

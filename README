@@ -11,14 +11,15 @@ t/type_traits.cpp
 i/memory.hpp
 t/memory.cpp
 i/stack_vector.hpp
+t/stack_vector.hpp
 
 ---------------------------
 
 clang format off
 license
 header guard
-include
 std
+include
 spaces (19)
 member init
 =
@@ -37,7 +38,7 @@ const correction
 
 generic names
 pipes
-ctors
+5 ctors
 count * size
 sizeof
 views/ranges ctor
