@@ -28,52 +28,52 @@
 
 #include <utility>
 
-namespace stellarlib::ecs
+namespace stellarlib::ecs::internal
 {
 template <typename T>
 class sparse_set final
 {
 public:
-	void insert(const T value)
+	[[nodiscard]]
+	explicit constexpr sparse_set() = default;
+
+	[[nodiscard]]
+	constexpr sparse_set(const sparse_set<T> &) = default;
+
+	[[nodiscard]]
+	constexpr sparse_set(sparse_set<T> &&) = default;
+
+	constexpr auto operator=(const sparse_set<T> &)
+		-> sparse_set<T> & = default;
+
+	constexpr auto operator=(sparse_set<T> &&)
+		-> sparse_set<T> & = default;
+
+	constexpr ~sparse_set() = default;
+
+	constexpr void insert(const T value)
 	{
-		if (_sparse.extend(value + 1, static_cast<T>(-1)) || _sparse[value] == static_cast<T>(-1)) {
-			_sparse[value] = _values.size();
-			_values.push(value);
-		}
+		_sparse.extend(value + 1, static_cast<T>(-1));
+		_sparse[value] = _values.size();
+		_values.push(value);
 	}
 
 	[[nodiscard]]
-	auto size() const
-	{
-		return _values.size();
-	}
-
-	[[nodiscard]]
-	auto contains(const T value) const
-	{
-		return value < _sparse.size() && _sparse[value] != static_cast<T>(-1);
-	}
-
-	[[nodiscard]]
-	auto begin() const
+	constexpr auto begin() const
 		-> const T *
 	{
 		return _values.begin();
 	}
 
 	[[nodiscard]]
-	auto end() const
+	constexpr auto end() const
 		-> const T *
 	{
 		return _values.end();
 	}
 
-	void erase(const T value)
+	constexpr void erase(const T value)
 	{
-		if (!contains(value)) {
-			return;
-		}
-
 		const auto index{_sparse[value]};
 		_sparse[value] = static_cast<T>(-1);
 
@@ -85,15 +85,9 @@ public:
 		_values.pop();
 	}
 
-	void clear()
-	{
-		_sparse.clear();
-		_values.clear();
-	}
-
 private:
-	internal::stack_vector<T, T> _values;
-	internal::stack_vector<T, T> _sparse;
+	stack_vector<T, T> _values;
+	stack_vector<T, T> _sparse;
 };
 }
 
