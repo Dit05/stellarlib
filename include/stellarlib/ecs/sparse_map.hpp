@@ -96,7 +96,7 @@ public:
 	[[nodiscard]]
 	auto keys() const
 	{
-		return _keys | std::views::all;
+		return std::ranges::subrange{reinterpret_cast<const Key *>(_keys.begin()), reinterpret_cast<const Key *>(_keys.end())};
 	}
 
 	[[nodiscard]]

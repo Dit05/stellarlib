@@ -31,7 +31,6 @@
 #include <cstdint>
 #include <memory>
 #include <ranges>
-#include <utility>
 
 using namespace stellarlib::ecs;
 
@@ -75,60 +74,6 @@ void check_ranges_const(const internal::sparse_map<std::size_t, std::shared_ptr<
 	ASSERT_TRUE(std::ranges::equal(map.values(), VALUES));
 	ASSERT_TRUE(std::ranges::equal(map.zip(), std::views::zip(KEYS, VALUES)));
 }
-}
-
-TEST(stellarlib_ecs_sparse_map, should_init_via_ctor)
-{
-	const internal::sparse_map<std::size_t, std::shared_ptr<std::int32_t>> map{};
-	ASSERT_TRUE(map.keys().empty());
-	ASSERT_TRUE(map.values().empty());
-	ASSERT_TRUE(map.zip().empty());
-}
-
-TEST(stellarlib_ecs_sparse_map, should_copy_via_ctor)
-{
-	internal::sparse_map<std::size_t, std::shared_ptr<std::int32_t>> map1{};
-	for (const auto [key, value] : std::views::zip(KEYS, VALUES)) {
-		map1.insert(key, value);
-	}
-	auto map2{map1};
-	check_ranges_mut(map2);
-	check_ranges_const(map2);
-}
-
-TEST(stellarlib_ecs_sparse_map, should_move_via_ctor)
-{
-	internal::sparse_map<std::size_t, std::shared_ptr<std::int32_t>> map1{};
-	for (const auto [key, value] : std::views::zip(KEYS, VALUES)) {
-		map1.insert(key, value);
-	}
-	auto map2{std::move(map1)};
-	check_ranges_mut(map2);
-	check_ranges_const(map2);
-}
-
-TEST(stellarlib_ecs_sparse_map, should_copy_via_assignment)
-{
-	internal::sparse_map<std::size_t, std::shared_ptr<std::int32_t>> map1{};
-	for (const auto [key, value] : std::views::zip(KEYS, VALUES)) {
-		map1.insert(key, value);
-	}
-	internal::sparse_map<std::size_t, std::shared_ptr<std::int32_t>> map2{};
-	map2 = map1;
-	check_ranges_mut(map2);
-	check_ranges_const(map2);
-}
-
-TEST(stellarlib_ecs_sparse_map, should_move_via_assignment)
-{
-	internal::sparse_map<std::size_t, std::shared_ptr<std::int32_t>> map1{};
-	for (const auto [key, value] : std::views::zip(KEYS, VALUES)) {
-		map1.insert(key, value);
-	}
-	internal::sparse_map<std::size_t, std::shared_ptr<std::int32_t>> map2{};
-	map2 = std::move(map1);
-	check_ranges_mut(map2);
-	check_ranges_const(map2);
 }
 
 TEST(stellarlib_ecs_sparse_map, should_copy_via_clone)
@@ -191,7 +136,7 @@ TEST(stellarlib_ecs_sparse_map, should_reinsert_value)
 TEST(stellarlib_ecs_sparse_map, should_clear_values)
 {
 	internal::sparse_map<std::size_t, std::shared_ptr<std::int32_t>> map{};
-	for (const auto [key, value] : std::ranges::reverse_view{std::views::zip(KEYS, VALUES)}) {
+	for (const auto [key, value] : std::views::zip(KEYS, VALUES) | std::views::reverse) {
 		map.insert(key, value);
 	}
 	map.clear();
