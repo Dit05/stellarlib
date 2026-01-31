@@ -47,6 +47,8 @@ count * size
 sizeof
 views/ranges ctor
 
+ranges -> views
+
 ---------------------------
 
 SparseStorage<Component> components;

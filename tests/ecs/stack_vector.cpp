@@ -121,7 +121,7 @@ TEST(stellarlib_ecs_stack_vector, should_optimize_copy_via_assignment)
 		vector1.push(value);
 	}
 	ecs::internal::stack_vector<std::shared_ptr<std::int32_t>> vector2{};
-	for (const auto &value : std::ranges::reverse_view{VALUES}) {
+	for (const auto &value : VALUES | std::views::reverse) {
 		vector2.push(value);
 	}
 	const auto begin{vector2.begin()};
@@ -235,7 +235,7 @@ TEST(stellarlib_ecs_stack_vector, should_push_and_pop_values)
 TEST(stellarlib_ecs_stack_vector, should_clear_values)
 {
 	ecs::internal::stack_vector<std::shared_ptr<std::int32_t>> vector{};
-	for (const auto &value : std::ranges::reverse_view{VALUES}) {
+	for (const auto &value : VALUES | std::views::reverse) {
 		vector.push(value);
 	}
 	const auto begin{vector.begin()};

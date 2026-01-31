@@ -41,10 +41,10 @@ class sparse_map final : public any_set<Key>
 public:
     [[nodiscard]]
     auto clone() const
-        -> sparse_map<Key, T> * final
+        -> sparse_map * final
     {
 		if constexpr (std::is_copy_constructible_v<T>) {
-			return new sparse_map<Key, T>{*this};
+			return new sparse_map{*this};
 		}
 		else {
 			throw std::runtime_error{__FILE_NAME__":" + std::to_string(__LINE__) + ' ' + typeid(T).name() + " is non-copyable"};
@@ -55,13 +55,10 @@ public:
 	void insert(const Key key, Args &&...args)
 	{
 		if (_sparse.extend(key + 1, static_cast<Key>(-1)) || _sparse[key] == static_cast<Key>(-1)) {
-			_values.push(std::forward<Args>(args)...);
 			_sparse[key] = _keys.size();
 			_keys.push(key);
-			return;
-		}
-
-		if constexpr (sizeof...(Args) == 1 && (std::is_same_v<std::remove_cvref_t<Args>, T> && ...)) {
+			_values.push(std::forward<Args>(args)...);
+		} else if constexpr (sizeof...(Args) == 1 && (std::is_same_v<std::remove_cvref_t<Args>, T> && ...)) {
 			(*this)[key] = (std::forward<Args>(args), ...);
 		}
 		else {
@@ -99,14 +96,13 @@ public:
 	[[nodiscard]]
 	auto keys() const
 	{
-		/* return std::views::as_const(_keys); */
-		return std::views::all(_keys);
+		return _keys | std::views::all;
 	}
 
 	[[nodiscard]]
 	auto values() const
 	{
-		return std::views::all(_values);
+		return _values | std::views::all;
 	}
 
 	[[nodiscard]]
@@ -125,9 +121,9 @@ public:
 		_sparse[key] = static_cast<Key>(-1);
 
 		if (index != _keys.size() - 1) {
-			std::swap(_values[index], *(_values.end() - 1));
 			std::swap(_keys[index], *(_keys.end() - 1));
 			_sparse[_keys[index]] = index;
+			std::swap(_values[index], *(_values.end() - 1));
 		}
 
 		_keys.pop();
@@ -142,9 +138,9 @@ public:
 	}
 
 private:
-	stack_vector<T, Key> _values;
-	stack_vector<Key, Key> _keys;
 	stack_vector<Key, Key> _sparse;
+	stack_vector<Key, Key> _keys;
+	stack_vector<T, Key> _values;
 };
 }
 
