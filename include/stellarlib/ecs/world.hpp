@@ -260,10 +260,10 @@ public:
 
 private:
 	sparse_storage<world> _components;
-	sparse_map<std::uint32_t, std::uint32_t> _entities;
+	internal::sparse_map<std::uint32_t, std::uint32_t> _entities;
 	internal::stack_vector<std::uint32_t> _queue;
-	internal::stack_vector<std::pair<bitset, sparse_set<std::uint32_t>>> _archetypes;
-	sparse_map<std::size_t, std::pair<bitset, internal::stack_vector<std::size_t>>> _queries;
+	internal::stack_vector<std::pair<bitset, internal::sparse_set<std::uint32_t>>> _archetypes;
+	internal::sparse_map<std::size_t, std::pair<bitset, internal::stack_vector<std::size_t>>> _queries;
 	static thread_local bitset _cache;
 };
 }

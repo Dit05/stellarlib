@@ -85,21 +85,21 @@ public:
 	auto by_type() const
 	{
 		const auto set{_sets.at(id_of<T>())};
-		return set ? reinterpret_cast<sparse_map<std::size_t, T> *>(set->get()) : nullptr;
+		return set ? reinterpret_cast<internal::sparse_map<std::size_t, T> *>(set->get()) : nullptr;
 	}
 
 	template <typename T>
 	[[nodiscard]]
 	auto by_type()
-		-> sparse_map<std::size_t, T> &
+		-> internal::sparse_map<std::size_t, T> &
 	{
 		const auto id{id_of<T>()};
 
 		if (const auto set{_sets.at(id)}) {
-			return static_cast<sparse_map<std::size_t, T> &>(*set->get());
+			return static_cast<internal::sparse_map<std::size_t, T> &>(*set->get());
 		}
 
-		const auto set{new sparse_map<std::size_t, T>{}};
+		const auto set{new internal::sparse_map<std::size_t, T>{}};
 		_sets.insert(id, set);
 		return *set;
 	}
@@ -114,7 +114,7 @@ public:
 	}
 
 private:
-	sparse_map<std::size_t, std::unique_ptr<internal::any_set<std::size_t>>> _sets;
+	internal::sparse_map<std::size_t, std::unique_ptr<internal::any_set<std::size_t>>> _sets;
 };
 }
 

@@ -33,10 +33,10 @@
 #include <type_traits>
 #include <utility>
 
-namespace stellarlib::ecs
+namespace stellarlib::ecs::internal
 {
 template <typename Key, typename T>
-class sparse_map final : public internal::any_set<Key>
+class sparse_map final : public any_set<Key>
 {
 public:
     [[nodiscard]]
@@ -142,9 +142,9 @@ public:
 	}
 
 private:
-	internal::stack_vector<T, Key> _values;
-	internal::stack_vector<Key, Key> _keys;
-	internal::stack_vector<Key, Key> _sparse;
+	stack_vector<T, Key> _values;
+	stack_vector<Key, Key> _keys;
+	stack_vector<Key, Key> _sparse;
 };
 }
 
