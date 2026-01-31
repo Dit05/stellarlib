@@ -31,6 +31,7 @@
 #include <cstdint>
 #include <memory>
 #include <ranges>
+#include <stdexcept>
 
 using namespace stellarlib::ecs;
 
@@ -41,7 +42,7 @@ using namespace stellarlib::ecs;
 /* NOLINTBEGIN(cert-err58-cpp,cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes,performance-unnecessary-copy-initialization) */
 
 constexpr std::array<std::size_t, 5> KEYS{2, 1, 0, 3, 4};
-static const std::array<std::shared_ptr<std::int32_t>, KEYS.size()> VALUES{
+const std::array<std::shared_ptr<std::int32_t>, KEYS.size()> VALUES{
 	std::make_shared<std::int32_t>(0),
 	std::make_shared<std::int32_t>(5),
 	std::make_shared<std::int32_t>(10),
@@ -51,29 +52,24 @@ static const std::array<std::shared_ptr<std::int32_t>, KEYS.size()> VALUES{
 
 namespace
 {
-void check_ranges_mut(internal::sparse_map<std::size_t, std::shared_ptr<std::int32_t>> &map)
+constexpr void check_pairs(const internal::sparse_map<std::size_t, std::shared_ptr<std::int32_t>> &map)
 {
+	ASSERT_EQ(map.size(), KEYS.size());
 	for (const auto [key, value] : std::views::zip(KEYS, VALUES)) {
 		ASSERT_TRUE(map.contains(key));
+		ASSERT_TRUE(map.at(key));
 		ASSERT_EQ(*map.at(key), value);
 		ASSERT_EQ(map[key], value);
 	}
 	ASSERT_TRUE(std::ranges::equal(map.keys(), KEYS));
 	ASSERT_TRUE(std::ranges::equal(map.values(), VALUES));
 	ASSERT_TRUE(std::ranges::equal(map.zip(), std::views::zip(KEYS, VALUES)));
+}
 }
 
-void check_ranges_const(const internal::sparse_map<std::size_t, std::shared_ptr<std::int32_t>> &map)
+TEST(stellarlib_ecs_sparse_map, should_throw_on_non_copy_constructible_clone)
 {
-	for (const auto [key, value] : std::views::zip(KEYS, VALUES)) {
-		ASSERT_TRUE(map.contains(key));
-		ASSERT_EQ(*map.at(key), value);
-		ASSERT_EQ(map[key], value);
-	}
-	ASSERT_TRUE(std::ranges::equal(map.keys(), KEYS));
-	ASSERT_TRUE(std::ranges::equal(map.values(), VALUES));
-	ASSERT_TRUE(std::ranges::equal(map.zip(), std::views::zip(KEYS, VALUES)));
-}
+	ASSERT_THROW((internal::sparse_map<std::size_t, std::unique_ptr<std::int32_t>>{}).clone(), std::runtime_error);
 }
 
 TEST(stellarlib_ecs_sparse_map, should_copy_via_clone)
@@ -82,72 +78,86 @@ TEST(stellarlib_ecs_sparse_map, should_copy_via_clone)
 	for (const auto [key, value] : std::views::zip(KEYS, VALUES)) {
 		map1.insert(key, value);
 	}
-	std::unique_ptr<internal::sparse_map<std::size_t, std::shared_ptr<std::int32_t>>> map2{map1.clone()};
-	check_ranges_mut(*map2);
-	check_ranges_const(*map2);
+	const std::unique_ptr<internal::sparse_map<std::size_t, std::shared_ptr<std::int32_t>>> map2{map1.clone()};
+	check_pairs(*map2);
 }
 
-TEST(stellarlib_ecs_sparse_map, should_insert_and_erase_values)
+TEST(stellarlib_ecs_sparse_map, should_insert_and_erase_pairs)
 {
 	internal::sparse_map<std::size_t, std::shared_ptr<std::int32_t>> map{};
-	for (const auto pair : std::views::zip(KEYS, VALUES)) {
-		map.insert(std::get<0>(pair), std::get<1>(pair));
-		ASSERT_TRUE(map.contains(std::get<0>(pair)));
-		ASSERT_EQ(*map.at(std::get<0>(pair)), std::get<1>(pair));
-		ASSERT_EQ(map[std::get<0>(pair)], std::get<1>(pair));
-		ASSERT_EQ(*std::ranges::find(map.keys(), std::get<0>(pair)), std::get<0>(pair));
-		ASSERT_EQ(*std::ranges::find(map.values(), std::get<1>(pair)), std::get<1>(pair));
-		ASSERT_EQ(*std::ranges::find(map.zip(), pair), pair);
-		map.erase(std::get<0>(pair));
-		ASSERT_FALSE(map.contains(std::get<0>(pair)));
-		ASSERT_FALSE(map.at(std::get<0>(pair)));
-		ASSERT_EQ(std::ranges::find(map.keys(), std::get<0>(pair)), map.keys().end());
-		ASSERT_EQ(std::ranges::find(map.values(), std::get<1>(pair)), map.values().end());
-		ASSERT_EQ(std::ranges::find(map.zip(), pair), map.zip().end());
-		map.insert(std::get<0>(pair), std::get<1>(pair));
-		ASSERT_TRUE(map.contains(std::get<0>(pair)));
-		ASSERT_EQ(*map.at(std::get<0>(pair)), std::get<1>(pair));
-		ASSERT_EQ(map[std::get<0>(pair)], std::get<1>(pair));
-		ASSERT_EQ(*std::ranges::find(map.keys(), std::get<0>(pair)), std::get<0>(pair));
-		ASSERT_EQ(*std::ranges::find(map.values(), std::get<1>(pair)), std::get<1>(pair));
-		ASSERT_EQ(*std::ranges::find(map.zip(), pair), pair);
+	for (const auto i : std::views::iota(std::size_t{}, KEYS.size())) {
+		map.insert(KEYS[i], VALUES[i]);
+		map.insert(KEYS[i], new int32_t{});
+		map.insert(KEYS[i], VALUES[i]);
+		ASSERT_EQ(map.size(), i + 1);
+		ASSERT_TRUE(map.contains(KEYS[i]));
+		ASSERT_TRUE(map.at(KEYS[i]));
+		ASSERT_EQ(*map.at(KEYS[i]), VALUES[i]);
+		ASSERT_EQ(map[KEYS[i]], VALUES[i]);
+		ASSERT_NE(std::ranges::find(map.keys(), KEYS[i]), map.keys().end());
+		ASSERT_NE(std::ranges::find(map.values(), VALUES[i]), map.values().end());
+		ASSERT_NE(std::ranges::find(map.zip(), {KEYS[i], VALUES[i]}), map.zip().end());
+		map.erase(KEYS[i / 2]);
+		map.erase(KEYS[i / 2]);
+		ASSERT_EQ(map.size(), i);
+		ASSERT_FALSE(map.contains(KEYS[i / 2]));
+		ASSERT_FALSE(map.at(KEYS[i / 2]));
+		ASSERT_EQ(std::ranges::find(map.keys(), KEYS[i / 2]), map.keys().end());
+		ASSERT_EQ(std::ranges::find(map.values(), VALUES[i / 2]), map.values().end());
+		ASSERT_EQ(std::ranges::find(map.zip(), {KEYS[i / 2], VALUES[i / 2]}), map.zip().end());
+		map.insert(KEYS[i / 2], VALUES[i / 2]);
+		map.insert(KEYS[i / 2], new int32_t{});
+		map.insert(KEYS[i / 2], VALUES[i / 2]);
+		ASSERT_EQ(map.size(), i + 1);
+		ASSERT_TRUE(map.contains(KEYS[i / 2]));
+		ASSERT_TRUE(map.at(KEYS[i / 2]));
+		ASSERT_EQ(*map.at(KEYS[i / 2]), VALUES[i / 2]);
+		ASSERT_EQ(map[KEYS[i / 2]], VALUES[i / 2]);
+		ASSERT_NE(std::ranges::find(map.keys(), KEYS[i / 2]), map.keys().end());
+		ASSERT_NE(std::ranges::find(map.values(), VALUES[i / 2]), map.values().end());
+		ASSERT_NE(std::ranges::find(map.zip(), {KEYS[i / 2], VALUES[i / 2]}), map.zip().end());
+		map.erase(KEYS[i]);
+		map.erase(KEYS[i]);
+		ASSERT_EQ(map.size(), i);
+		ASSERT_FALSE(map.contains(KEYS[i]));
+		ASSERT_FALSE(map.at(KEYS[i]));
+		ASSERT_EQ(std::ranges::find(map.keys(), KEYS[i]), map.keys().end());
+		ASSERT_EQ(std::ranges::find(map.values(), VALUES[i]), map.values().end());
+		ASSERT_EQ(std::ranges::find(map.zip(), {KEYS[i], VALUES[i]}), map.zip().end());
+		map.insert(KEYS[i], VALUES[i]);
+		map.insert(KEYS[i], new int32_t{});
+		map.insert(KEYS[i], VALUES[i]);
+		ASSERT_EQ(map.size(), i + 1);
+		ASSERT_TRUE(map.contains(KEYS[i]));
+		ASSERT_TRUE(map.at(KEYS[i]));
+		ASSERT_EQ(*map.at(KEYS[i]), VALUES[i]);
+		ASSERT_EQ(map[KEYS[i]], VALUES[i]);
+		ASSERT_NE(std::ranges::find(map.keys(), KEYS[i]), map.keys().end());
+		ASSERT_NE(std::ranges::find(map.values(), VALUES[i]), map.values().end());
+		ASSERT_NE(std::ranges::find(map.zip(), {KEYS[i], VALUES[i]}), map.zip().end());
 	}
-	check_ranges_mut(map);
-	check_ranges_const(map);
+	check_pairs(map);
 }
 
-TEST(stellarlib_ecs_sparse_map, should_reinsert_value)
-{
-	internal::sparse_map<std::size_t, std::shared_ptr<std::int32_t>> map{};
-	const auto pair{std::views::zip(KEYS, VALUES).front()};
-	map.insert(std::get<0>(pair), std::get<1>(pair));
-	map.insert(std::get<0>(pair), std::get<1>(pair));
-	ASSERT_TRUE(map.contains(std::get<0>(pair)));
-	ASSERT_EQ(*map.at(std::get<0>(pair)), std::get<1>(pair));
-	ASSERT_EQ(map[std::get<0>(pair)], std::get<1>(pair));
-	ASSERT_EQ(map.keys().size(), 1);
-	ASSERT_EQ(map.keys().front(), std::get<0>(pair));
-	ASSERT_EQ(map.values().size(), 1);
-	ASSERT_EQ(map.values().front(), std::get<1>(pair));
-	ASSERT_EQ(map.zip().size(), 1);
-	ASSERT_EQ(map.zip().front(), pair);
-}
-
-TEST(stellarlib_ecs_sparse_map, should_clear_values)
+TEST(stellarlib_ecs_sparse_map, should_clear_pairs)
 {
 	internal::sparse_map<std::size_t, std::shared_ptr<std::int32_t>> map{};
 	for (const auto [key, value] : std::views::zip(KEYS, VALUES) | std::views::reverse) {
 		map.insert(key, value);
 	}
 	map.clear();
+	ASSERT_FALSE(map.size());
+	for (const auto key : KEYS) {
+		ASSERT_FALSE(map.contains(key));
+		ASSERT_FALSE(map.at(key));
+	}
 	ASSERT_TRUE(map.keys().empty());
 	ASSERT_TRUE(map.values().empty());
 	ASSERT_TRUE(map.zip().empty());
 	for (const auto [key, value] : std::views::zip(KEYS, VALUES)) {
 		map.insert(key, value);
 	}
-	check_ranges_mut(map);
-	check_ranges_const(map);
+	check_pairs(map);
 }
 
 /* NOLINTEND(cert-err58-cpp,cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes,performance-unnecessary-copy-initialization) */
