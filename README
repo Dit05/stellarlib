@@ -14,6 +14,7 @@ i/stack_vector.hpp
 t/stack_vector.hpp
 i/sparse_set.hpp
 t/sparse_set.cpp
+i/sparse_map.hpp
 
 ---------------------------
 
@@ -30,7 +31,7 @@ constexpr
 nodiscard
 explicit
 ++ -- += -= *= /= %=
-!= true false
+! != true false
 return
 else
 const auto
@@ -44,7 +45,7 @@ generic names
 pipes
 5 ctors
 count * size
-sizeof
+sizeof(type)
 views/ranges ctor
 
 ranges -> views

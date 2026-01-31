@@ -86,7 +86,7 @@ public:
 				std::destroy_at(src);
 			}
 
-			std::free(begin);
+			deallocate(begin);
 			begin = dst;
 		}
 	}

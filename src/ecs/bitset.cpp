@@ -42,7 +42,7 @@ bitset::bitset(const bitset &other)
 		return;
 	}
 
-	_begin.reset(reinterpret_cast<std::size_t *>(std::malloc(_size * sizeof(*_begin))));
+	_begin.reset(reinterpret_cast<std::size_t *>(std::malloc(_size * sizeof(std::size_t))));
 
 	if (!_begin) {
 		throw std::bad_alloc{};
@@ -166,7 +166,7 @@ auto bitset::segments() const
 
 void bitset::realloc(const std::size_t size)
 {
-	_begin.reset(reinterpret_cast<std::size_t *>(std::realloc(_begin.release(), size * sizeof(*_begin))));
+	_begin.reset(reinterpret_cast<std::size_t *>(std::realloc(_begin.release(), size * sizeof(std::size_t))));
 
 	if (!_begin) {
 		throw std::bad_alloc{};

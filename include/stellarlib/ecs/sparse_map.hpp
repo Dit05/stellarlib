@@ -27,6 +27,7 @@
 #include <stellarlib/ecs/any_set.hpp>
 #include <stellarlib/ecs/stack_vector.hpp>
 
+#include <memory>
 #include <ranges>
 #include <stdexcept>
 #include <string>
@@ -39,17 +40,33 @@ template <typename Key, typename T>
 class sparse_map final : public any_set<Key>
 {
 public:
-    [[nodiscard]]
-    auto clone() const
-        -> sparse_map * final
-    {
+	[[nodiscard]]
+	explicit constexpr sparse_map() = default;
+
+	[[nodiscard]]
+	constexpr sparse_map(const sparse_map &) = default;
+
+	[[nodiscard]]
+	constexpr sparse_map(sparse_map &&) = default;
+
+	constexpr auto operator=(const sparse_map &)
+		-> sparse_map & = default;
+
+	constexpr auto operator=(sparse_map &&)
+		-> sparse_map & = default;
+
+	constexpr ~sparse_map() final = default;
+
+	[[nodiscard]]
+	auto clone() const
+		-> sparse_map * final
+	{
 		if constexpr (std::is_copy_constructible_v<T>) {
 			return new sparse_map{*this};
 		}
-		else {
-			throw std::runtime_error{__FILE_NAME__":" + std::to_string(__LINE__) + ' ' + typeid(T).name() + " is non-copyable"};
-		}
-    }
+
+		throw std::runtime_error{__FILE_NAME__":" + std::to_string(__LINE__) + ' ' + typeid(T).name() + " is not copy constructible"};
+	}
 
 	template <typename ...Args>
 	void insert(const Key key, Args &&...args)
@@ -58,13 +75,14 @@ public:
 			_sparse[key] = _keys.size();
 			_keys.push(key);
 			_values.push(std::forward<Args>(args)...);
-		} else if constexpr (sizeof...(Args) == 1 && (std::is_same_v<std::remove_cvref_t<Args>, T> && ...)) {
+		}
+		else if constexpr (sizeof...(Args) == 1 && (std::is_same_v<std::remove_cvref_t<Args>, T> && ...)) {
 			(*this)[key] = (std::forward<Args>(args), ...);
 		}
 		else {
-			auto ptr{_values.begin() + _sparse[key]};
-			ptr->~T();
-			new (ptr) T{std::forward<Args>(args)...};
+			const auto ptr{_values.begin() + _sparse[key]};
+			std::destroy_at(ptr);
+			std::construct_at(ptr, std::forward<Args>(args)...);
 		}
 	}
 
