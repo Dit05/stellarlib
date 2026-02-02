@@ -15,6 +15,7 @@ t/stack_vector.hpp
 i/sparse_set.hpp
 t/sparse_set.cpp
 i/sparse_map.hpp
+t/sparse_map.cpp
 
 ---------------------------
 

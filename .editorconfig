@@ -8,6 +8,6 @@ insert_final_newline = true
 spelling_language = en-US
 trim_trailing_whitespace = true
 
-[.clang-tidy]
+[.clang-*]
 indent_size = 2
 indent_style = space

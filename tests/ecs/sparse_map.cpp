@@ -87,7 +87,7 @@ TEST(stellarlib_ecs_sparse_map, should_insert_and_erase_pairs)
 	internal::sparse_map<std::size_t, std::shared_ptr<std::int32_t>> map{};
 	for (const auto i : std::views::iota(std::size_t{}, KEYS.size())) {
 		map.insert(KEYS[i], VALUES[i]);
-		map.insert(KEYS[i], new int32_t{});
+		map.insert(KEYS[i], new std::int32_t{});
 		map.insert(KEYS[i], VALUES[i]);
 		ASSERT_EQ(map.size(), i + 1);
 		ASSERT_TRUE(map.contains(KEYS[i]));
@@ -106,7 +106,7 @@ TEST(stellarlib_ecs_sparse_map, should_insert_and_erase_pairs)
 		ASSERT_EQ(std::ranges::find(map.values(), VALUES[i / 2]), map.values().end());
 		ASSERT_EQ(std::ranges::find(map.zip(), {KEYS[i / 2], VALUES[i / 2]}), map.zip().end());
 		map.insert(KEYS[i / 2], VALUES[i / 2]);
-		map.insert(KEYS[i / 2], new int32_t{});
+		map.insert(KEYS[i / 2], new std::int32_t{});
 		map.insert(KEYS[i / 2], VALUES[i / 2]);
 		ASSERT_EQ(map.size(), i + 1);
 		ASSERT_TRUE(map.contains(KEYS[i / 2]));
@@ -125,7 +125,7 @@ TEST(stellarlib_ecs_sparse_map, should_insert_and_erase_pairs)
 		ASSERT_EQ(std::ranges::find(map.values(), VALUES[i]), map.values().end());
 		ASSERT_EQ(std::ranges::find(map.zip(), {KEYS[i], VALUES[i]}), map.zip().end());
 		map.insert(KEYS[i], VALUES[i]);
-		map.insert(KEYS[i], new int32_t{});
+		map.insert(KEYS[i], new std::int32_t{});
 		map.insert(KEYS[i], VALUES[i]);
 		ASSERT_EQ(map.size(), i + 1);
 		ASSERT_TRUE(map.contains(KEYS[i]));
