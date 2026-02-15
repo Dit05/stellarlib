@@ -43,6 +43,41 @@ public:
 	using difference_type = std::allocator<value_type>::difference_type;
 	using propagate_on_container_move_assignment = std::allocator<value_type>::propagate_on_container_move_assignment;
 
+	static constexpr void allocate(std::unique_ptr<value_type, void (*)(value_type *)> &begin, const size_type capacity)
+	{
+		begin.reset(reinterpret_cast<value_type *>(std::malloc(capacity * sizeof(value_type))));
+	}
+
+	static constexpr void reallocate(std::unique_ptr<value_type, void (*)(value_type *)> &begin, const size_type capacity)
+	{
+		begin.reset(reinterpret_cast<value_type *>(std::realloc(begin.release(), capacity * sizeof(value_type))));
+	}
+
+	static constexpr void reallocate(std::unique_ptr<value_type, void (*)(value_type *)> &begin, const size_type size, size_type &capacity)
+	{
+		if constexpr (is_trivially_relocatable_v<value_type>) {
+			capacity += capacity / 4;
+			reallocate(begin, capacity);
+		}
+		else {
+			capacity *= 2;
+			const auto dst{reinterpret_cast<value_type *>(std::malloc(capacity * sizeof(value_type)))};
+			const auto diff{dst - begin.get()};
+
+			for (const auto src : std::views::iota(begin.get(), begin.get() + size)) {
+				std::construct_at(src + diff, std::move(*src));
+				std::destroy_at(src);
+			}
+
+			begin.reset(dst);
+		}
+	}
+
+	static constexpr void deallocate(value_type *begin)
+	{
+		std::free(begin);
+	}
+
 	[[nodiscard]]
 	explicit constexpr vector_allocator() = default;
 
@@ -59,42 +94,6 @@ public:
 		-> vector_allocator & = default;
 
 	constexpr ~vector_allocator() = default;
-
-	constexpr void allocate(value_type *&begin, const size_type capacity) const
-	{
-		begin = reinterpret_cast<value_type *>(std::malloc(capacity * sizeof(value_type)));
-	}
-
-	constexpr void reallocate(value_type *&begin, const size_type capacity) const
-	{
-		begin = reinterpret_cast<value_type *>(std::realloc(begin, capacity * sizeof(value_type)));
-	}
-
-	constexpr void reallocate(value_type *&begin, const size_type size, size_type &capacity) const
-	{
-		if constexpr (is_trivially_relocatable_v<value_type>) {
-			capacity += capacity / 4;
-			reallocate(begin, capacity);
-		}
-		else {
-			capacity *= 2;
-			const auto dst{reinterpret_cast<value_type *>(std::malloc(capacity * sizeof(value_type)))};
-			const auto diff{dst - begin};
-
-			for (const auto src : std::views::iota(begin, begin + size)) {
-				std::construct_at(src + diff, std::move(*src));
-				std::destroy_at(src);
-			}
-
-			deallocate(begin);
-			begin = dst;
-		}
-	}
-
-	constexpr void deallocate(value_type *begin) const
-	{
-		std::free(begin);
-	}
 
 	[[nodiscard]]
 	constexpr auto operator==(const vector_allocator &) const

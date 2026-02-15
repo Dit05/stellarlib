@@ -48,110 +48,105 @@ static_assert(std::is_same_v<ext::vector_allocator<std::int32_t>::propagate_on_c
 TEST(stellarlib_ext_memory, vector_allocator_should_acquire_and_release_trivial_arena)
 {
 	const ext::vector_allocator<std::int32_t> allocator{};
-	std::int32_t *arena{};
+	std::unique_ptr<std::int32_t, void (*)(std::int32_t *)> arena{nullptr, ext::vector_allocator<std::int32_t>::deallocate};
 	const auto size{100};
-	allocator.allocate(arena, size);
+	ext::vector_allocator<std::int32_t>::allocate(arena, size);
 	ASSERT_TRUE(arena);
-	std::uninitialized_fill_n(arena, size, -1);
-	std::destroy_n(arena, size);
-	allocator.deallocate(arena);
+	std::uninitialized_fill_n(arena.get(), size, -1);
+	std::destroy_n(arena.get(), size);
 }
 
 TEST(stellarlib_ext_memory, vector_allocator_should_acquire_and_release_non_trivial_arena)
 {
 	const ext::vector_allocator<std::string> allocator{};
-	std::string *arena{};
+	std::unique_ptr<std::string, void (*)(std::string *)> arena{nullptr, ext::vector_allocator<std::string>::deallocate};
 	const auto size{100};
-	allocator.allocate(arena, size);
+	ext::vector_allocator<std::string>::allocate(arena, size);
 	ASSERT_TRUE(arena);
-	std::uninitialized_fill_n(arena, size, std::to_string(-1));
-	std::destroy_n(arena, size);
-	allocator.deallocate(arena);
+	std::uninitialized_fill_n(arena.get(), size, std::to_string(-1));
+	std::destroy_n(arena.get(), size);
 }
 
 TEST(stellarlib_ext_memory, vector_allocator_should_handle_unsafe_arena)
 {
 	const ext::vector_allocator<std::int32_t> allocator{};
-	std::int32_t *arena{};
+	std::unique_ptr<std::int32_t, void (*)(std::int32_t *)> arena{nullptr, ext::vector_allocator<std::int32_t>::deallocate};
 	const std::size_t size1{100};
-	allocator.allocate(arena, size1);
+	ext::vector_allocator<std::int32_t>::allocate(arena, size1);
 	for (const auto i : std::views::iota(std::size_t{}, size1)) {
-		std::construct_at(arena + i, i);
+		std::construct_at(arena.get() + i, i);
 	}
 	const std::size_t size2{125};
-	allocator.reallocate(arena, size2);
+	ext::vector_allocator<std::int32_t>::reallocate(arena, size2);
 	ASSERT_TRUE(arena);
-	std::uninitialized_fill(arena + size1, arena + size2, -1);
+	std::uninitialized_fill(arena.get() + size1, arena.get() + size2, -1);
 	for (const auto i : std::views::iota(std::size_t{}, size1)) {
-		ASSERT_EQ(arena[i], i);
+		ASSERT_EQ(arena.get()[i], i);
 	}
 	const std::size_t size3{62};
-	allocator.reallocate(arena, size3);
+	ext::vector_allocator<std::int32_t>::reallocate(arena, size3);
 	ASSERT_TRUE(arena);
 	for (const auto i : std::views::iota(std::size_t{}, size3)) {
-		ASSERT_EQ(arena[i], i);
+		ASSERT_EQ(arena.get()[i], i);
 	}
-	allocator.deallocate(arena);
 }
 
 TEST(stellarlib_ext_memory, vector_allocator_should_resize_trivial_arena)
 {
 	const ext::vector_allocator<std::int32_t> allocator{};
-	std::int32_t *arena{};
+	std::unique_ptr<std::int32_t, void (*)(std::int32_t *)> arena{nullptr, ext::vector_allocator<std::int32_t>::deallocate};
 	std::size_t size{100};
-	allocator.allocate(arena, size);
+	ext::vector_allocator<std::int32_t>::allocate(arena, size);
 	for (const auto i : std::views::iota(std::size_t{}, size)) {
-		std::construct_at(arena + i, i);
+		std::construct_at(arena.get() + i, i);
 	}
 	auto capacity{size};
-	allocator.reallocate(arena, size, capacity);
+	ext::vector_allocator<std::int32_t>::reallocate(arena, size, capacity);
 	ASSERT_TRUE(arena);
 	ASSERT_EQ(capacity, 125);
-	std::uninitialized_fill(arena + size, arena + capacity, -1);
+	std::uninitialized_fill(arena.get() + size, arena.get() + capacity, -1);
 	for (const auto i : std::views::iota(std::size_t{}, size)) {
-		ASSERT_EQ(arena[i], i);
+		ASSERT_EQ(arena.get()[i], i);
 	}
 	size = 50;
-	std::destroy(arena + size, arena + capacity);
+	std::destroy(arena.get() + size, arena.get() + capacity);
 	capacity = size;
-	allocator.reallocate(arena, size, capacity);
+	ext::vector_allocator<std::int32_t>::reallocate(arena, size, capacity);
 	ASSERT_TRUE(arena);
 	ASSERT_EQ(capacity, 62);
 	for (const auto i : std::views::iota(std::size_t{}, size)) {
-		ASSERT_EQ(arena[i], i);
+		ASSERT_EQ(arena.get()[i], i);
 	}
-	std::destroy_n(arena, size);
-	allocator.deallocate(arena);
+	std::destroy_n(arena.get(), size);
 }
 
 TEST(stellarlib_ext_memory, vector_allocator_should_resize_non_trivial_arena)
 {
 	const ext::vector_allocator<std::string> allocator{};
-	std::string *arena{};
+	std::unique_ptr<std::string, void (*)(std::string *)> arena{nullptr, ext::vector_allocator<std::string>::deallocate};
 	std::size_t size{100};
-	allocator.allocate(arena, size);
+	ext::vector_allocator<std::string>::allocate(arena, size);
 	for (const auto i : std::views::iota(std::size_t{}, size)) {
-		std::construct_at(arena + i, std::to_string(i));
+		std::construct_at(arena.get() + i, std::to_string(i));
 	}
 	auto capacity{size};
-	allocator.reallocate(arena, size, capacity);
+	ext::vector_allocator<std::string>::reallocate(arena, size, capacity);
 	ASSERT_TRUE(arena);
 	ASSERT_EQ(capacity, 200);
-	std::uninitialized_fill(arena + size, arena + capacity, std::to_string(-1));
+	std::uninitialized_fill(arena.get() + size, arena.get() + capacity, std::to_string(-1));
 	for (const auto i : std::views::iota(std::size_t{}, size)) {
-		ASSERT_EQ(arena[i], std::to_string(i));
+		ASSERT_EQ(arena.get()[i], std::to_string(i));
 	}
 	size = 50;
-	std::destroy(arena + size, arena + capacity);
+	std::destroy(arena.get() + size, arena.get() + capacity);
 	capacity = size;
-	allocator.reallocate(arena, size, capacity);
+	ext::vector_allocator<std::string>::reallocate(arena, size, capacity);
 	ASSERT_TRUE(arena);
 	ASSERT_EQ(capacity, 100);
 	for (const auto i : std::views::iota(std::size_t{}, size)) {
-		ASSERT_EQ(arena[i], std::to_string(i));
+		ASSERT_EQ(arena.get()[i], std::to_string(i));
 	}
-	std::destroy_n(arena, size);
-	allocator.deallocate(arena);
+	std::destroy_n(arena.get(), size);
 }
 
 static_assert(ext::vector_allocator<std::int32_t>{} == ext::vector_allocator<std::int32_t>{});
