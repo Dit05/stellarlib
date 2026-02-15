@@ -24,11 +24,9 @@
 #ifndef STELLARLIB_ECS_ANY_SET_HPP
 #define STELLARLIB_ECS_ANY_SET_HPP
 
-#include <cstddef>
-
 namespace stellarlib::ecs::internal
 {
-template <typename SizeType = std::size_t>
+template <typename Key>
 class any_set
 {
 public:
@@ -38,7 +36,7 @@ public:
 	virtual auto clone() const
 		-> any_set * = 0;
 
-	virtual void erase(SizeType) = 0;
+	virtual void erase(Key) = 0;
 
 protected:
 	[[nodiscard]]

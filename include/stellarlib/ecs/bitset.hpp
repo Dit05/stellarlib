@@ -24,7 +24,7 @@
 #ifndef STELLARLIB_ECS_BITSET_HPP
 #define STELLARLIB_ECS_BITSET_HPP
 
-#include <cstddef>
+#include <cstdint>
 #include <cstdlib>
 #include <memory>
 #include <ranges>
@@ -51,10 +51,10 @@ public:
 
 	~bitset() = default;
 
-	void insert(std::size_t elem);
+	void insert(std::uintmax_t elem);
 
 	[[nodiscard]]
-	auto contains(std::size_t elem) const
+	auto contains(std::uintmax_t elem) const
 		-> bool;
 
 	[[nodiscard]]
@@ -69,28 +69,28 @@ public:
 	auto operator>=(const bitset &other) const
 		-> bool;
 
-	void erase(std::size_t elem);
+	void erase(std::uintmax_t elem);
 
 	void clear();
 
 private:
-	std::size_t _size{};
-	std::unique_ptr<std::size_t, void (*)(void *)> _begin{nullptr, std::free};
-	std::size_t *_end{};
+	std::uintmax_t _size{};
+	std::unique_ptr<std::uintmax_t, void (*)(void *)> _begin{nullptr, std::free};
+	std::uintmax_t *_end{};
 
 	[[nodiscard]]
-	static auto index_of(std::size_t elem)
-		-> std::size_t;
+	static auto index_of(std::uintmax_t elem)
+		-> std::uintmax_t;
 
 	[[nodiscard]]
-	static auto mask_of(std::size_t elem)
-		-> std::size_t;
+	static auto mask_of(std::uintmax_t elem)
+		-> std::uintmax_t;
 
 	[[nodiscard]]
 	auto segments() const
-		-> std::ranges::subrange<std::size_t *, std::size_t *>;
+		-> std::ranges::subrange<std::uintmax_t *, std::uintmax_t *>;
 
-	void realloc(std::size_t size);
+	void realloc(std::uintmax_t size);
 };
 }
 
