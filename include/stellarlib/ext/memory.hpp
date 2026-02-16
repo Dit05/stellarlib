@@ -26,10 +26,12 @@
 
 #include <stellarlib/ext/type_traits.hpp>
 
+#include <bit>
 #include <cstddef>
 #include <cstdlib>
 #include <memory>
 #include <ranges>
+#include <type_traits>
 #include <utility>
 
 namespace stellarlib::ext
@@ -60,13 +62,19 @@ public:
 			reallocate(begin, capacity);
 		}
 		else {
-			capacity *= 2;
+			capacity = std::bit_ceil(capacity);
 			const auto dst{reinterpret_cast<value_type *>(std::malloc(capacity * sizeof(value_type)))};
-			const auto diff{dst - begin.get()};
 
-			for (const auto src : std::views::iota(begin.get(), begin.get() + size)) {
-				std::construct_at(src + diff, std::move(*src));
-				std::destroy_at(src);
+			if constexpr (std::is_trivially_destructible_v<value_type>) {
+				std::uninitialized_move_n(begin.get(), size, dst);
+			}
+			else {
+				const auto diff{dst - begin.get()};
+
+				for (const auto src : std::views::iota(begin.get(), begin.get() + size)) {
+					std::construct_at(src + diff, std::move(*src));
+					std::destroy_at(src);
+				}
 			}
 
 			begin.reset(dst);

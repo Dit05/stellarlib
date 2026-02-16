@@ -47,7 +47,6 @@ static_assert(std::is_same_v<ext::vector_allocator<std::int32_t>::propagate_on_c
 
 TEST(stellarlib_ext_memory, vector_allocator_should_acquire_and_release_trivial_arena)
 {
-	const ext::vector_allocator<std::int32_t> allocator{};
 	std::unique_ptr<std::int32_t, void (*)(std::int32_t *)> arena{nullptr, ext::vector_allocator<std::int32_t>::deallocate};
 	const auto size{100};
 	ext::vector_allocator<std::int32_t>::allocate(arena, size);
@@ -58,7 +57,6 @@ TEST(stellarlib_ext_memory, vector_allocator_should_acquire_and_release_trivial_
 
 TEST(stellarlib_ext_memory, vector_allocator_should_acquire_and_release_non_trivial_arena)
 {
-	const ext::vector_allocator<std::string> allocator{};
 	std::unique_ptr<std::string, void (*)(std::string *)> arena{nullptr, ext::vector_allocator<std::string>::deallocate};
 	const auto size{100};
 	ext::vector_allocator<std::string>::allocate(arena, size);
@@ -69,7 +67,6 @@ TEST(stellarlib_ext_memory, vector_allocator_should_acquire_and_release_non_triv
 
 TEST(stellarlib_ext_memory, vector_allocator_should_handle_unsafe_arena)
 {
-	const ext::vector_allocator<std::int32_t> allocator{};
 	std::unique_ptr<std::int32_t, void (*)(std::int32_t *)> arena{nullptr, ext::vector_allocator<std::int32_t>::deallocate};
 	const std::size_t size1{100};
 	ext::vector_allocator<std::int32_t>::allocate(arena, size1);
@@ -91,9 +88,31 @@ TEST(stellarlib_ext_memory, vector_allocator_should_handle_unsafe_arena)
 	}
 }
 
+TEST(stellarlib_ext_memory, vector_allocator_should_grow_trivial_arena)
+{
+	std::unique_ptr<std::int32_t, void (*)(std::int32_t *)> arena{nullptr, ext::vector_allocator<std::int32_t>::deallocate};
+	std::size_t capacity{1};
+	ext::vector_allocator<std::int32_t>::reallocate(arena, 0, capacity);
+	ASSERT_EQ(capacity, 1);
+	++capacity;
+	ext::vector_allocator<std::int32_t>::reallocate(arena, 0, capacity);
+	ASSERT_EQ(capacity, 2);
+	++capacity;
+	ext::vector_allocator<std::int32_t>::reallocate(arena, 0, capacity);
+	ASSERT_EQ(capacity, 3);
+	++capacity;
+	ext::vector_allocator<std::int32_t>::reallocate(arena, 0, capacity);
+	ASSERT_EQ(capacity, 5);
+	++capacity;
+	ext::vector_allocator<std::int32_t>::reallocate(arena, 0, capacity);
+	ASSERT_EQ(capacity, 7);
+	++capacity;
+	ext::vector_allocator<std::int32_t>::reallocate(arena, 0, capacity);
+	ASSERT_EQ(capacity, 10);
+}
+
 TEST(stellarlib_ext_memory, vector_allocator_should_resize_trivial_arena)
 {
-	const ext::vector_allocator<std::int32_t> allocator{};
 	std::unique_ptr<std::int32_t, void (*)(std::int32_t *)> arena{nullptr, ext::vector_allocator<std::int32_t>::deallocate};
 	std::size_t size{100};
 	ext::vector_allocator<std::int32_t>::allocate(arena, size);
@@ -120,9 +139,31 @@ TEST(stellarlib_ext_memory, vector_allocator_should_resize_trivial_arena)
 	std::destroy_n(arena.get(), size);
 }
 
+TEST(stellarlib_ext_memory, vector_allocator_should_grow_non_trivial_arena)
+{
+	std::unique_ptr<std::string, void (*)(std::string *)> arena{nullptr, ext::vector_allocator<std::string>::deallocate};
+	std::size_t capacity{1};
+	ext::vector_allocator<std::string>::reallocate(arena, 0, capacity);
+	ASSERT_EQ(capacity, 1);
+	++capacity;
+	ext::vector_allocator<std::string>::reallocate(arena, 0, capacity);
+	ASSERT_EQ(capacity, 2);
+	++capacity;
+	ext::vector_allocator<std::string>::reallocate(arena, 0, capacity);
+	ASSERT_EQ(capacity, 4);
+	++capacity;
+	ext::vector_allocator<std::string>::reallocate(arena, 0, capacity);
+	ASSERT_EQ(capacity, 8);
+	++capacity;
+	ext::vector_allocator<std::string>::reallocate(arena, 0, capacity);
+	ASSERT_EQ(capacity, 16);
+	++capacity;
+	ext::vector_allocator<std::string>::reallocate(arena, 0, capacity);
+	ASSERT_EQ(capacity, 32);
+}
+
 TEST(stellarlib_ext_memory, vector_allocator_should_resize_non_trivial_arena)
 {
-	const ext::vector_allocator<std::string> allocator{};
 	std::unique_ptr<std::string, void (*)(std::string *)> arena{nullptr, ext::vector_allocator<std::string>::deallocate};
 	std::size_t size{100};
 	ext::vector_allocator<std::string>::allocate(arena, size);
@@ -132,7 +173,7 @@ TEST(stellarlib_ext_memory, vector_allocator_should_resize_non_trivial_arena)
 	auto capacity{size};
 	ext::vector_allocator<std::string>::reallocate(arena, size, capacity);
 	ASSERT_TRUE(arena);
-	ASSERT_EQ(capacity, 200);
+	ASSERT_EQ(capacity, 128);
 	std::uninitialized_fill(arena.get() + size, arena.get() + capacity, std::to_string(-1));
 	for (const auto i : std::views::iota(std::size_t{}, size)) {
 		ASSERT_EQ(arena.get()[i], std::to_string(i));
@@ -142,7 +183,7 @@ TEST(stellarlib_ext_memory, vector_allocator_should_resize_non_trivial_arena)
 	capacity = size;
 	ext::vector_allocator<std::string>::reallocate(arena, size, capacity);
 	ASSERT_TRUE(arena);
-	ASSERT_EQ(capacity, 100);
+	ASSERT_EQ(capacity, 64);
 	for (const auto i : std::views::iota(std::size_t{}, size)) {
 		ASSERT_EQ(arena.get()[i], std::to_string(i));
 	}

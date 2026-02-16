@@ -63,8 +63,9 @@ public:
 		if constexpr (std::is_copy_constructible_v<T>) {
 			return new sparse_map{*this};
 		}
-
-		throw std::runtime_error{__FILE_NAME__":" + std::to_string(__LINE__) + ' ' + typeid(T).name() + " is not copy constructible"};
+		else {
+			throw std::runtime_error{__FILE_NAME__":" + std::to_string(__LINE__) + ' ' + typeid(T).name() + " is not copy constructible"};
+		}
 	}
 
 	template <typename ...Args>
