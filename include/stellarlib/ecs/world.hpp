@@ -59,7 +59,7 @@ public:
 		_cache.clear();
 		(_cache.insert(_components.id_of<T>()), ...);
 
-		const auto it{std::ranges::find_if(_archetypes, [](const auto &pair) -> bool {
+		const auto it{std::ranges::find_if(_archetypes, [this](const auto &pair) -> bool {
 			return pair.first == _cache;
 		})};
 
@@ -253,7 +253,7 @@ private:
 	internal::stack_vector<std::uint32_t> _queue;
 	internal::stack_vector<std::pair<bitset, internal::sparse_set<std::uint32_t>>> _archetypes;
 	internal::sparse_map<std::size_t, std::pair<bitset, internal::stack_vector<std::size_t>>> _queries;
-	static thread_local bitset _cache;
+	bitset _cache;
 };
 }
 
