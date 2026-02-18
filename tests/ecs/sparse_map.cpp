@@ -71,7 +71,7 @@ constexpr void check_pairs(const internal::sparse_map<std::size_t, std::shared_p
 
 TEST(stellarlib_ecs_sparse_map, should_throw_on_non_copy_constructible_clone)
 {
-	ASSERT_THROW((internal::sparse_map<std::size_t, std::unique_ptr<std::int32_t>>{}).clone(), std::runtime_error);
+	ASSERT_THROW(static_cast<void>(internal::sparse_map<std::size_t, std::unique_ptr<std::int32_t>>{}.clone()), std::runtime_error);
 }
 
 TEST(stellarlib_ecs_sparse_map, should_copy_via_clone)

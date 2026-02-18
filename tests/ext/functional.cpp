@@ -25,6 +25,7 @@
 
 #include <gtest/gtest.h>
 
+#include <cstdint>
 #include <utility>
 
 using namespace stellarlib;
@@ -59,30 +60,30 @@ TEST(stellarlib_ext_functional, falsy)
 
 TEST(stellarlib_ext_functional, subset)
 {
-	ASSERT_TRUE(ext::subset(0b1100, 0b1101));
-	ASSERT_TRUE(ext::subset(0b1101, 0b1101));
-	ASSERT_FALSE(ext::subset(0b1101, 0b1100));
+	ASSERT_TRUE(ext::subset<std::uint8_t>(0b1100, 0b1101));
+	ASSERT_TRUE(ext::subset<std::uint8_t>(0b1101, 0b1101));
+	ASSERT_FALSE(ext::subset<std::uint8_t>(0b1101, 0b1100));
 }
 
 TEST(stellarlib_ext_functional, superset)
 {
-	ASSERT_TRUE(ext::superset(0b1101, 0b1100));
-	ASSERT_TRUE(ext::superset(0b1101, 0b1101));
-	ASSERT_FALSE(ext::superset(0b1100, 0b1101));
+	ASSERT_TRUE(ext::superset<std::uint8_t>(0b1101, 0b1100));
+	ASSERT_TRUE(ext::superset<std::uint8_t>(0b1101, 0b1101));
+	ASSERT_FALSE(ext::superset<std::uint8_t>(0b1100, 0b1101));
 }
 
 TEST(stellarlib_ext_functional, zip_subset)
 {
-	ASSERT_TRUE(ext::zip::subset(std::pair{0b1100, 0b1101}));
-	ASSERT_TRUE(ext::zip::subset(std::pair{0b1101, 0b1101}));
-	ASSERT_FALSE(ext::zip::subset(std::pair{0b1101, 0b1100}));
+	ASSERT_TRUE(ext::zip::subset<std::uint8_t>(std::pair{0b1100, 0b1101}));
+	ASSERT_TRUE(ext::zip::subset<std::uint8_t>(std::pair{0b1101, 0b1101}));
+	ASSERT_FALSE(ext::zip::subset<std::uint8_t>(std::pair{0b1101, 0b1100}));
 }
 
 TEST(stellarlib_ext_functional, zip_superset)
 {
-	ASSERT_TRUE(ext::zip::superset(std::pair{0b1101, 0b1100}));
-	ASSERT_TRUE(ext::zip::superset(std::pair{0b1101, 0b1101}));
-	ASSERT_FALSE(ext::zip::superset(std::pair{0b1100, 0b1101}));
+	ASSERT_TRUE(ext::zip::superset<std::uint8_t>(std::pair{0b1101, 0b1100}));
+	ASSERT_TRUE(ext::zip::superset<std::uint8_t>(std::pair{0b1101, 0b1101}));
+	ASSERT_FALSE(ext::zip::superset<std::uint8_t>(std::pair{0b1100, 0b1101}));
 }
 
 /* NOLINTEND(cert-err58-cpp,cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes,performance-unnecessary-copy-initialization) */

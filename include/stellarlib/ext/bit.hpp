@@ -32,14 +32,14 @@ template <typename T>
 [[nodiscard]]
 constexpr auto bit_index(const T arg)
 {
-	return arg / std::numeric_limits<T>::digits;
+	return static_cast<T>(arg / std::numeric_limits<T>::digits);
 }
 
 template <typename T>
 [[nodiscard]]
 constexpr auto bit_mask(const T arg)
 {
-	return T{1} << arg % std::numeric_limits<T>::digits;
+	return static_cast<T>(static_cast<T>(1) << static_cast<T>(arg % std::numeric_limits<T>::digits));
 }
 }
 

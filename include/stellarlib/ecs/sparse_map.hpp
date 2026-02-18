@@ -57,6 +57,7 @@ public:
 
 	constexpr ~sparse_map() final = default;
 
+	[[nodiscard]]
 	auto clone() const
 		-> sparse_map * final
 	{

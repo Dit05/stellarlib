@@ -34,7 +34,7 @@
 
 namespace stellarlib::ecs
 {
-template <typename scope>
+template <typename Scope>
 class sparse_storage final
 {
 public:
@@ -77,7 +77,7 @@ public:
 	[[nodiscard]]
 	static auto id_of()
 	{
-		return ext::scoped_typeid<scope, T>();
+		return ext::scoped_typeid<Scope, T>();
 	}
 
 	template <typename T>

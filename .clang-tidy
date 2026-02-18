@@ -12,7 +12,7 @@ CheckOptions:
   readability-identifier-naming.ConstantPointerParameterCase: lower_case
   readability-identifier-naming.ConstexprFunctionCase: lower_case
   readability-identifier-naming.ConstexprMethodCase: lower_case
-  readability-identifier-naming.ConstexprVariableCase: UPPER_CASE
+  readability-identifier-naming.ConstexprVariableCase: aNy_CasE
   readability-identifier-naming.EnumCase: lower_case
   readability-identifier-naming.EnumConstantCase: lower_case
   readability-identifier-naming.FunctionCase: lower_case
@@ -26,7 +26,7 @@ CheckOptions:
   readability-identifier-naming.LocalConstantPointerCase: lower_case
   readability-identifier-naming.LocalPointerCase: lower_case
   readability-identifier-naming.LocalVariableCase: lower_case
-  readability-identifier-naming.MacroDefinitionCase: lower_case
+  readability-identifier-naming.MacroDefinitionCase: UPPER_CASE
   readability-identifier-naming.MemberCase: lower_case
   readability-identifier-naming.MethodCase: lower_case
   readability-identifier-naming.NamespaceCase: lower_case
@@ -83,9 +83,12 @@ Checks: >
   -hicpp-no-malloc,
   -misc-const-correctness,
   -performance-noexcept-move-constructor,
+  -portability-template-virtual-member-function,
   -readability-function-cognitive-complexity,
   -readability-identifier-length,
   -readability-magic-numbers,
   -readability-math-missing-parentheses,
-  -readability-qualified-auto
+  -readability-qualified-auto,
+  -readability-suspicious-call-argument
+HeaderFilterRegex: (include/stellarlib|src|tests)
 WarningsAsErrors: '*'

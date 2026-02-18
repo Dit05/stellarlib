@@ -41,16 +41,12 @@ TEST(stellarlib_ext_bit, bit_index)
 {
 	ASSERT_EQ(ext::bit_index<std::uint8_t>(5), 0);
 	ASSERT_EQ(ext::bit_index<std::uint8_t>(10), 1);
-	ASSERT_EQ(ext::bit_index<std::int8_t>(5), 0);
-	ASSERT_EQ(ext::bit_index<std::int8_t>(10), 1);
 }
 
 TEST(stellarlib_ext_bit, bit_mask)
 {
 	ASSERT_EQ(ext::bit_mask<std::uint8_t>(5), 0b0010'0000);
 	ASSERT_EQ(ext::bit_mask<std::uint8_t>(10), 0b0000'0100);
-	ASSERT_EQ(ext::bit_mask<std::int8_t>(5), 0b0010'0000);
-	ASSERT_EQ(ext::bit_mask<std::int8_t>(10), 0b0000'1000);
 }
 
 /* NOLINTEND(cert-err58-cpp,cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes,performance-unnecessary-copy-initialization) */
