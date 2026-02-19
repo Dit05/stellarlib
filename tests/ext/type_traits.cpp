@@ -31,7 +31,7 @@ using namespace stellarlib;
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
 #pragma clang diagnostic ignored "-Wself-move"
 
-/* NOLINTBEGIN(cert-err58-cpp,cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes,performance-unnecessary-copy-initialization) */
+/* NOLINTBEGIN(cert-err58-cpp,performance-unnecessary-copy-initialization) */
 
 class trivially_relocatable final
 {
@@ -100,6 +100,6 @@ static_assert(ext::is_trivially_relocatable_v<trivially_relocatable>);
 static_assert(!ext::is_trivially_relocatable_v<non_trivially_move_constructible>);
 static_assert(!ext::is_trivially_relocatable_v<non_trivially_destructible>);
 
-/* NOLINTEND(cert-err58-cpp,cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes,performance-unnecessary-copy-initialization) */
+/* NOLINTEND(cert-err58-cpp,performance-unnecessary-copy-initialization) */
 
 #pragma clang diagnostic pop

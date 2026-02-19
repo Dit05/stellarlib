@@ -41,7 +41,7 @@ using namespace stellarlib;
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
 #pragma clang diagnostic ignored "-Wself-move"
 
-/* NOLINTBEGIN(cert-err58-cpp,cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes,performance-unnecessary-copy-initialization) */
+/* NOLINTBEGIN(cert-err58-cpp,performance-unnecessary-copy-initialization) */
 
 const std::array<std::shared_ptr<std::int32_t>, 5> VALUES{
 	std::make_unique<std::int32_t>(0),
@@ -251,6 +251,6 @@ TEST(stellarlib_ecs_stack_vector, should_clear_values)
 	check_values(vector);
 }
 
-/* NOLINTEND(cert-err58-cpp,cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes,performance-unnecessary-copy-initialization) */
+/* NOLINTEND(cert-err58-cpp,performance-unnecessary-copy-initialization) */
 
 #pragma clang diagnostic pop

@@ -40,7 +40,7 @@ using namespace stellarlib::ecs;
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
 #pragma clang diagnostic ignored "-Wself-move"
 
-/* NOLINTBEGIN(cert-err58-cpp,cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes,performance-unnecessary-copy-initialization) */
+/* NOLINTBEGIN(cert-err58-cpp,performance-unnecessary-copy-initialization) */
 
 constexpr std::array<std::size_t, 5> KEYS{2, 1, 0, 3, 4};
 const std::array<std::shared_ptr<std::int32_t>, KEYS.size()> VALUES{
@@ -156,6 +156,6 @@ TEST(stellarlib_ecs_sparse_map, should_clear_pairs)
 	check_pairs(map);
 }
 
-/* NOLINTEND(cert-err58-cpp,cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes,performance-unnecessary-copy-initialization) */
+/* NOLINTEND(cert-err58-cpp,performance-unnecessary-copy-initialization) */
 
 #pragma clang diagnostic pop

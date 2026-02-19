@@ -39,7 +39,7 @@ using namespace stellarlib::ecs;
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
 #pragma clang diagnostic ignored "-Wself-move"
 
-/* NOLINTBEGIN(cert-err58-cpp,cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes,performance-unnecessary-copy-initialization) */
+/* NOLINTBEGIN(cert-err58-cpp,performance-unnecessary-copy-initialization) */
 
 constexpr std::array<std::size_t, 3> ELEMS{
 	std::numeric_limits<std::size_t>::digits * 3 - 1,
@@ -222,6 +222,6 @@ TEST(stellarlib_ecs_bitset, should_clear_elems)
 	}
 }
 
-/* NOLINTEND(cert-err58-cpp,cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes,performance-unnecessary-copy-initialization) */
+/* NOLINTEND(cert-err58-cpp,performance-unnecessary-copy-initialization) */
 
 #pragma clang diagnostic pop

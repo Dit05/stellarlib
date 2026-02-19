@@ -5,5 +5,4 @@
 -Werror
 -Weverything
 -Wno-c++98-compat-pedantic
--Wno-exceptions
 -Wno-unsafe-buffer-usage

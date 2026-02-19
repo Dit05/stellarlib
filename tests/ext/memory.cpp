@@ -40,7 +40,7 @@ using namespace stellarlib;
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
 #pragma clang diagnostic ignored "-Wself-move"
 
-/* NOLINTBEGIN(cert-err58-cpp,cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes,performance-unnecessary-copy-initialization) */
+/* NOLINTBEGIN(cert-err58-cpp,performance-unnecessary-copy-initialization) */
 
 static_assert(std::is_same_v<ext::vector_allocator<std::int32_t>::value_type, std::allocator<std::int32_t>::value_type>);
 static_assert(std::is_same_v<ext::vector_allocator<std::int32_t>::size_type, std::allocator<std::int32_t>::size_type>);
@@ -208,6 +208,6 @@ static_assert(!(ext::vector_allocator<std::int32_t>{} != ext::vector_allocator<s
 static_assert(ext::vector_allocator<std::string>{} == ext::vector_allocator<std::string>{});
 static_assert(!(ext::vector_allocator<std::string>{} != ext::vector_allocator<std::string>{}));
 
-/* NOLINTEND(cert-err58-cpp,cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes,performance-unnecessary-copy-initialization) */
+/* NOLINTEND(cert-err58-cpp,performance-unnecessary-copy-initialization) */
 
 #pragma clang diagnostic pop
