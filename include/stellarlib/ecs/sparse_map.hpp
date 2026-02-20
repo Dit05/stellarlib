@@ -146,7 +146,7 @@ public:
 		_values.pop();
 	}
 
-	constexpr void clear() noexcept
+	constexpr void clear() noexcept final
 	{
 		_sparse.clear();
 		_keys.clear();

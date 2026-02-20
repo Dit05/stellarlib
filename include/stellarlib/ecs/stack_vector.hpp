@@ -25,6 +25,7 @@
 #define STELLARLIB_ECS_STACK_VECTOR_HPP
 
 #include <stellarlib/ext/memory.hpp>
+#include <stellarlib/ext/type_traits.hpp>
 
 #include <cstddef>
 #include <memory>
@@ -127,8 +128,11 @@ public:
 
 		_end = _begin + size;
 
-		if constexpr (!std::is_scalar_v<T> || sizeof...(Args)) {
+		if constexpr (sizeof...(Args)) {
 			std::uninitialized_fill(_begin + _size, _end, T{std::forward<Args>(args)...});
+		}
+		else if constexpr (!std::is_trivially_copy_constructible_v<T> || !ext::is_trivially_relocatable_v<T>) {
+			std::uninitialized_default_construct(_begin + _size, _end);
 		}
 
 		_size = size;

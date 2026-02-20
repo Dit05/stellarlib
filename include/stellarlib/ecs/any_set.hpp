@@ -40,6 +40,8 @@ public:
 
 	virtual constexpr void erase(Key) noexcept = 0;
 
+	virtual constexpr void clear() noexcept = 0;
+
 protected:
 	[[nodiscard]]
 	explicit constexpr any_set() noexcept = default;
