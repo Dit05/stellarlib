@@ -32,28 +32,28 @@ template <typename Key>
 class any_set
 {
 public:
-	virtual ~any_set() noexcept = default;
+	virtual constexpr ~any_set() noexcept = default;
 
 	[[nodiscard]]
-	virtual auto clone() const noexcept
+	virtual constexpr auto clone() const noexcept
 		-> std::unique_ptr<any_set> = 0;
 
-	virtual void erase(Key) noexcept = 0;
+	virtual constexpr void erase(Key) noexcept = 0;
 
 protected:
 	[[nodiscard]]
-	explicit any_set() noexcept = default;
+	explicit constexpr any_set() noexcept = default;
 
 	[[nodiscard]]
-	any_set(const any_set &) noexcept = default;
+	constexpr any_set(const any_set &) noexcept = default;
 
 	[[nodiscard]]
-	any_set(any_set &&) noexcept = default;
+	constexpr any_set(any_set &&) noexcept = default;
 
-	auto operator=(const any_set &) noexcept
+	constexpr auto operator=(const any_set &) noexcept
 		-> any_set & = default;
 
-	auto operator=(any_set &&) noexcept
+	constexpr auto operator=(any_set &&) noexcept
 		-> any_set & = default;
 };
 }

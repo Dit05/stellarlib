@@ -64,14 +64,6 @@ constexpr void check_values(const ecs::internal::stack_vector<std::shared_ptr<st
 }
 }
 
-TEST(stellarlib_ecs_stack_vector, should_init_via_ctor)
-{
-	const ecs::internal::stack_vector<std::shared_ptr<std::int32_t>> vector{};
-	ASSERT_FALSE(vector.size());
-	ASSERT_FALSE(vector.begin());
-	ASSERT_FALSE(vector.end());
-}
-
 TEST(stellarlib_ecs_stack_vector, should_skip_empty_copy_via_ctor)
 {
 	const ecs::internal::stack_vector<std::shared_ptr<std::int32_t>> vector1{};

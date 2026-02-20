@@ -1,26 +1,3 @@
-i/stellarlib.hpp
-s/stellarlib.cpp
-t/stellarlib.cpp
-i/utility.hpp
-t/utility.cpp
-i/functional.hpp
-t/functional.cpp
-i/any_set.hpp
-i/type_traits.hpp
-t/type_traits.cpp
-i/bit.hpp
-t/bit.cpp
-i/memory.hpp
-t/memory.cpp
-i/stack_vector.hpp
-t/stack_vector.hpp
-i/sparse_set.hpp
-t/sparse_set.cpp
-i/sparse_map.hpp
-t/sparse_map.cpp
-
----------------------------
-
 clang format off
 license
 header guard

@@ -40,20 +40,20 @@ using namespace stellarlib;
 
 TEST(stellarlib_ext_functional, truthy)
 {
-	ASSERT_TRUE(ext::truthy(1));
-	ASSERT_FALSE(ext::truthy(0));
 	ASSERT_TRUE(ext::truthy(true));
 	ASSERT_FALSE(ext::truthy(false));
+	ASSERT_TRUE(ext::truthy(1));
+	ASSERT_FALSE(ext::truthy(0));
 	ASSERT_TRUE(ext::truthy("true"));
 	ASSERT_FALSE(ext::truthy(nullptr));
 }
 
 TEST(stellarlib_ext_functional, falsy)
 {
-	ASSERT_TRUE(ext::falsy(0));
-	ASSERT_FALSE(ext::falsy(1));
 	ASSERT_TRUE(ext::falsy(false));
 	ASSERT_FALSE(ext::falsy(true));
+	ASSERT_TRUE(ext::falsy(0));
+	ASSERT_FALSE(ext::falsy(1));
 	ASSERT_TRUE(ext::falsy(nullptr));
 	ASSERT_FALSE(ext::falsy("true"));
 }

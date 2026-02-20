@@ -27,7 +27,6 @@
 #include <stellarlib/ext/memory.hpp>
 
 #include <cstddef>
-#include <ranges>
 
 namespace stellarlib::ecs::internal
 {
@@ -35,7 +34,7 @@ class bitset final : ext::vector_allocator<std::size_t>
 {
 public:
 	[[nodiscard]]
-	explicit bitset() noexcept = default;
+	explicit constexpr bitset() noexcept = default;
 
 	[[nodiscard]]
 	bitset(const bitset &other) noexcept;
@@ -78,10 +77,6 @@ private:
 	std::size_t _capacity{};
 	std::size_t *_begin{};
 	std::size_t *_end{};
-
-	[[nodiscard]]
-	auto segments() const noexcept
-		-> std::ranges::subrange<std::size_t *, std::size_t *>;
 };
 }
 

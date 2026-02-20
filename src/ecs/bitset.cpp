@@ -42,7 +42,7 @@ bitset::bitset(const bitset &other) noexcept
 		_capacity = _size;
 		ext::vector_allocator<std::size_t>::allocate(_begin, _capacity);
 		_end = _begin + _size;
-		std::ranges::copy(other.segments(), _begin);
+		std::copy(other._begin, other._end, _begin);
 	}
 }
 
@@ -70,7 +70,7 @@ auto bitset::operator=(const bitset &other) noexcept
 	}
 
 	_end = _begin + _size;
-	std::ranges::copy(other.segments(), _begin);
+	std::copy(other._begin, other._end, _begin);
 	return *this;
 }
 
@@ -92,41 +92,38 @@ bitset::~bitset() noexcept
 
 void bitset::insert(const std::size_t bit) noexcept
 {
-	const auto index{ext::bit_index(bit)};
-
-	if (index < _size) {
-		_begin[index] |= ext::bit_mask(bit);
+	if (ext::bit_index(bit) < _size) {
+		_begin[ext::bit_index(bit)] |= ext::bit_mask(bit);
 		return;
 	}
 
-	if (_capacity <= index) {
-		_capacity = index + 1;
+	if (_capacity <= ext::bit_index(bit)) {
+		_capacity = ext::bit_index(bit) + 1;
 		ext::vector_allocator<std::size_t>::reallocate(_begin, _capacity);
-		std::fill(_begin + _size, _begin + index, 0);
+		std::fill(_begin + _size, _begin + ext::bit_index(bit), 0);
 	}
 
-	_size = index + 1;
-	_begin[index] = ext::bit_mask(bit);
+	_size = ext::bit_index(bit) + 1;
 	_end = _begin + _size;
+	_begin[ext::bit_index(bit)] = ext::bit_mask(bit);
 }
 
 auto bitset::contains(const std::size_t bit) const noexcept
 	-> bool
 {
-	const auto index{ext::bit_index(bit)};
-	return index < _size && ext::truthy((_begin[index] & ext::bit_mask(bit)));
+	return ext::bit_index(bit) < _size && ext::truthy(_begin[ext::bit_index(bit)] & ext::bit_mask(bit));
 }
 
 auto bitset::operator==(const bitset &other) const noexcept
 	-> bool
 {
-	return std::ranges::equal(other.segments(), segments());
+	return std::equal(_begin, _end, other._begin, other._end);
 }
 
 auto bitset::operator<=(const bitset &other) const noexcept
 	-> bool
 {
-	return _size <= other._size && std::ranges::all_of(std::views::zip(segments(), other.segments()), ext::zip::subset<std::size_t>);
+	return _size <= other._size && std::ranges::all_of(std::views::zip(std::ranges::subrange{_begin, _end}, std::ranges::subrange{other._begin, other._end}), ext::zip::subset<std::size_t>);
 }
 
 auto bitset::operator>=(const bitset &other) const noexcept
@@ -137,33 +134,17 @@ auto bitset::operator>=(const bitset &other) const noexcept
 
 void bitset::erase(const std::size_t bit) noexcept
 {
-	const auto index{ext::bit_index(bit)};
+	_begin[ext::bit_index(bit)] &= ~ext::bit_mask(bit);
 
-	if (_size <= index) {
-		return;
-	}
-
-	_begin[index] &= ~ext::bit_mask(bit);
-
-	if (index != _size - 1) {
-		return;
-	}
-
-	for (; ext::truthy(_size) && ext::falsy(_begin[_size - 1]); --_size) {}
+	for (; ext::falsy(_begin[_size - 1]) && 0 < _size; --_size) {}
 
 	_end = _begin + _size;
 }
 
 void bitset::clear() noexcept
 {
-	std::ranges::fill(segments(), 0);
+	std::fill(_begin, _end, 0);
 	_end = _begin;
 	_size = 0;
-}
-
-auto bitset::segments() const noexcept
-	-> std::ranges::subrange<std::size_t *, std::size_t *>
-{
-	return std::ranges::subrange{_begin, _end};
 }
 }

@@ -58,7 +58,7 @@ public:
 	constexpr ~sparse_map() noexcept final = default;
 
 	[[nodiscard]]
-	auto clone() const noexcept
+	constexpr auto clone() const noexcept
 		-> std::unique_ptr<any_set<Key>> final
 	{
 		if constexpr (std::is_copy_constructible_v<T>) {
@@ -70,7 +70,7 @@ public:
 	}
 
 	template <typename ...Args>
-	void insert(const Key key, Args &&...args) noexcept
+	constexpr void insert(const Key key, Args &&...args) noexcept
 	{
 		if (_sparse.extend(key + 1, static_cast<Key>(-1)) || _sparse[key] == static_cast<Key>(-1)) {
 			_sparse[key] = _keys.size();
@@ -87,49 +87,49 @@ public:
 	}
 
 	[[nodiscard]]
-	auto size() const noexcept
+	constexpr auto size() const noexcept
 	{
 		return _keys.size();
 	}
 
 	[[nodiscard]]
-	auto contains(const Key key) const noexcept
+	constexpr auto contains(const Key key) const noexcept
 	{
 		return key < _sparse.size() && _sparse[key] != static_cast<Key>(-1);
 	}
 
 	[[nodiscard]]
-	auto at(const Key key) const noexcept
+	constexpr auto at(const Key key) const noexcept
 	{
 		return contains(key) ? _values.begin() + _sparse[key] : nullptr;
 	}
 
 	[[nodiscard]]
-	auto operator[](const Key key) const noexcept
+	constexpr auto operator[](const Key key) const noexcept
 		-> T &
 	{
 		return _values[_sparse[key]];
 	}
 
 	[[nodiscard]]
-	auto keys() const noexcept
+	constexpr auto keys() const noexcept
 	{
 		return std::ranges::subrange{static_cast<const Key *>(_keys.begin()), static_cast<const Key *>(_keys.end())};
 	}
 
 	[[nodiscard]]
-	auto values() const noexcept
+	constexpr auto values() const noexcept
 	{
 		return _values | std::views::all;
 	}
 
 	[[nodiscard]]
-	auto zip() const noexcept
+	constexpr auto zip() const noexcept
 	{
 		return std::views::zip(keys(), values());
 	}
 
-	void erase(const Key key) noexcept final
+	constexpr void erase(const Key key) noexcept final
 	{
 		if (!contains(key)) {
 			return;
@@ -146,7 +146,7 @@ public:
 		_values.pop();
 	}
 
-	void clear() noexcept
+	constexpr void clear() noexcept
 	{
 		_sparse.clear();
 		_keys.clear();
