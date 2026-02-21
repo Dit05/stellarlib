@@ -26,10 +26,10 @@
 
 #include <stellarlib/ecs/any_set.hpp>
 #include <stellarlib/ecs/sparse_map.hpp>
-#include <stellarlib/ecs/stack_vector.hpp>
 #include <stellarlib/ext/utility.hpp>
 
 #include <cstdint>
+#include <cstddef>
 #include <memory>
 
 namespace stellarlib::ecs::internal
@@ -51,8 +51,8 @@ public:
 	[[nodiscard]]
 	constexpr sparse_storage(const sparse_storage &other) noexcept
 	{
-		for (const auto &set : other._maps) {
-			_maps.push(set ? set->clone() : nullptr);
+		for (const auto [id, set] : other._maps.zip()) {
+			_maps.insert(id, set->clone());
 		}
 	}
 
@@ -68,8 +68,8 @@ public:
 
 		_maps.clear();
 
-		for (const auto &set : other._maps) {
-			_maps.push(set ? set->clone() : nullptr);
+		for (const auto [id, set] : other._maps.zip()) {
+			_maps.insert(id, set->clone());
 		}
 
 		return *this;
@@ -85,29 +85,30 @@ public:
 	constexpr auto get() noexcept
 		-> sparse_map<std::uint32_t, T> &
 	{
-		if (_maps.extend(id<T>() + 1) || !_maps[id<T>()]) {
-			_maps[id<T>()] = std::make_unique<sparse_map<std::uint32_t, T>>();
+		if (const auto map{_maps.at(id<T>())}) {
+			return static_cast<sparse_map<std::uint32_t, T> &>(**map);
 		}
 
+		_maps.insert(id<T>(), std::make_unique<sparse_map<std::uint32_t, T>>());
 		return static_cast<sparse_map<std::uint32_t, T> &>(*_maps[id<T>()]);
 	}
 
 	constexpr void erase(const std::uint32_t key) const noexcept
 	{
-		for (const auto &map : _maps) {
+		for (const auto &map : _maps.values()) {
 			map->erase(key);
 		}
 	}
 
 	constexpr void clear() const noexcept
 	{
-		for (const auto &map : _maps) {
+		for (const auto &map : _maps.values()) {
 			map->clear();
 		}
 	}
 
 private:
-	stack_vector<std::unique_ptr<any_set<std::uint32_t>>> _maps;
+	sparse_map<std::size_t, std::unique_ptr<any_set<std::uint32_t>>> _maps;
 };
 }
 
