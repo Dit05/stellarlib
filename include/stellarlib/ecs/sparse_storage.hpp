@@ -82,15 +82,23 @@ public:
 
 	template <typename T>
 	[[nodiscard]]
-	constexpr auto get() noexcept
+	constexpr auto at(const std::size_t id = sparse_storage::id<T>()) noexcept
 		-> sparse_map<std::uint32_t, T> &
 	{
-		if (const auto map{_maps.at(id<T>())}) {
+		if (const auto map{_maps.at(id)}) {
 			return static_cast<sparse_map<std::uint32_t, T> &>(**map);
 		}
 
-		_maps.insert(id<T>(), std::make_unique<sparse_map<std::uint32_t, T>>());
-		return static_cast<sparse_map<std::uint32_t, T> &>(*_maps[id<T>()]);
+		_maps.insert(id, std::make_unique<sparse_map<std::uint32_t, T>>());
+		return static_cast<sparse_map<std::uint32_t, T> &>(*_maps.values().back());
+	}
+
+	template <typename T>
+	[[nodiscard]]
+	constexpr auto operator[](const std::size_t id = sparse_storage::id<T>()) const noexcept
+		-> sparse_map<std::uint32_t, T> &
+	{
+		return static_cast<sparse_map<std::uint32_t, T> &>(*_maps[id]);
 	}
 
 	constexpr void erase(const std::uint32_t key) const noexcept
