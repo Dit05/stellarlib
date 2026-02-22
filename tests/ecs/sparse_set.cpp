@@ -48,15 +48,15 @@ TEST(stellarlib_ecs_sparse_set, should_insert_and_erase_keys)
 	ecs::internal::sparse_set<std::uint32_t> set{};
 	for (const auto i : std::views::iota(std::size_t{}, KEYS.size())) {
 		set.insert(KEYS[i]);
-		ASSERT_NE(std::ranges::find(set, KEYS[i]), set.end());
+		ASSERT_EQ(*(set.end() - 1), KEYS[i]);
 		set.erase(KEYS[i / 2]);
 		ASSERT_EQ(std::ranges::find(set, KEYS[i / 2]), set.end());
 		set.insert(KEYS[i / 2]);
-		ASSERT_NE(std::ranges::find(set, KEYS[i / 2]), set.end());
+		ASSERT_EQ(*(set.end() - 1), KEYS[i / 2]);
 		set.erase(KEYS[i]);
 		ASSERT_EQ(std::ranges::find(set, KEYS[i]), set.end());
 		set.insert(KEYS[i]);
-		ASSERT_NE(std::ranges::find(set, KEYS[i]), set.end());
+		ASSERT_EQ(*(set.end() - 1), KEYS[i]);
 	}
 	ASSERT_TRUE(std::ranges::equal(set, KEYS));
 }

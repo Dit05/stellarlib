@@ -58,16 +58,14 @@ public:
 
 	[[nodiscard]]
 	constexpr auto begin() const noexcept
-		-> const T *
 	{
-		return _keys.begin();
+		return static_cast<const T *>(_keys.begin());
 	}
 
 	[[nodiscard]]
 	constexpr auto end() const noexcept
-		-> const T *
 	{
-		return _keys.end();
+		return static_cast<const T *>(_keys.end());
 	}
 
 	constexpr void erase(const T key) noexcept

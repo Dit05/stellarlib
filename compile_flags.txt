@@ -2,5 +2,7 @@
 -O3
 -Werror
 -Weverything
+-Wno-c++20-compat
 -Wno-c++98-compat-pedantic
+-Wno-exceptions
 -Wno-unsafe-buffer-usage
