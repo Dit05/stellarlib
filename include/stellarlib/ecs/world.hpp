@@ -57,7 +57,7 @@ public:
 	constexpr ~world() noexcept = default;
 
 private:
-	internal::sparse_storage<world> _components;
+	internal::sparse_storage _components;
 	internal::stack_vector<std::size_t, std::uint32_t> _entities;
 	internal::stack_vector<std::pair<internal::bitset, internal::sparse_set<std::uint32_t>>> _archetypes;
 	internal::sparse_map<std::size_t, std::pair<internal::bitset, internal::stack_vector<std::size_t>>> _queries;

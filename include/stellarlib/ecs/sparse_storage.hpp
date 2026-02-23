@@ -34,7 +34,6 @@
 
 namespace stellarlib::ecs::internal
 {
-template <typename Scope>
 class sparse_storage final
 {
 public:
@@ -42,38 +41,20 @@ public:
 	[[nodiscard]]
 	static constexpr auto id() noexcept
 	{
-		return ext::scoped_typeid<Scope, T>();
+		return ext::scoped_typeid<sparse_storage, T>();
 	}
 
 	[[nodiscard]]
 	explicit constexpr sparse_storage() noexcept = default;
 
 	[[nodiscard]]
-	constexpr sparse_storage(const sparse_storage &other) noexcept
-	{
-		for (const auto [id, set] : other._maps.zip()) {
-			_maps.insert(id, set->clone());
-		}
-	}
+	sparse_storage(const sparse_storage &other) noexcept;
 
 	[[nodiscard]]
 	constexpr sparse_storage(sparse_storage &&) noexcept = default;
 
-	constexpr auto operator=(const sparse_storage &other) noexcept
-		-> sparse_storage &
-	{
-		if (std::addressof(other) == this) {
-			return *this;
-		}
-
-		_maps.clear();
-
-		for (const auto [id, set] : other._maps.zip()) {
-			_maps.insert(id, set->clone());
-		}
-
-		return *this;
-	}
+	auto operator=(const sparse_storage &other) noexcept
+		-> sparse_storage &;
 
 	constexpr auto operator=(sparse_storage &&) noexcept
 		-> sparse_storage & = default;
@@ -101,19 +82,9 @@ public:
 		return static_cast<sparse_map<std::uint32_t, T> &>(*_maps[id]);
 	}
 
-	constexpr void erase(const std::uint32_t key) const noexcept
-	{
-		for (const auto &map : _maps.values()) {
-			map->erase(key);
-		}
-	}
+	void erase(std::uint32_t key) const noexcept;
 
-	constexpr void clear() const noexcept
-	{
-		for (const auto &map : _maps.values()) {
-			map->clear();
-		}
-	}
+	void clear() const noexcept;
 
 private:
 	sparse_map<std::size_t, std::unique_ptr<any_set<std::uint32_t>>> _maps;
