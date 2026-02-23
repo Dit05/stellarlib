@@ -29,7 +29,6 @@
 #include <stellarlib/ext/utility.hpp>
 
 #include <cstdint>
-#include <cstddef>
 #include <memory>
 
 namespace stellarlib::ecs::internal
@@ -41,7 +40,7 @@ public:
 	[[nodiscard]]
 	static constexpr auto id() noexcept
 	{
-		return ext::scoped_typeid<sparse_storage, T>();
+		return ext::scoped_typeid<sparse_storage, T, std::uint16_t>();
 	}
 
 	[[nodiscard]]
@@ -63,7 +62,7 @@ public:
 
 	template <typename T>
 	[[nodiscard]]
-	constexpr auto at(const std::size_t id = sparse_storage::id<T>()) noexcept
+	constexpr auto at(const std::uint16_t id) noexcept
 		-> sparse_map<std::uint32_t, T> &
 	{
 		if (const auto map{_maps.at(id)}) {
@@ -76,7 +75,7 @@ public:
 
 	template <typename T>
 	[[nodiscard]]
-	constexpr auto operator[](const std::size_t id = sparse_storage::id<T>()) const noexcept
+	constexpr auto operator[](const std::uint16_t id) const noexcept
 		-> sparse_map<std::uint32_t, T> &
 	{
 		return static_cast<sparse_map<std::uint32_t, T> &>(*_maps[id]);
@@ -87,7 +86,7 @@ public:
 	void clear() const noexcept;
 
 private:
-	sparse_map<std::size_t, std::unique_ptr<any_set<std::uint32_t>>> _maps;
+	sparse_map<std::uint16_t, std::unique_ptr<any_set<std::uint32_t>>> _maps;
 };
 }
 

@@ -32,6 +32,7 @@
 #include <stellarlib/ext/utility.hpp>
 
 #include <algorithm>
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <utility>
@@ -43,6 +44,33 @@ namespace stellarlib::ecs
 class world final
 {
 public:
+	template <typename ...T>
+	[[nodiscard]]
+	static constexpr auto ids() noexcept
+		-> const std::array<std::uint16_t, sizeof...(T)> &
+	{
+		static const std::array<std::uint16_t, sizeof...(T)> ids{internal::sparse_storage::id<T>()...};
+		return ids;
+	}
+
+	template <typename ...T>
+	[[nodiscard]]
+	static constexpr auto archetype() noexcept
+		-> const internal::bitset &
+	{
+		static const auto archetype{[] -> const internal::bitset & {
+			bitset.clear();
+			const auto &ids{world::ids<T...>()};
+
+			[ids]<std::size_t ...I>(std::index_sequence<I...>) -> void {
+				(bitset.insert(ids[I]), ...);
+			}(std::index_sequence_for<T...>{});
+
+			return bitset;
+		}()};
+		return archetype;
+	}
+
 	[[nodiscard]]
 	explicit constexpr world() noexcept = default;
 
@@ -70,32 +98,31 @@ public:
 			_queue.pop();
 		}
 
-		_bitset.clear();
+		const auto &ids{world::ids<T...>()};
 
-		([&]() -> void {
-			const auto id{_components.id<T>()};
-			_bitset.insert(id);
-			_components.at<T>(id).insert(entity, std::forward<T>(components));
-		}(), ...);
+		[this, &ids, &entity, &components...]<std::size_t ...I>(std::index_sequence<I...>) -> void {
+			(_components.at<T>(ids[I]).insert(entity, std::forward<T>(components)), ...);
+		}(std::index_sequence_for<T...>{});
 
-		const auto archetype{std::ranges::find_if(_archetypes, [this](const auto &pair) -> bool {
-			return pair.first == _bitset;
+		const auto &archetype{world::archetype<T...>()};
+		const auto it{std::ranges::find_if(_archetypes, [&archetype](const auto &pair) -> bool {
+			return pair.first == archetype;
 		})};
 
-		if (archetype == _archetypes.end()) {
+		if (it == _archetypes.end()) {
 			_entities.insert(entity, _archetypes.size());
-			_archetypes.push(std::pair{_bitset, internal::sparse_set<std::uint32_t>{}});
+			_archetypes.push(std::pair{archetype, internal::sparse_set<std::uint32_t>{}});
 			(_archetypes.end() - 1)->second.insert(entity);
 
 			for (auto &index : _indices) {
-				if (index.first <= (_archetypes.end() - 1)->first) {
+				if (index.first <= archetype) {
 					index.second.push(_archetypes.size() - 1);
 				}
 			}
 		}
 		else {
-			archetype->second.insert(entity);
-			_entities.insert(entity, static_cast<std::size_t>(archetype - _archetypes.begin()));
+			it->second.insert(entity);
+			_entities.insert(entity, static_cast<std::uint16_t>(it - _archetypes.begin()));
 		}
 
 		return entity;
@@ -111,7 +138,7 @@ public:
 	[[nodiscard]]
 	constexpr auto query() noexcept
 	{
-		return _components.at<T>().zip();
+		return _components.at<T>(ids<T>().front()).zip();
 	}
 
 	template <typename ...T>
@@ -119,38 +146,39 @@ public:
 	constexpr auto query() noexcept
 		requires (1 < sizeof...(T))
 	{
-		const auto id{ext::scoped_typeid<world, std::tuple<T...>>()};
+		const auto id{ext::scoped_typeid<world, std::tuple<T...>, std::uint16_t>()};
 
-		if (_queries.extend(id + 1, static_cast<std::size_t>(-1)) || _queries[id] == static_cast<std::size_t>(-1)) {
-			_bitset.clear();
-			(_bitset.insert(_components.id<T>()), ...);
-
-			const auto index{std::ranges::find_if(_indices, [this](const auto &pair) -> bool {
-				return pair.first == _bitset;
+		if (_queries.extend(id + 1, static_cast<std::uint16_t>(-1)) || _queries[id] == static_cast<std::uint16_t>(-1)) {
+			const auto &archetype{world::archetype<T...>()};
+			const auto it{std::ranges::find_if(_indices, [&archetype](const auto &pair) -> bool {
+				return pair.first == archetype;
 			})};
 
-			if (index == _indices.end()) {
+			if (it == _indices.end()) {
 				_queries[id] = _indices.size();
-				_indices.push(std::pair{_bitset, internal::stack_vector<std::size_t>{}});
+				_indices.push(std::pair{archetype, internal::stack_vector<std::uint16_t>{}});
 
-				for (const auto i : std::views::iota(std::size_t{}, _archetypes.size())) {
-					if (_bitset <= _archetypes[i].first) {
+				for (const auto i : std::views::iota(std::uint16_t{}, _archetypes.size())) {
+					if (archetype <= _archetypes[i].first) {
 						(_indices.end() - 1)->second.push(i);
 					}
 				}
 			}
 			else {
-				_queries[id] = static_cast<std::size_t>(index - _indices.begin());
+				_queries[id] = static_cast<std::uint16_t>(it - _indices.begin());
 			}
 		}
 
-		return _indices[_queries[id]].second
-			| std::views::transform([this](const auto index) -> internal::sparse_set<std::uint32_t> & {
+		const auto &ids{world::ids<T...>()};
+		const auto components{[this, &ids]<std::size_t ...I>(std::index_sequence<I...>) -> std::tuple<const internal::sparse_map<std::uint32_t, T> &...> {
+			return {_components.operator[]<T>(ids[I])...};
+		}(std::index_sequence_for<T...>{})};
+		return _indices[_queries[id]].second | std::views::transform([this](const auto index) -> internal::sparse_set<std::uint32_t> & {
 				return _archetypes[index].second;
-			})
-			| std::views::join
-			| std::views::transform([this](const auto entity) -> std::tuple<std::uint32_t, T *...> {
-				return {entity, std::addressof(_components.operator[]<T>()[entity])...};
+			}) | std::views::join | std::views::transform([components](const auto entity) -> std::tuple<std::uint32_t, T &...> {
+				return [&entity, &components]<std::size_t ...I>(std::index_sequence<I...>) -> std::tuple<std::uint32_t, T &...> {
+					return {entity, std::get<I>(components)[entity]...};
+				}(std::index_sequence_for<T...>{});
 			});
 	}
 
@@ -165,13 +193,13 @@ public:
 	}
 
 private:
-	internal::stack_vector<std::uint32_t> _queue;
-	internal::sparse_map<std::uint32_t, std::size_t> _entities;
-	internal::stack_vector<std::pair<internal::bitset, internal::sparse_set<std::uint32_t>>> _archetypes;
+	static thread_local internal::bitset bitset;
+	internal::stack_vector<std::uint32_t, std::uint32_t> _queue;
+	internal::sparse_map<std::uint32_t, std::uint16_t> _entities;
+	internal::stack_vector<std::pair<internal::bitset, internal::sparse_set<std::uint32_t>>, std::uint16_t> _archetypes;
 	internal::sparse_storage _components;
-	internal::stack_vector<std::size_t, std::size_t> _queries;
-	internal::stack_vector<std::pair<internal::bitset, internal::stack_vector<std::size_t>>> _indices;
-	internal::bitset _bitset;
+	internal::stack_vector<std::uint16_t, std::uint16_t> _queries;
+	internal::stack_vector<std::pair<internal::bitset, internal::stack_vector<std::uint16_t>>, std::uint16_t> _indices;
 };
 }
 

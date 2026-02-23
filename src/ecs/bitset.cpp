@@ -28,7 +28,7 @@
 #include <stellarlib/ext/memory.hpp>
 
 #include <algorithm>
-#include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <ranges>
 #include <utility>
@@ -40,7 +40,7 @@ bitset::bitset(const bitset &other) noexcept
 {
 	if (ext::truthy(_size)) {
 		_capacity = _size;
-		ext::vector_allocator<std::size_t>::allocate(_begin, _capacity);
+		ext::vector_allocator<std::uintmax_t>::allocate(_begin, _capacity);
 		_end = _begin + _size;
 		std::copy(other._begin, other._end, _begin);
 	}
@@ -66,7 +66,7 @@ auto bitset::operator=(const bitset &other) noexcept
 
 	if (_capacity < _size) {
 		_capacity = _size;
-		ext::vector_allocator<std::size_t>::reallocate(_begin, _capacity);
+		ext::vector_allocator<std::uintmax_t>::reallocate(_begin, _capacity);
 	}
 
 	_end = _begin + _size;
@@ -87,10 +87,10 @@ auto bitset::operator=(bitset &&other) noexcept
 
 bitset::~bitset() noexcept
 {
-	ext::vector_allocator<std::size_t>::deallocate(_begin);
+	ext::vector_allocator<std::uintmax_t>::deallocate(_begin);
 }
 
-void bitset::insert(const std::size_t bit) noexcept
+void bitset::insert(const std::uintmax_t bit) noexcept
 {
 	if (ext::bit_index(bit) < _size) {
 		_begin[ext::bit_index(bit)] |= ext::bit_mask(bit);
@@ -99,7 +99,7 @@ void bitset::insert(const std::size_t bit) noexcept
 
 	if (_capacity <= ext::bit_index(bit)) {
 		_capacity = ext::bit_index(bit) + 1;
-		ext::vector_allocator<std::size_t>::reallocate(_begin, _capacity);
+		ext::vector_allocator<std::uintmax_t>::reallocate(_begin, _capacity);
 		std::fill(_begin + _size, _begin + ext::bit_index(bit), 0);
 	}
 
@@ -108,7 +108,7 @@ void bitset::insert(const std::size_t bit) noexcept
 	_begin[ext::bit_index(bit)] = ext::bit_mask(bit);
 }
 
-auto bitset::contains(const std::size_t bit) const noexcept
+auto bitset::contains(const std::uintmax_t bit) const noexcept
 	-> bool
 {
 	return ext::bit_index(bit) < _size && ext::truthy(_begin[ext::bit_index(bit)] & ext::bit_mask(bit));
@@ -123,7 +123,7 @@ auto bitset::operator==(const bitset &other) const noexcept
 auto bitset::operator<=(const bitset &other) const noexcept
 	-> bool
 {
-	return _size <= other._size && std::ranges::all_of(std::views::zip(std::ranges::subrange{_begin, _end}, std::ranges::subrange{other._begin, other._end}), ext::zip::subset<std::size_t>);
+	return _size <= other._size && std::ranges::all_of(std::views::zip(std::ranges::subrange{_begin, _end}, std::ranges::subrange{other._begin, other._end}), ext::zip::subset<std::uintmax_t>);
 }
 
 auto bitset::operator>=(const bitset &other) const noexcept
@@ -132,7 +132,7 @@ auto bitset::operator>=(const bitset &other) const noexcept
 	return other <= *this;
 }
 
-void bitset::erase(const std::size_t bit) noexcept
+void bitset::erase(const std::uintmax_t bit) noexcept
 {
 	_begin[ext::bit_index(bit)] &= ~ext::bit_mask(bit);
 

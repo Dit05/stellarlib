@@ -29,7 +29,7 @@
 
 #include <algorithm>
 #include <array>
-#include <cstddef>
+#include <cstdint>
 #include <limits>
 #include <ranges>
 #include <utility>
@@ -44,10 +44,10 @@ using namespace stellarlib;
 
 /* NOLINTBEGIN(cert-err58-cpp,performance-unnecessary-copy-initialization) */
 
-constexpr std::array<std::size_t, 3> BITS{
-	std::numeric_limits<std::size_t>::digits * 3 - 1,
-	std::numeric_limits<std::size_t>::digits - 1,
-	std::numeric_limits<std::size_t>::digits * 2 - 1
+constexpr std::array<std::uintmax_t, 3> BITS{
+	std::numeric_limits<std::uintmax_t>::digits * 3 - 1,
+	std::numeric_limits<std::uintmax_t>::digits - 1,
+	std::numeric_limits<std::uintmax_t>::digits * 2 - 1
 };
 
 static_assert(ext::bit_index(BITS[0]) > ext::bit_index(BITS[1]));
@@ -59,7 +59,7 @@ namespace
 {
 constexpr void check_bits(const ecs::internal::bitset &set)
 {
-	for (const auto bit : std::views::iota(std::size_t{}, std::ranges::max(BITS))) {
+	for (const auto bit : std::views::iota(std::uintmax_t{}, std::ranges::max(BITS))) {
 		ASSERT_EQ(set.contains(bit), std::ranges::find(BITS, bit) != BITS.end());
 	}
 }
@@ -192,7 +192,7 @@ TEST(stellarlib_ecs_bitset, should_evaluate_subset_and_superset)
 TEST(stellarlib_ecs_bitset, should_clear_bits)
 {
 	ecs::internal::bitset set{};
-	for (const auto bit : std::views::iota(std::size_t{}, std::ranges::max(BITS))) {
+	for (const auto bit : std::views::iota(std::uintmax_t{}, std::ranges::max(BITS))) {
 		set.insert(bit);
 	}
 	set.clear();

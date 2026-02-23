@@ -39,21 +39,21 @@ auto main([[maybe_unused]] const std::int32_t argc, [[maybe_unused]] const char 
 	std::puts("--------------------------------------------------------------------------------");
 
 	for (const auto [entity, name, score] : world.query<std::string, std::uint16_t>()) {
-		std::cout << entity << ": { name: " << *name << ", score: " << *score << " }\n";
+		std::cout << entity << ": { name: " << name << ", score: " << score << " }\n";
 	}
 
 	const auto player2{world.spawn(std::uint16_t{5}, std::string{"Player 1"})};
 	std::puts("--------------------------------------------------------------------------------");
 
 	for (const auto [entity, score, name] : world.query<std::uint16_t, std::string>()) {
-		std::cout << entity << ": { name: " << *name << ", score: " << *score << " }\n";
+		std::cout << entity << ": { name: " << name << ", score: " << score << " }\n";
 	}
 
 	const auto player3{world.spawn(std::string{"Player 2"}, std::uint16_t{10})};
 	std::puts("--------------------------------------------------------------------------------");
 
 	for (const auto [entity, name, score] : world.query<std::string, std::uint16_t>()) {
-		std::cout << entity << ": { name: " << *name << ", score: " << *score << " }\n";
+		std::cout << entity << ": { name: " << name << ", score: " << score << " }\n";
 	}
 
 	world.despawn(player3);
