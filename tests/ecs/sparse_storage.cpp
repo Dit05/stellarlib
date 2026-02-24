@@ -50,7 +50,7 @@ TEST(stellarlib_ecs_sparse_storage, should_copy_via_ctor)
 	ecs::internal::sparse_storage storage1{};
 	storage1.at<std::int32_t>(ecs::internal::sparse_storage::id<std::int32_t>()).insert(0, 5);
 	storage1.at<std::int64_t>(ecs::internal::sparse_storage::id<std::int64_t>()).insert(10, 15);
-	auto storage2{storage1};
+	const auto storage2{storage1};
 	ASSERT_EQ(storage2.operator[]<std::int32_t>(ecs::internal::sparse_storage::id<std::int32_t>())[0], 5);
 	ASSERT_EQ(storage2.operator[]<std::int64_t>(ecs::internal::sparse_storage::id<std::int64_t>())[10], 15);
 }
@@ -76,16 +76,7 @@ TEST(stellarlib_ecs_sparse_storage, should_copy_via_assignment)
 	ASSERT_EQ(storage2.operator[]<std::int64_t>(ecs::internal::sparse_storage::id<std::int64_t>())[10], 15);
 }
 
-TEST(stellarlib_ecs_sparse_storage, should)
-{
-	ecs::internal::sparse_storage storage{};
-	storage.at<std::int32_t>(ecs::internal::sparse_storage::id<std::int32_t>()).insert(0, 5);
-	storage.at<std::int64_t>(ecs::internal::sparse_storage::id<std::int64_t>()).insert(10, 15);
-	ASSERT_EQ(storage.operator[]<std::int32_t>(ecs::internal::sparse_storage::id<std::int32_t>())[0], 5);
-	ASSERT_EQ(storage.operator[]<std::int64_t>(ecs::internal::sparse_storage::id<std::int64_t>())[10], 15);
-}
-
-TEST(stellarlib_ecs_sparse_storage, should_erase_keys)
+TEST(stellarlib_ecs_sparse_storage, should_insert_and_erase_pairs)
 {
 	ecs::internal::sparse_storage storage{};
 	storage.at<std::int32_t>(ecs::internal::sparse_storage::id<std::int32_t>()).insert(0, 5);
@@ -99,7 +90,7 @@ TEST(stellarlib_ecs_sparse_storage, should_erase_keys)
 	ASSERT_EQ(storage.operator[]<std::int64_t>(ecs::internal::sparse_storage::id<std::int64_t>())[10], 15);
 }
 
-TEST(stellarlib_ecs_sparse_storage, should_clear_maps)
+TEST(stellarlib_ecs_sparse_storage, should_clear_pairs)
 {
 	ecs::internal::sparse_storage storage{};
 	storage.at<std::int32_t>(ecs::internal::sparse_storage::id<std::int32_t>()).insert(0, 5);

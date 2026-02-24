@@ -173,7 +173,7 @@ public:
 		const auto components{[this, &ids]<std::size_t ...I>(std::index_sequence<I...>) -> std::tuple<const internal::sparse_map<std::uint32_t, T> &...> {
 			return {_components.operator[]<T>(ids[I])...};
 		}(std::index_sequence_for<T...>{})};
-		return _indices[_queries[id]].second | std::views::transform([this](const auto index) -> internal::sparse_set<std::uint32_t> & {
+		return _indices[_queries[id]].second | std::views::transform([this](const auto index) -> const internal::sparse_set<std::uint32_t> & {
 				return _archetypes[index].second;
 			}) | std::views::join | std::views::transform([components](const auto entity) -> std::tuple<std::uint32_t, T &...> {
 				return [&entity, &components]<std::size_t ...I>(std::index_sequence<I...>) -> std::tuple<std::uint32_t, T &...> {
