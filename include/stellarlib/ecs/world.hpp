@@ -129,6 +129,50 @@ public:
 	}
 
 	[[nodiscard]]
+	constexpr auto contains(const uint32_t entity) const noexcept
+	{
+		return _entities.contains(entity);
+	}
+
+	[[nodiscard]]
+	constexpr auto at(const uint32_t entity) const noexcept
+		-> const internal::bitset *
+	{
+		if (const auto index{_entities.at(entity)}) {
+			return std::addressof(_archetypes[*index].first);
+		}
+
+		return nullptr;
+	}
+
+	template <typename ...T>
+	[[nodiscard]]
+	constexpr auto at(const uint32_t entity) noexcept
+	{
+		const auto &ids{world::ids<T...>()};
+		return [&entity, this, &ids]<std::size_t ...I>(std::index_sequence<I...>) -> std::tuple<std::uint32_t, T *...> {
+			return {entity, _components.at<T>(std::get<I>(ids)).at(entity)...};
+		}(std::index_sequence_for<T...>{});
+	}
+
+	[[nodiscard]]
+	constexpr auto operator[](const uint32_t entity) const noexcept
+		-> const internal::bitset &
+	{
+		return _archetypes[_entities[entity]].first;
+	}
+
+	template <typename ...T>
+	[[nodiscard]]
+	constexpr auto operator[](const uint32_t entity) const noexcept
+	{
+		const auto &ids{world::ids<T...>()};
+		return [&entity, this, &ids]<std::size_t ...I>(std::index_sequence<I...>) -> std::tuple<std::uint32_t, T &...> {
+			return {entity, _components.operator[]<T>(std::get<I>(ids))[entity]...};
+		}(std::index_sequence_for<T...>{});
+	}
+
+	[[nodiscard]]
 	constexpr auto query() const noexcept
 	{
 		return _entities.keys();
@@ -189,6 +233,16 @@ public:
 			_archetypes[*index].second.erase(entity);
 			_components.erase(entity);
 			_queue.push(entity);
+		}
+	}
+
+	constexpr auto clear() noexcept {
+		_queue.clear();
+		_entities.clear();
+		_components.clear();
+
+		for (auto &pair : _archetypes) {
+			pair.second.clear();
 		}
 	}
 

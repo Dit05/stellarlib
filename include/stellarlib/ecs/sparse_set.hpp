@@ -78,6 +78,12 @@ public:
 		_keys.pop();
 	}
 
+	constexpr void clear() noexcept
+	{
+		_sparse.clear();
+		_keys.clear();
+	}
+
 private:
 	stack_vector<T, T> _sparse;
 	stack_vector<T, T> _keys;

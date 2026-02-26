@@ -61,6 +61,20 @@ TEST(stellarlib_ecs_sparse_set, should_insert_and_erase_keys)
 	ASSERT_TRUE(std::ranges::equal(set, KEYS));
 }
 
+TEST(stellarlib_ecs_sparse_set, should_clear_keys)
+{
+	ecs::internal::sparse_set<std::uint32_t> set{};
+	for (const auto key : KEYS | std::views::reverse) {
+		set.insert(key);
+	}
+	set.clear();
+	ASSERT_EQ(set.begin(), set.end());
+	for (const auto key : KEYS) {
+		set.insert(key);
+	}
+	ASSERT_TRUE(std::ranges::equal(set, KEYS));
+}
+
 /* NOLINTEND(cert-err58-cpp,performance-unnecessary-copy-initialization) */
 
 #pragma clang diagnostic pop
