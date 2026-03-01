@@ -33,6 +33,7 @@
 
 #include <algorithm>
 #include <array>
+#include <expected>
 #include <cstddef>
 #include <cstdint>
 #include <utility>
@@ -126,6 +127,52 @@ public:
 		}
 
 		return entity;
+	}
+
+	template <typename ...T>
+	[[nodiscard]]
+	constexpr auto insert(const std::uint32_t entity, T &&...components) noexcept
+		-> std::expected<void, std::tuple<T...>>
+	{
+		const auto i{_entities.at(entity)};
+
+		if (!i) {
+			return std::unexpected(std::forward<T>(components)...);
+		}
+
+		const auto &ids{world::ids<T...>()};
+
+		[this, &ids, &entity, &components...]<std::size_t ...I>(std::index_sequence<I...>) -> void {
+			(_components.at<T>(ids[I]).insert(entity, std::forward<T>(components)), ...);
+		}(std::index_sequence_for<T...>{});
+
+		const auto &extension{archetype<T...>()};
+		bitset = _archetypes[*i].first;
+		bitset.insert(extension);
+
+		const auto it{std::ranges::find_if(_archetypes, [](const auto &pair) -> bool {
+			return pair.first == bitset;
+		})};
+
+		if (it == _archetypes.end()) {
+			_archetypes[*i].second.erase(entity);
+			_entities[entity] = _archetypes.size();
+			_archetypes.push(std::pair{bitset, internal::sparse_set<std::uint32_t>{}});
+			(_archetypes.end() - 1)->second.insert(entity);
+
+			for (auto &index : _indices) {
+				if (index.first <= bitset) {
+					index.second.push(_archetypes.size() - 1);
+				}
+			}
+		}
+		else {
+			_archetypes[*i].second.erase(entity);
+			_entities[entity] = static_cast<std::uint16_t>(it - _archetypes.begin());
+			it->second.insert(entity);
+		}
+
+		return {};
 	}
 
 	[[nodiscard]]
@@ -230,6 +277,48 @@ public:
 					return {entity, std::get<I>(components)[entity]...};
 				}(std::index_sequence_for<T...>{});
 			});
+	}
+
+	template <typename ...T>
+	constexpr void erase(const std::uint32_t entity) noexcept
+	{
+		const auto i{_entities.at(entity)};
+
+		if (!i) {
+			return;
+		}
+
+		const auto &ids{world::ids<T...>()};
+
+		[this, &ids, &entity]<std::size_t ...I>(std::index_sequence<I...>) -> void {
+			(_components.at<T>(ids[I]).erase(entity), ...);
+		}(std::index_sequence_for<T...>{});
+
+		const auto &extension{archetype<T...>()};
+		bitset = _archetypes[*i].first;
+		bitset.erase(extension);
+
+		const auto it{std::ranges::find_if(_archetypes, [](const auto &pair) -> bool {
+			return pair.first == bitset;
+		})};
+
+		if (it == _archetypes.end()) {
+			_archetypes[*i].second.erase(entity);
+			_entities[entity] = _archetypes.size();
+			_archetypes.push(std::pair{bitset, internal::sparse_set<std::uint32_t>{}});
+			(_archetypes.end() - 1)->second.insert(entity);
+
+			for (auto &index : _indices) {
+				if (index.first <= bitset) {
+					index.second.push(_archetypes.size() - 1);
+				}
+			}
+		}
+		else {
+			_archetypes[*i].second.erase(entity);
+			_entities[entity] = static_cast<std::uint16_t>(it - _archetypes.begin());
+			it->second.insert(entity);
+		}
 	}
 
 	constexpr auto despawn(const std::uint32_t entity) noexcept
