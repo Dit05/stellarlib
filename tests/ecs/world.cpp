@@ -61,10 +61,10 @@ constexpr void check_entities(ecs::world &world) noexcept
 {
 	for (const auto [entity, archetype] : world.query()) {
 		ASSERT_TRUE(world.contains(entity));
-		ASSERT_EQ(archetype, (ecs::world::archetype<std::int32_t, std::string>)());
-		ASSERT_EQ(archetype, (ecs::world::archetype<std::string, std::int32_t>)());
-		ASSERT_EQ(*world.at(entity), (ecs::world::archetype<std::int32_t, std::string>)());
-		ASSERT_EQ(*world.at(entity), (ecs::world::archetype<std::string, std::int32_t>)());
+		ASSERT_EQ(archetype, (ecs::world::get_archetype<std::int32_t, std::string>)());
+		ASSERT_EQ(archetype, (ecs::world::get_archetype<std::string, std::int32_t>)());
+		ASSERT_EQ(*world.at(entity), (ecs::world::get_archetype<std::int32_t, std::string>)());
+		ASSERT_EQ(*world.at(entity), (ecs::world::get_archetype<std::string, std::int32_t>)());
 		ASSERT_TRUE(std::get<0>(world.at<std::int32_t>(entity)));
 		ASSERT_EQ(*std::get<0>(world.at<std::int32_t>(entity)), get_number(entity));
 		ASSERT_TRUE(std::get<0>(world.at<std::string>(entity)));
@@ -77,8 +77,8 @@ constexpr void check_entities(ecs::world &world) noexcept
 		ASSERT_EQ(*std::get<0>(world.at<std::string, std::int32_t>(entity)), get_string(entity));
 		ASSERT_TRUE(std::get<1>(world.at<std::string, std::int32_t>(entity)));
 		ASSERT_EQ(*std::get<1>(world.at<std::string, std::int32_t>(entity)), get_number(entity));
-		ASSERT_EQ(world[entity], (ecs::world::archetype<std::int32_t, std::string>)());
-		ASSERT_EQ(world[entity], (ecs::world::archetype<std::string, std::int32_t>)());
+		ASSERT_EQ(world[entity], (ecs::world::get_archetype<std::int32_t, std::string>)());
+		ASSERT_EQ(world[entity], (ecs::world::get_archetype<std::string, std::int32_t>)());
 		ASSERT_EQ(world.operator[]<std::int32_t>(entity), std::tuple{get_number(entity)});
 		ASSERT_EQ(world.operator[]<std::string>(entity), std::tuple{get_string(entity)});
 		ASSERT_EQ((world.operator[]<std::int32_t, std::string>)(entity), (std::tuple{get_number(entity), get_string(entity)}));

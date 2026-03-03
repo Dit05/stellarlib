@@ -24,7 +24,7 @@
 #ifndef STELLARLIB_ECS_WORLD_HPP
 #define STELLARLIB_ECS_WORLD_HPP
 
-#include <stellarlib/ecs/bitset.hpp>
+#include <stellarlib/ecs/archetype.hpp>
 #include <stellarlib/ecs/sparse_map.hpp>
 #include <stellarlib/ecs/sparse_set.hpp>
 #include <stellarlib/ecs/sparse_storage.hpp>
@@ -56,10 +56,10 @@ public:
 
 	template <typename ...T>
 	[[nodiscard]]
-	static constexpr auto archetype() noexcept
-		-> const internal::bitset &
+	static constexpr auto get_archetype() noexcept
+		-> const archetype &
 	{
-		static const auto archetype{[] -> const internal::bitset & {
+		static const auto cache{[] -> const archetype & {
 			bitset.clear();
 			const auto &ids{world::ids<T...>()};
 
@@ -69,7 +69,7 @@ public:
 
 			return bitset;
 		}()};
-		return archetype;
+		return cache;
 	}
 
 	[[nodiscard]]
@@ -105,7 +105,7 @@ public:
 			(_components.at<T>(ids[I]).insert(entity, std::forward<T>(components)), ...);
 		}(std::index_sequence_for<T...>{});
 
-		const auto &archetype{world::archetype<T...>()};
+		const auto &archetype{get_archetype<T...>()};
 		const auto it{std::ranges::find_if(_archetypes, [&archetype](const auto &pair) -> bool {
 			return pair.first == archetype;
 		})};
@@ -146,7 +146,7 @@ public:
 			(_components.at<T>(ids[I]).insert(entity, std::forward<T>(components)), ...);
 		}(std::index_sequence_for<T...>{});
 
-		const auto &extension{archetype<T...>()};
+		const auto &extension{get_archetype<T...>()};
 		bitset = _archetypes[*i].first;
 		bitset.insert(extension);
 
@@ -183,7 +183,7 @@ public:
 
 	[[nodiscard]]
 	constexpr auto at(const std::uint32_t entity) const noexcept
-		-> const internal::bitset *
+		-> const archetype *
 	{
 		if (const auto index{_entities.at(entity)}) {
 			return std::addressof(_archetypes[*index].first);
@@ -205,7 +205,7 @@ public:
 
 	[[nodiscard]]
 	constexpr auto operator[](const std::uint32_t entity) const noexcept
-		-> const internal::bitset &
+		-> const archetype &
 	{
 		return _archetypes[_entities[entity]].first;
 	}
@@ -225,7 +225,7 @@ public:
 	constexpr auto query() const noexcept
 	{
 		return _archetypes | std::views::transform([](const auto &pair) -> auto {
-				return pair.second | std::views::transform([&pair](const auto entity) -> std::tuple<std::uint32_t, const internal::bitset &> {
+				return pair.second | std::views::transform([&pair](const auto entity) -> std::tuple<std::uint32_t, const archetype &> {
 					return {entity, pair.first};
 				});
 			}) | std::views::join;
@@ -246,7 +246,7 @@ public:
 		const auto id{ext::scoped_typeid<world, std::tuple<T...>, std::uint16_t>()};
 
 		if (_queries.extend(id + 1, static_cast<std::uint16_t>(-1)) || _queries[id] == static_cast<std::uint16_t>(-1)) {
-			const auto &archetype{world::archetype<T...>()};
+			const auto &archetype{get_archetype<T...>()};
 			const auto it{std::ranges::find_if(_indices, [&archetype](const auto &pair) -> bool {
 				return pair.first == archetype;
 			})};
@@ -294,7 +294,7 @@ public:
 			(_components.at<T>(ids[I]).erase(entity), ...);
 		}(std::index_sequence_for<T...>{});
 
-		const auto &extension{archetype<T...>()};
+		const auto &extension{get_archetype<T...>()};
 		bitset = _archetypes[*i].first;
 		bitset.erase(extension);
 
@@ -342,13 +342,13 @@ public:
 	}
 
 private:
-	static thread_local internal::bitset bitset;
+	static thread_local archetype bitset;
 	internal::stack_vector<std::uint32_t, std::uint32_t> _queue;
 	internal::sparse_map<std::uint32_t, std::uint16_t> _entities;
-	internal::stack_vector<std::pair<internal::bitset, internal::sparse_set<std::uint32_t>>, std::uint16_t> _archetypes;
+	internal::stack_vector<std::pair<archetype, internal::sparse_set<std::uint32_t>>, std::uint16_t> _archetypes;
 	internal::sparse_storage _components;
 	internal::stack_vector<std::uint16_t, std::uint16_t> _queries;
-	internal::stack_vector<std::pair<internal::bitset, internal::stack_vector<std::uint16_t>>, std::uint16_t> _indices;
+	internal::stack_vector<std::pair<archetype, internal::stack_vector<std::uint16_t>>, std::uint16_t> _indices;
 };
 }
 

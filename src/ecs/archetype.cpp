@@ -21,7 +21,7 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <stellarlib/ecs/bitset.hpp>
+#include <stellarlib/ecs/archetype.hpp>
 
 #include <stellarlib/ext/bit.hpp>
 #include <stellarlib/ext/functional.hpp>
@@ -35,7 +35,7 @@
 
 namespace stellarlib::ecs
 {
-bitset::bitset(const bitset &other) noexcept
+archetype::archetype(const archetype &other) noexcept
 	: _size{other._size}
 {
 	if (ext::truthy(_size)) {
@@ -46,7 +46,7 @@ bitset::bitset(const bitset &other) noexcept
 	}
 }
 
-bitset::bitset(bitset &&other) noexcept
+archetype::archetype(archetype &&other) noexcept
 	: _size{other._size}
 	, _capacity{other._capacity}
 	, _begin{other._begin}
@@ -55,8 +55,8 @@ bitset::bitset(bitset &&other) noexcept
 	other._begin = nullptr;
 }
 
-auto bitset::operator=(const bitset &other) noexcept
-	-> bitset &
+auto archetype::operator=(const archetype &other) noexcept
+	-> archetype &
 {
 	if (std::addressof(other) == this) {
 		return *this;
@@ -74,8 +74,8 @@ auto bitset::operator=(const bitset &other) noexcept
 	return *this;
 }
 
-auto bitset::operator=(bitset &&other) noexcept
-	-> bitset &
+auto archetype::operator=(archetype &&other) noexcept
+	-> archetype &
 {
 	if (std::addressof(other) != this) {
 		std::destroy_at(this);
@@ -85,12 +85,12 @@ auto bitset::operator=(bitset &&other) noexcept
 	return *this;
 }
 
-bitset::~bitset() noexcept
+archetype::~archetype() noexcept
 {
 	ext::vector_allocator<std::uintmax_t>::deallocate(_begin);
 }
 
-void bitset::insert(const std::uintmax_t bit) noexcept
+void archetype::insert(const std::uintmax_t bit) noexcept
 {
 	if (ext::bit_index(bit) < _size) {
 		_begin[ext::bit_index(bit)] |= ext::bit_mask(bit);
@@ -108,7 +108,7 @@ void bitset::insert(const std::uintmax_t bit) noexcept
 	_begin[ext::bit_index(bit)] = ext::bit_mask(bit);
 }
 
-void bitset::insert(const bitset &other) noexcept
+void archetype::insert(const archetype &other) noexcept
 {
 	for (const auto [lhs, rhs] : std::views::zip(std::ranges::subrange{_begin, _end}, std::ranges::subrange{other._begin, other._end})) {
 		lhs |= rhs;
@@ -125,31 +125,31 @@ void bitset::insert(const bitset &other) noexcept
 	}
 }
 
-auto bitset::contains(const std::uintmax_t bit) const noexcept
+auto archetype::contains(const std::uintmax_t bit) const noexcept
 	-> bool
 {
 	return ext::bit_index(bit) < _size && ext::truthy(_begin[ext::bit_index(bit)] & ext::bit_mask(bit));
 }
 
-auto bitset::operator==(const bitset &other) const noexcept
+auto archetype::operator==(const archetype &other) const noexcept
 	-> bool
 {
 	return std::equal(_begin, _end, other._begin, other._end);
 }
 
-auto bitset::operator<=(const bitset &other) const noexcept
+auto archetype::operator<=(const archetype &other) const noexcept
 	-> bool
 {
 	return _size <= other._size && std::ranges::all_of(std::views::zip(std::ranges::subrange{_begin, _end}, std::ranges::subrange{other._begin, other._end}), ext::zip::subset<std::uintmax_t>);
 }
 
-auto bitset::operator>=(const bitset &other) const noexcept
+auto archetype::operator>=(const archetype &other) const noexcept
 	-> bool
 {
 	return other <= *this;
 }
 
-void bitset::erase(const std::uintmax_t bit) noexcept
+void archetype::erase(const std::uintmax_t bit) noexcept
 {
 	if (_size <= ext::bit_index(bit)) {
 		return;
@@ -166,7 +166,7 @@ void bitset::erase(const std::uintmax_t bit) noexcept
 	_end = _begin + _size;
 }
 
-void bitset::erase(const bitset &other) noexcept
+void archetype::erase(const archetype &other) noexcept
 {
 	for (const auto [lhs, rhs] : std::views::zip(std::ranges::subrange{_begin, _end}, std::ranges::subrange{other._begin, other._end})) {
 		lhs &= ~rhs;
@@ -179,7 +179,7 @@ void bitset::erase(const bitset &other) noexcept
 	_end = _begin + _size;
 }
 
-void bitset::clear() noexcept
+void archetype::clear() noexcept
 {
 	std::fill(_begin, _end, 0);
 	_end = _begin;

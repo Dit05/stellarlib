@@ -23,9 +23,9 @@
 
 #include <stellarlib/ecs/world.hpp>
 
-#include <stellarlib/ecs/bitset.hpp>
+#include <stellarlib/ecs/archetype.hpp>
 
 namespace stellarlib::ecs
 {
-thread_local internal::bitset world::bitset{};
+thread_local archetype world::bitset{};
 }

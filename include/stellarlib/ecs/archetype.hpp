@@ -21,8 +21,8 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef STELLARLIB_ECS_BITSET_HPP
-#define STELLARLIB_ECS_BITSET_HPP
+#ifndef STELLARLIB_ECS_ARCHETYPE_HPP
+#define STELLARLIB_ECS_ARCHETYPE_HPP
 
 #include <stellarlib/ext/memory.hpp>
 
@@ -30,49 +30,49 @@
 
 namespace stellarlib::ecs
 {
-class bitset final : ext::vector_allocator<std::uintmax_t>
+class archetype final : ext::vector_allocator<std::uintmax_t>
 {
 public:
 	[[nodiscard]]
-	explicit constexpr bitset() noexcept = default;
+	explicit constexpr archetype() noexcept = default;
 
 	[[nodiscard]]
-	bitset(const bitset &other) noexcept;
+	archetype(const archetype &other) noexcept;
 
 	[[nodiscard]]
-	bitset(bitset &&other) noexcept;
+	archetype(archetype &&other) noexcept;
 
-	auto operator=(const bitset &other) noexcept
-		-> bitset &;
+	auto operator=(const archetype &other) noexcept
+		-> archetype &;
 
-	auto operator=(bitset &&other) noexcept
-		-> bitset &;
+	auto operator=(archetype &&other) noexcept
+		-> archetype &;
 
-	~bitset() noexcept;
+	~archetype() noexcept;
 
 	void insert(std::uintmax_t bit) noexcept;
 
-	void insert(const bitset &other) noexcept;
+	void insert(const archetype &other) noexcept;
 
 	[[nodiscard]]
 	auto contains(std::uintmax_t bit) const noexcept
 		-> bool;
 
 	[[nodiscard]]
-	auto operator==(const bitset &other) const noexcept
+	auto operator==(const archetype &other) const noexcept
 		-> bool;
 
 	[[nodiscard]]
-	auto operator<=(const bitset &other) const noexcept
+	auto operator<=(const archetype &other) const noexcept
 		-> bool;
 
 	[[nodiscard]]
-	auto operator>=(const bitset &other) const noexcept
+	auto operator>=(const archetype &other) const noexcept
 		-> bool;
 
 	void erase(std::uintmax_t bit) noexcept;
 
-	void erase(const bitset &other) noexcept;
+	void erase(const archetype &other) noexcept;
 
 	void clear() noexcept;
 
