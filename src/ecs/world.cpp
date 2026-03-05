@@ -25,7 +25,54 @@
 
 #include <stellarlib/ecs/archetype.hpp>
 
+#include <cstdint>
+#include <memory>
+
 namespace stellarlib::ecs
 {
-thread_local archetype world::bitset{};
+auto world::contains(const std::uint32_t entity) const noexcept
+	-> bool
+{
+	return _entities.contains(entity);
+}
+
+auto world::at(const std::uint32_t entity) const noexcept
+	-> const archetype *
+{
+	if (const auto id{_entities.at(entity)}) {
+		return std::addressof(_archetypes[*id].first);
+	}
+
+	return nullptr;
+}
+
+auto world::operator[](const std::uint32_t entity) const noexcept
+	-> const archetype &
+{
+	return _archetypes[_entities[entity]].first;
+}
+
+void world::despawn(const std::uint32_t entity) noexcept
+{
+	if (const auto id{_entities.at(entity)}) {
+		_entities.erase(entity);
+		_archetypes[*id].second.erase(entity);
+		_components.erase(entity);
+		_queue.push(entity);
+	}
+}
+
+void world::clear() noexcept
+{
+	_queue.clear();
+	_entities.clear();
+
+	for (auto &pair : _archetypes) {
+		pair.second.clear();
+	}
+
+	_components.clear();
+}
+
+thread_local archetype world::cache{};
 }

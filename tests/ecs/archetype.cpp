@@ -77,9 +77,9 @@ TEST(stellarlib_ecs_archetype, should_cache_archetype)
 {
 	static_cast<void>(ecs::internal::sparse_storage::ids<foo, bar, baz>());
 	ASSERT_EQ(std::addressof(ecs::archetype::of<foo, baz>()), std::addressof(ecs::archetype::of<foo, baz>()));
-	ASSERT_TRUE((ecs::archetype::of<foo, baz>)().contains(ecs::internal::sparse_storage::id<foo>()));
-	ASSERT_FALSE((ecs::archetype::of<foo, baz>)().contains(ecs::internal::sparse_storage::id<bar>()));
-	ASSERT_TRUE((ecs::archetype::of<foo, baz>)().contains(ecs::internal::sparse_storage::id<baz>()));
+	ASSERT_TRUE((ecs::archetype::of<foo, baz>)().contains(ecs::internal::sparse_storage::ids<foo>().front()));
+	ASSERT_FALSE((ecs::archetype::of<foo, baz>)().contains(ecs::internal::sparse_storage::ids<bar>().front()));
+	ASSERT_TRUE((ecs::archetype::of<foo, baz>)().contains(ecs::internal::sparse_storage::ids<baz>().front()));
 }
 
 TEST(stellarlib_ecs_archetype, should_copy_via_ctor)

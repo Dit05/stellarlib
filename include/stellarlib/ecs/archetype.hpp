@@ -29,6 +29,7 @@
 #include <stellarlib/ext/memory.hpp>
 
 #include <cstdint>
+#include <type_traits>
 
 namespace stellarlib::ecs
 {
@@ -38,20 +39,25 @@ public:
 	template <typename ...T>
 	[[nodiscard]]
 	static constexpr auto of() noexcept
-		-> const archetype &
+		-> std::conditional_t<0 < sizeof...(T), const archetype &, archetype>
 	{
-		static const auto cache{[] -> archetype {
-			archetype archetype{};
+		if constexpr (0 < sizeof...(T)) {
+			static const auto cache{[] -> archetype {
+				archetype archetype{};
 
-			for (const auto id : internal::sparse_storage::ids<T...>()) {
-				archetype.insert(ext::bit_index(id), ext::bit_mask(id));
-			}
+				for (const auto id : internal::sparse_storage::ids<T...>()) {
+					archetype.insert(ext::bit_index(id), ext::bit_mask(id));
+				}
 
-			archetype._end = archetype._begin + archetype._size;
-			return archetype;
-		}()};
+				archetype._end = archetype._begin + archetype._size;
+				return archetype;
+			}()};
 
-		return cache;
+			return cache;
+		}
+		else {
+			return archetype{};
+		}
 	}
 
 	[[nodiscard]]

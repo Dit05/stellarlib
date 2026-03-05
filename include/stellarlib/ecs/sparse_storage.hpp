@@ -31,26 +31,25 @@
 #include <array>
 #include <cstdint>
 #include <memory>
+#include <type_traits>
 
 namespace stellarlib::ecs::internal
 {
 class sparse_storage final
 {
 public:
-	template <typename T>
-	[[nodiscard]]
-	static constexpr auto id() noexcept
-	{
-		return ext::scoped_typeid<sparse_storage, T, std::uint16_t>();
-	}
-
 	template <typename ...T>
 	[[nodiscard]]
 	static constexpr auto ids() noexcept
-		-> const std::array<std::uint16_t, sizeof...(T)> &
+		-> std::conditional_t<1 < sizeof...(T), const std::array<std::uint16_t, sizeof...(T)> &, std::array<std::uint16_t, sizeof...(T)>>
 	{
-		static const std::array<std::uint16_t, sizeof...(T)> ids{id<T>()...};
-		return ids;
+		if constexpr (1 < sizeof...(T)) {
+			static const std::array<std::uint16_t, sizeof...(T)> cache{ext::scoped_typeid<sparse_storage, T, std::uint16_t>()...};
+			return cache;
+		}
+		else {
+			return {ext::scoped_typeid<sparse_storage, T, std::uint16_t>()...};
+		}
 	}
 
 	[[nodiscard]]
