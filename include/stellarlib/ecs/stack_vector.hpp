@@ -55,14 +55,11 @@ public:
 
 	[[nodiscard]]
 	constexpr stack_vector(stack_vector &&other) noexcept
-		: _size{other._size}
-		, _capacity{other._capacity}
-		, _begin{other._begin}
-		, _end{other._end}
-	{
-		other._begin = nullptr;
-		other._end = nullptr;
-	}
+		: _size{std::exchange(other._size, {})}
+		, _capacity{std::exchange(other._capacity, {})}
+		, _begin{std::exchange(other._begin, {})}
+		, _end{std::exchange(other._end, {})}
+	{}
 
 	constexpr auto operator=(const stack_vector &other) noexcept
 		-> stack_vector &

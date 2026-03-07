@@ -26,6 +26,7 @@
 
 #include <stellarlib/ext/functional.hpp>
 
+#include <algorithm>
 #include <cstdint>
 #include <iterator>
 #include <ranges>
@@ -111,6 +112,142 @@ constexpr void check_entities(ecs::world &world) noexcept
 		ASSERT_EQ(string, get_string(entity));
 		ASSERT_EQ(number, get_number(entity));
 	}
+}
+
+constexpr void check_despawned_entity(ecs::world &world, std::uint32_t entity) noexcept
+{
+	ASSERT_FALSE(world.contains(entity));
+	ASSERT_FALSE(std::get<0>(world.contains<std::int32_t>(entity)));
+	ASSERT_FALSE(std::get<0>(world.contains<std::string>(entity)));
+	ASSERT_FALSE(std::get<0>(world.contains<std::int32_t, std::string>(entity)));
+	ASSERT_FALSE(std::get<1>(world.contains<std::int32_t, std::string>(entity)));
+	ASSERT_FALSE(std::get<0>(world.contains<std::string, std::int32_t>(entity)));
+	ASSERT_FALSE(std::get<1>(world.contains<std::string, std::int32_t>(entity)));
+	ASSERT_FALSE(world.at(entity));
+	ASSERT_FALSE(std::get<0>(world.at<std::int32_t>(entity)));
+	ASSERT_FALSE(std::get<0>(world.at<std::string>(entity)));
+	ASSERT_FALSE(std::get<0>(world.at<std::int32_t, std::string>(entity)));
+	ASSERT_FALSE(std::get<1>(world.at<std::int32_t, std::string>(entity)));
+	ASSERT_FALSE(std::get<0>(world.at<std::string, std::int32_t>(entity)));
+	ASSERT_FALSE(std::get<1>(world.at<std::string, std::int32_t>(entity)));
+}
+
+constexpr void check_entity_without_components(ecs::world &world, std::uint32_t entity) noexcept
+{
+	ASSERT_TRUE(world.contains(entity));
+	ASSERT_FALSE(std::get<0>(world.contains<std::int32_t>(entity)));
+	ASSERT_FALSE(std::get<0>(world.contains<std::string>(entity)));
+	ASSERT_FALSE(std::get<0>(world.contains<std::int32_t, std::string>(entity)));
+	ASSERT_FALSE(std::get<1>(world.contains<std::int32_t, std::string>(entity)));
+	ASSERT_FALSE(std::get<0>(world.contains<std::string, std::int32_t>(entity)));
+	ASSERT_FALSE(std::get<1>(world.contains<std::string, std::int32_t>(entity)));
+	ASSERT_TRUE(world.at(entity));
+	ASSERT_EQ(*world.at(entity), ecs::archetype::of());
+	ASSERT_FALSE(std::get<0>(world.at<std::int32_t>(entity)));
+	ASSERT_FALSE(std::get<0>(world.at<std::string>(entity)));
+	ASSERT_FALSE(std::get<0>(world.at<std::int32_t, std::string>(entity)));
+	ASSERT_FALSE(std::get<1>(world.at<std::int32_t, std::string>(entity)));
+	ASSERT_FALSE(std::get<0>(world.at<std::string, std::int32_t>(entity)));
+	ASSERT_FALSE(std::get<1>(world.at<std::string, std::int32_t>(entity)));
+	ASSERT_EQ(world[entity], ecs::archetype::of());
+}
+
+constexpr void check_entity_with_number_only(ecs::world &world, std::uint32_t entity) noexcept
+{
+	ASSERT_TRUE(world.contains(entity));
+	ASSERT_TRUE(std::get<0>(world.contains<std::int32_t>(entity)));
+	ASSERT_FALSE(std::get<0>(world.contains<std::string>(entity)));
+	ASSERT_TRUE(std::get<0>(world.contains<std::int32_t, std::string>(entity)));
+	ASSERT_FALSE(std::get<1>(world.contains<std::int32_t, std::string>(entity)));
+	ASSERT_FALSE(std::get<0>(world.contains<std::string, std::int32_t>(entity)));
+	ASSERT_TRUE(std::get<1>(world.contains<std::string, std::int32_t>(entity)));
+	ASSERT_TRUE(world.at(entity));
+	ASSERT_EQ(*world.at(entity), ecs::archetype::of<std::int32_t>());
+	ASSERT_TRUE(std::get<0>(world.at<std::int32_t>(entity)));
+	ASSERT_EQ(*std::get<0>(world.at<std::int32_t>(entity)), get_number(entity));
+	ASSERT_FALSE(std::get<0>(world.at<std::string>(entity)));
+	ASSERT_TRUE(std::get<0>(world.at<std::int32_t, std::string>(entity)));
+	ASSERT_EQ(*std::get<0>(world.at<std::int32_t, std::string>(entity)), get_number(entity));
+	ASSERT_FALSE(std::get<1>(world.at<std::int32_t, std::string>(entity)));
+	ASSERT_FALSE(std::get<0>(world.at<std::string, std::int32_t>(entity)));
+	ASSERT_TRUE(std::get<1>(world.at<std::string, std::int32_t>(entity)));
+	ASSERT_EQ(*std::get<1>(world.at<std::string, std::int32_t>(entity)), get_number(entity));
+	ASSERT_EQ(world[entity], ecs::archetype::of<std::int32_t>());
+	ASSERT_EQ(std::get<0>(world.operator[]<std::int32_t>(entity)), get_number(entity));
+	ASSERT_NE(std::ranges::find(world.query<std::int32_t>(), std::tuple{entity, get_number(entity)}), world.query<std::int32_t>().end());
+	ASSERT_EQ(std::ranges::find(world.query<std::string>(), std::tuple{entity, get_string(entity)}), world.query<std::string>().end());
+	auto query1{world.query<std::int32_t, std::string>()};
+	ASSERT_EQ(std::ranges::find(query1, std::tuple{entity, get_number(entity), get_string(entity)}), query1.end());
+	auto query2{world.query<std::string, std::int32_t>()};
+	ASSERT_EQ(std::ranges::find(query2, std::tuple{entity, get_string(entity), get_number(entity)}), query2.end());
+}
+
+constexpr void check_entity_with_string_only(ecs::world &world, std::uint32_t entity) noexcept
+{
+	ASSERT_TRUE(world.contains(entity));
+	ASSERT_FALSE(std::get<0>(world.contains<std::int32_t>(entity)));
+	ASSERT_TRUE(std::get<0>(world.contains<std::string>(entity)));
+	ASSERT_FALSE(std::get<0>(world.contains<std::int32_t, std::string>(entity)));
+	ASSERT_TRUE(std::get<1>(world.contains<std::int32_t, std::string>(entity)));
+	ASSERT_TRUE(std::get<0>(world.contains<std::string, std::int32_t>(entity)));
+	ASSERT_FALSE(std::get<1>(world.contains<std::string, std::int32_t>(entity)));
+	ASSERT_TRUE(world.at(entity));
+	ASSERT_EQ(*world.at(entity), ecs::archetype::of<std::string>());
+	ASSERT_FALSE(std::get<0>(world.at<std::int32_t>(entity)));
+	ASSERT_TRUE(std::get<0>(world.at<std::string>(entity)));
+	ASSERT_EQ(*std::get<0>(world.at<std::string>(entity)), get_string(entity));
+	ASSERT_FALSE(std::get<0>(world.at<std::int32_t, std::string>(entity)));
+	ASSERT_TRUE(std::get<1>(world.at<std::int32_t, std::string>(entity)));
+	ASSERT_EQ(*std::get<1>(world.at<std::int32_t, std::string>(entity)), get_string(entity));
+	ASSERT_TRUE(std::get<0>(world.at<std::string, std::int32_t>(entity)));
+	ASSERT_EQ(*std::get<0>(world.at<std::string, std::int32_t>(entity)), get_string(entity));
+	ASSERT_FALSE(std::get<1>(world.at<std::string, std::int32_t>(entity)));
+	ASSERT_EQ(world[entity], ecs::archetype::of<std::string>());
+	ASSERT_EQ(std::get<0>(world.operator[]<std::string>(entity)), get_string(entity));
+	ASSERT_EQ(std::ranges::find(world.query<std::int32_t>(), std::tuple{entity, get_number(entity)}), world.query<std::int32_t>().end());
+	ASSERT_NE(std::ranges::find(world.query<std::string>(), std::tuple{entity, get_string(entity)}), world.query<std::string>().end());
+	auto query1{world.query<std::int32_t, std::string>()};
+	ASSERT_EQ(std::ranges::find(query1, std::tuple{entity, get_number(entity), get_string(entity)}), query1.end());
+	auto query2{world.query<std::string, std::int32_t>()};
+	ASSERT_EQ(std::ranges::find(query2, std::tuple{entity, get_string(entity), get_number(entity)}), query2.end());
+}
+
+constexpr void check_entity_with_components(ecs::world &world, std::uint32_t entity) noexcept
+{
+	ASSERT_TRUE(world.contains(entity));
+	ASSERT_TRUE(std::get<0>(world.contains<std::int32_t>(entity)));
+	ASSERT_TRUE(std::get<0>(world.contains<std::string>(entity)));
+	ASSERT_TRUE(std::get<0>(world.contains<std::int32_t, std::string>(entity)));
+	ASSERT_TRUE(std::get<1>(world.contains<std::int32_t, std::string>(entity)));
+	ASSERT_TRUE(std::get<0>(world.contains<std::string, std::int32_t>(entity)));
+	ASSERT_TRUE(std::get<1>(world.contains<std::string, std::int32_t>(entity)));
+	ASSERT_TRUE(world.at(entity));
+	ASSERT_EQ(*world.at(entity), (ecs::archetype::of<std::int32_t, std::string>)());
+	ASSERT_EQ(*world.at(entity), (ecs::archetype::of<std::string, std::int32_t>)());
+	ASSERT_TRUE(std::get<0>(world.at<std::int32_t>(entity)));
+	ASSERT_EQ(*std::get<0>(world.at<std::int32_t>(entity)), get_number(entity));
+	ASSERT_TRUE(std::get<0>(world.at<std::string>(entity)));
+	ASSERT_EQ(*std::get<0>(world.at<std::string>(entity)), get_string(entity));
+	ASSERT_TRUE(std::get<0>(world.at<std::int32_t, std::string>(entity)));
+	ASSERT_EQ(*std::get<0>(world.at<std::int32_t, std::string>(entity)), get_number(entity));
+	ASSERT_TRUE(std::get<1>(world.at<std::int32_t, std::string>(entity)));
+	ASSERT_EQ(*std::get<1>(world.at<std::int32_t, std::string>(entity)), get_string(entity));
+	ASSERT_TRUE(std::get<0>(world.at<std::string, std::int32_t>(entity)));
+	ASSERT_EQ(*std::get<0>(world.at<std::string, std::int32_t>(entity)), get_string(entity));
+	ASSERT_TRUE(std::get<1>(world.at<std::string, std::int32_t>(entity)));
+	ASSERT_EQ(*std::get<1>(world.at<std::string, std::int32_t>(entity)), get_number(entity));
+	ASSERT_EQ(world[entity], (ecs::archetype::of<std::int32_t, std::string>)());
+	ASSERT_EQ(world[entity], (ecs::archetype::of<std::string, std::int32_t>)());
+	ASSERT_EQ(world.operator[]<std::int32_t>(entity), std::tuple{get_number(entity)});
+	ASSERT_EQ(world.operator[]<std::string>(entity), std::tuple{get_string(entity)});
+	ASSERT_EQ((world.operator[]<std::int32_t, std::string>)(entity), (std::tuple{get_number(entity), get_string(entity)}));
+	ASSERT_EQ((world.operator[]<std::string, std::int32_t>)(entity), (std::tuple{get_string(entity), get_number(entity)}));
+	ASSERT_NE(std::ranges::find(world.query<std::int32_t>(), std::tuple{entity, get_number(entity)}), world.query<std::int32_t>().end());
+	ASSERT_NE(std::ranges::find(world.query<std::string>(), std::tuple{entity, get_string(entity)}), world.query<std::string>().end());
+	auto query1{world.query<std::int32_t, std::string>()};
+	ASSERT_NE(std::ranges::find(query1, std::tuple{entity, get_number(entity), get_string(entity)}), query1.end());
+	auto query2{world.query<std::string, std::int32_t>()};
+	ASSERT_NE(std::ranges::find(query2, std::tuple{entity, get_string(entity), get_number(entity)}), query2.end());
 }
 }
 
@@ -219,20 +356,8 @@ TEST(stellarlib_ecs_world, should_spawn_and_despawn_entities)
 		ASSERT_EQ(std::ranges::distance(world.query()), i + 1);
 		check_entities(world);
 		world.despawn(i);
-		ASSERT_FALSE(world.contains(i));
-		ASSERT_FALSE(std::get<0>(world.contains<std::int32_t>(i)));
-		ASSERT_FALSE(std::get<0>(world.contains<std::string>(i)));
-		ASSERT_FALSE(std::get<0>(world.contains<std::int32_t, std::string>(i)));
-		ASSERT_FALSE(std::get<1>(world.contains<std::int32_t, std::string>(i)));
-		ASSERT_FALSE(std::get<0>(world.contains<std::string, std::int32_t>(i)));
-		ASSERT_FALSE(std::get<1>(world.contains<std::string, std::int32_t>(i)));
-		ASSERT_FALSE(world.at(i));
-		ASSERT_FALSE(std::get<0>(world.at<std::int32_t>(i)));
-		ASSERT_FALSE(std::get<0>(world.at<std::string>(i)));
-		ASSERT_FALSE(std::get<0>(world.at<std::int32_t, std::string>(i)));
-		ASSERT_FALSE(std::get<1>(world.at<std::int32_t, std::string>(i)));
-		ASSERT_FALSE(std::get<0>(world.at<std::string, std::int32_t>(i)));
-		ASSERT_FALSE(std::get<1>(world.at<std::string, std::int32_t>(i)));
+		world.despawn(i);
+		check_despawned_entity(world, i);
 		ASSERT_EQ(std::ranges::distance(world.query()), i);
 		check_entities(world);
 		if (ext::truthy(i % 2)) {
@@ -263,22 +388,54 @@ TEST(stellarlib_ecs_world, should_reuse_entities)
 TEST(stellarlib_ecs_world, should_insert_and_erase_components)
 {
 	ecs::world world{};
+	ASSERT_EQ(world.insert(0, get_number(0)).error(), std::tuple{get_number(0)});
+	ASSERT_EQ(world.insert(0, get_string(0)).error(), std::tuple{get_string(0)});
+	ASSERT_EQ(world.insert(0, get_number(0), get_string(0)).error(), (std::tuple{get_number(0), get_string(0)}));
+	ASSERT_EQ(world.insert(0, get_string(0), get_number(0)).error(), (std::tuple{get_string(0), get_number(0)}));
 	for (const auto i : std::views::iota(std::uint32_t{}, std::uint32_t{10})) {
 		if (ext::truthy(i % 2)) {
-			const auto entity{world.spawn(get_number(i))};
-			*world.insert(entity, get_string(i));
-			world.erase<std::string, std::int32_t>(entity);
-			*world.insert(entity, get_number(i), get_string(i));
+			world.spawn(get_number(i));
+			check_entity_with_number_only(world, i);
+			*world.insert(i, get_string(i));
+			*world.insert(i, get_string(i));
+			check_entity_with_components(world, i);
+			world.erase<std::string, std::int32_t>(i);
+			world.erase<std::string, std::int32_t>(i);
+			check_entity_without_components(world, i);
+			*world.insert(i, get_number(i), get_string(i));
+			*world.insert(i, get_number(i), get_string(i));
+			check_entity_with_components(world, i);
 		}
 		else {
-			const auto entity{world.spawn()};
-			*world.insert(entity, get_string(i), get_number(i));
-			world.erase<std::int32_t>(entity);
-			world.erase<std::string>(entity);
-			*world.insert(entity, get_string(i), get_number(i));
+			world.spawn();
+			check_entity_without_components(world, i);
+			*world.insert(i, get_string(i), get_number(i));
+			*world.insert(i, get_string(i), get_number(i));
+			check_entity_with_components(world, i);
+			world.erase<std::int32_t>(i);
+			world.erase<std::int32_t>(i);
+			check_entity_with_string_only(world, i);
+			world.erase<std::string>(i);
+			world.erase<std::string>(i);
+			check_entity_without_components(world, i);
+			*world.insert(i, get_string(i), get_number(i));
+			*world.insert(i, get_string(i), get_number(i));
+			check_entity_with_components(world, i);
 		}
 	}
 	check_entities(world);
+}
+
+TEST(stellarlib_ecs_world, should_modify_components)
+{
+	ecs::world world{};
+	const auto entity{world.spawn(std::int32_t{})};
+	++*std::get<0>(world.at<std::int32_t>(entity));
+	++std::get<0>(world.operator[]<std::int32_t>(entity));
+	++std::get<1>(*world.query<std::int32_t>().begin());
+	ASSERT_EQ(*std::get<0>(world.at<std::int32_t>(entity)), 3);
+	ASSERT_EQ(std::get<0>(world.operator[]<std::int32_t>(entity)), 3);
+	ASSERT_EQ(std::get<1>(*world.query<std::int32_t>().begin()), 3);
 }
 
 TEST(stellarlib_ecs_world, should_clear_entities)
@@ -294,20 +451,7 @@ TEST(stellarlib_ecs_world, should_clear_entities)
 	}
 	world.clear();
 	for (const auto i : std::views::iota(std::uint32_t{}, std::uint32_t{10})) {
-		ASSERT_FALSE(world.contains(i));
-		ASSERT_FALSE(std::get<0>(world.contains<std::int32_t>(i)));
-		ASSERT_FALSE(std::get<0>(world.contains<std::string>(i)));
-		ASSERT_FALSE(std::get<0>(world.contains<std::int32_t, std::string>(i)));
-		ASSERT_FALSE(std::get<1>(world.contains<std::int32_t, std::string>(i)));
-		ASSERT_FALSE(std::get<0>(world.contains<std::string, std::int32_t>(i)));
-		ASSERT_FALSE(std::get<1>(world.contains<std::string, std::int32_t>(i)));
-		ASSERT_FALSE(world.at(i));
-		ASSERT_FALSE(std::get<0>(world.at<std::int32_t>(i)));
-		ASSERT_FALSE(std::get<0>(world.at<std::string>(i)));
-		ASSERT_FALSE(std::get<0>(world.at<std::int32_t, std::string>(i)));
-		ASSERT_FALSE(std::get<1>(world.at<std::int32_t, std::string>(i)));
-		ASSERT_FALSE(std::get<0>(world.at<std::string, std::int32_t>(i)));
-		ASSERT_FALSE(std::get<1>(world.at<std::string, std::int32_t>(i)));
+		check_despawned_entity(world, i);
 	}
 	ASSERT_FALSE(std::ranges::distance(world.query()));
 	ASSERT_FALSE(std::ranges::distance(world.query<std::uint32_t>()));
