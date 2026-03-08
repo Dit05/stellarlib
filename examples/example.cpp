@@ -35,43 +35,40 @@ auto main([[maybe_unused]] const std::int32_t argc, [[maybe_unused]] const char 
 {
 	stellarlib::hello_world();
 	stellarlib::ecs::world world{};
-	const auto player0{world.spawn(std::string{"Player 0"}, std::uint16_t{0})};
+	world.spawn(std::string{"Player 0"}, std::uint8_t{0});
 	std::puts("--------------------------------------------------------------------------------");
 
-	for (const auto [entity, name, score] : world.query<std::string, std::uint16_t>()) {
-		std::cout << entity << ": { name: " << name << ", score: " << score << " }\n";
+	for (const auto [entity, name, score] : world.query<std::string, std::uint8_t>()) {
+		std::cout << entity << ": { name: " << name << ", score: " << static_cast<std::uint16_t>(score) << " }\n";
 	}
 
-	const auto player1{world.spawn(std::uint16_t{5}, std::string{"Player 1"})};
+	const auto player1{world.spawn(std::uint8_t{5}, std::string{"Player 1"})};
 	std::puts("--------------------------------------------------------------------------------");
 
-	for (const auto [entity, score, name] : world.query<std::uint16_t, std::string>()) {
-		std::cout << entity << ": { name: " << name << ", score: " << score << " }\n";
+	for (const auto [entity, score, name] : world.query<std::uint8_t, std::string>()) {
+		std::cout << entity << ": { name: " << name << ", score: " << static_cast<std::uint16_t>(score) << " }\n";
 	}
 
 	world.erase<std::string>(player1);
 	std::puts("--------------------------------------------------------------------------------");
 
-	for (const auto [entity, score, name] : world.query<std::uint16_t, std::string>()) {
-		std::cout << entity << ": { name: " << name << ", score: " << score << " }\n";
+	for (const auto [entity, name, score] : world.query<std::string, std::uint8_t>()) {
+		std::cout << entity << ": { name: " << name << ", score: " << static_cast<std::uint16_t>(score) << " }\n";
 	}
 
 	*world.insert(player1, std::string{"Player 1"});
 	std::puts("--------------------------------------------------------------------------------");
 
-	for (const auto [entity, score, name] : world.query<std::uint16_t, std::string>()) {
-		std::cout << entity << ": { name: " << name << ", score: " << score << " }\n";
+	for (const auto [entity, score, name] : world.query<std::uint8_t, std::string>()) {
+		std::cout << entity << ": { name: " << name << ", score: " << static_cast<std::uint16_t>(score) << " }\n";
 	}
 
-	const auto player2{world.spawn(std::string{"Player 2"}, std::uint16_t{10})};
+	world.spawn(std::string{"Player 2"}, std::uint8_t{10});
 	std::puts("--------------------------------------------------------------------------------");
 
-	for (const auto [entity, name, score] : world.query<std::string, std::uint16_t>()) {
-		std::cout << entity << ": { name: " << name << ", score: " << score << " }\n";
+	for (const auto [entity, name, score] : world.query<std::string, std::uint8_t>()) {
+		std::cout << entity << ": { name: " << name << ", score: " << static_cast<std::uint16_t>(score) << " }\n";
 	}
 
-	world.despawn(player2);
-	world.despawn(player1);
-	world.despawn(player0);
 	return EXIT_SUCCESS;
 }
