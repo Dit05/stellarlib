@@ -90,7 +90,7 @@ public:
 		const auto it{_entities.at(entity)};
 
 		if (!it) {
-			return std::unexpected(std::make_tuple(std::forward<T>(components)...));
+			return std::unexpected(std::tuple{std::forward<T>(components)...});
 		}
 
 		[&]<std::size_t ...I>(std::index_sequence<I...>) -> void {
